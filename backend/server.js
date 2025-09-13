@@ -7,12 +7,21 @@
  */
 
 const express = require('express'); // Express-Framework importieren
+const cors = require('cors');           // CORS-Middleware importieren
+// 2. dotenv FRÜH laden (damit andere Module .env nutzen können)
+require('dotenv').config();             // Umgebungsvariablen aus .env laden
 const routes = require('./routes'); // Routen importieren
+// Wir erstellen eine neue Express-Anwendung, mit der wir einen Webserver bauen können.
+const app = express(); 
+// Wir legen fest, auf welchem Port der Server laufen soll.
+// Entweder nehmen wir den Port aus den Umgebungsvariablen (z.B. wenn der Server online läuft),
+// oder wir nehmen Port 3000 als Standard, falls nichts anderes angegeben ist.
+const PORT = process.env.PORT || 3000; 
 
-const app = express(); // Express-App erstellen
-const PORT = 3000; // Port festlegen
+
 
 app.use(express.json()); // Middleware für JSON-Parsing aktivieren
+app.use(cors()); // CORS aktivieren
 app.use('/', routes); // Routen unter dem Wurzelpfad verwenden
 
 // Server starten und auf Fehler prüfen
