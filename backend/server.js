@@ -6,6 +6,7 @@
  * - Hört auf eingehende HTTP-Anfragen
  */
 
+//ERST IMPORTIEREN
 const express = require('express'); // Express-Framework importieren
 const cors = require('cors');           // CORS-Middleware importieren
 // 2. dotenv FRÜH laden (damit andere Module .env nutzen können)
@@ -19,7 +20,7 @@ const app = express();
 const PORT = process.env.PORT || 3000; 
 
 
-
+//DANN BENUTZEN / AKTIVIEREN
 app.use(express.json()); // Middleware für JSON-Parsing aktivieren
 app.use(cors()); // CORS aktivieren
 app.use('/', routes); // Routen unter dem Wurzelpfad verwenden
