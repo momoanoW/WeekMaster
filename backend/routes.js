@@ -23,10 +23,21 @@ router.get('/', async (req, res) => {
     res.send({ message: "Hello FIW!" });
 });
 
-// NEU: Route um alle users aus der DB zu holen
+//GET Route um alle Users aus der DB zu holen
 router.get('/users', async (req, res) => {
     try {
-        const result = await client.query('SELECT * FROM users');
+        const result = await client.query('SELECT * FROM Users');
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Database error' });
+    }
+});
+
+//GET Route um alle Aufgaben aus der DB zu holen
+router.get('/aufgaben', async (req, res) => {
+    try {
+        const result = await client.query('SELECT * FROM Aufgaben');
         res.json(result.rows);
     } catch (err) {
         console.error(err);
