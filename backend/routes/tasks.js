@@ -135,8 +135,47 @@ router.get('/tag/:tagId', async (req, res) => {
     }
 });
 
-// TODO: CRUD-Operationen werden später hinzugefügt:
 // POST /tasks - Neue Aufgabe erstellen
+router.post('/', async (req, res) => {
+    try {                                                               // try-catch für Fehlerbehandlung
+        const { beschreibung, frist, vorlaufzeit_tage, users_id, prio_id, status_id } = req.body;  // Destructuring: Nimm diese Eigenschaften aus dem req.body Objekt und erstelle Variablen mit den gleichen Namen
+        
+        // Input-Validierung: Pflichtfelder prüfen
+        if (!beschreibung || !beschreibung.trim()) {                   // Prüft auf null/undefined UND leeren String (trim() entfernt Leerzeichen am Anfang/Ende)
+            return res.status(400).json({ error: 'Beschreibung ist erforderlich' });  // HTTP 400 Bad Request mit Fehlermeldung
+        }
+        if (!users_id) {                                               // Prüft ob users_id vorhanden ist
+            return res.status(400).json({ error: 'User ID ist erforderlich' });
+        }
+        if (!prio_id) {                                                // Prüft ob prio_id vorhanden ist
+            return res.status(400).json({ error: 'Priorität ist erforderlich' });
+        }
+        if (!status_id) {                                              // Prüft ob status_id vorhanden ist
+            return res.status(400).json({ error: 'Status ist erforderlich' });
+        }
+        
+        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+            INSERT INTO Aufgaben (                                     -- INSERT INTO für neue Datenzeile
+                beschreibung, 
+                frist, 
+                vorlaufzeit_tage, 
+                users_id, 
+                prio_id, 
+                status_id,
+                kontrolliert
+            ) VALUES ($1, $2, $3, $4, $5, $6, false)                   -- SICHERHEIT: Parameterized Query verhindert SQL-Injection, kontrolliert standardmäßig false
+            RETURNING *                                                 -- RETURNING * gibt die eingefügte Zeile mit allen Feldern zurück (inkl. Auto-ID)
+        `, [beschreibung, frist, vorlaufzeit_tage, users_id, prio_id, status_id]);  // SICHERHEIT: Array mit Parametern werden sicher für $1-$6 eingesetzt
+        
+        res.status(201).json(result.rows[0]);                          // HTTP 201 Created + die neue Aufgabe als JSON (rows[0] = erste/einzige Zeile)
+    } catch (err) {                                                     // Fängt alle DB-Fehler ab
+        console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole  
+        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+    }
+});    
+
+
+
 // PUT /tasks/:id - Aufgabe bearbeiten  
 // PATCH /tasks/:id/status - Status ändern
 // DELETE /tasks/:id - Aufgabe löschen
