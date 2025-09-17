@@ -37,7 +37,7 @@ router.get('/stats', async (req, res) => {
         res.json(stats);                                                // Alle Dashboard-Statistiken als JSON
     } catch (err) {                                                     // Fängt DB-Fehler ab
         console.error(err);                                             // Loggt Fehler in Server-Konsole
-        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 mit Fehlermeldung
+        res.status(500).json({ error: 'Datenbankfehler' });             // Sendet HTTP 500 mit Fehlermeldung
     }
 });
 
@@ -65,7 +65,7 @@ router.get('/recent', async (req, res) => {
         res.json(result.rows);                                          // Recent Activities als JSON
     } catch (err) {                                                     // Fängt DB-Fehler ab
         console.error(err);                                             // Loggt Fehler in Server-Konsole
-        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 mit Fehlermeldung
+        res.status(500).json({ error: 'Datenbankfehler' });             // Sendet HTTP 500 mit Fehlermeldung
     }
 });
 
@@ -92,7 +92,7 @@ router.get('/priorities', async (req, res) => {
         res.json(result.rows);                                          // Prioritäten-Verteilung als JSON
     } catch (err) {                                                     // Fängt DB-Fehler ab
         console.error(err);                                             // Loggt Fehler in Server-Konsole
-        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 mit Fehlermeldung
+        res.status(500).json({ error: 'Datenbankfehler' });             // Sendet HTTP 500 mit Fehlermeldung
     }
 });
 

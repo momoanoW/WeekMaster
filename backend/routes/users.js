@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
         res.json(result.rows);                                          // Alle Users als JSON
     } catch (err) {                                                     // Fängt DB-Fehler ab
         console.error(err);                                             // Loggt Fehler in Server-Konsole
-        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 mit Fehlermeldung
+        res.status(500).json({ error: 'Datenbankfehler' });             // Sendet HTTP 500 mit Fehlermeldung
     }
 });
 

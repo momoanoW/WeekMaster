@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
             LEFT JOIN Users u ON a.users_id = u.users_id                -- LEFT JOIN: auch Aufgaben ohne User anzeigen
             LEFT JOIN Prioritaet p ON a.prio_id = p.prio_id             -- LEFT JOIN: auch ohne Priorität
             LEFT JOIN Status s ON a.status_id = s.status_id             -- LEFT JOIN: auch ohne Status
-            LEFT JOIN aufgaben_tags at ON a.aufgaben_id = at.aufgaben_id -- LEFT JOIN: Many-to-Many Verknüpfung
+            LEFT JOIN aufgaben_tags at ON a.aufgaben_id = at.aufgaben_id -- LEFT JOIN: N:N Verknüpfung
             LEFT JOIN Tags t ON at.tag_id = t.tag_id                    -- LEFT JOIN: auch Aufgaben ohne Tags
             GROUP BY                                                     -- GROUP BY nötig wegen STRING_AGG
                 a.aufgaben_id, a.beschreibung, a.frist, a.vorlaufzeit_tage, a.kontrolliert,
@@ -37,7 +37,7 @@ router.get('/', async (req, res) => {
         res.json(result.rows);                                          // Sendet nur die Datenzeilen als JSON
     } catch (err) {                                                     // Fängt DB-Fehler ab
         console.error(err);                                             // Loggt Fehler in Server-Konsole
-        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 mit Fehlermeldung
+        res.status(500).json({ error: 'Datenbankfehler' });             // Sendet HTTP 500 mit Fehlermeldung
     }
 });
 
@@ -68,7 +68,7 @@ router.get('/urgent', async (req, res) => {
         res.json(result.rows);                                          // Sendet nur Datenzeilen als JSON-Response
     } catch (err) {                                                     // Fängt alle DB-Fehler ab
         console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
-        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+        res.status(500).json({ error: 'Datenbankfehler' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
     }
 });
 
@@ -84,8 +84,8 @@ router.get('/user/:userId', async (req, res) => {
                 a.kontrolliert,
                 p.prio_name,
                 s.status_name,
-                COUNT(CASE WHEN s.status_name = 'Erledigt' THEN 1 END) OVER() as erledigte_gesamt,  -- Window Function: zählt erledigte Aufgaben über alle Zeilen
-                COUNT(*) OVER() as aufgaben_gesamt                      -- Window Function: zählt alle Aufgaben des Users
+                COUNT(CASE WHEN s.status_name = 'Erledigt' THEN 1 END) OVER() as erledigte_gesamt,  -- Fensterfunktion: Zeigt bei jeder Aufgabe die Gesamtzahl aller erledigten Aufgaben mit an
+                COUNT(*) OVER() as aufgaben_gesamt                      -- Fensterfunktion: Zeigt bei jeder Aufgabe die Gesamtzahl aller Aufgaben mit an
             FROM Aufgaben a                                             -- Haupttabelle
             JOIN Users u ON a.users_id = u.users_id                    -- INNER JOIN: nur Aufgaben mit User
             JOIN Prioritaet p ON a.prio_id = p.prio_id                 -- INNER JOIN: nur mit Priorität
@@ -102,7 +102,7 @@ router.get('/user/:userId', async (req, res) => {
         res.json(result.rows);                                          // Sendet nur Datenzeilen als JSON-Response
     } catch (err) {                                                     // Fängt alle DB-Fehler ab
         console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
-        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+        res.status(500).json({ error: 'Datenbankfehler' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
     }
 });
 
@@ -120,7 +120,7 @@ router.get('/tag/:tagId', async (req, res) => {
                 s.status_name,
                 t.tag_name
             FROM Aufgaben a                                             -- Haupttabelle
-            JOIN aufgaben_tags at ON a.aufgaben_id = at.aufgaben_id    -- INNER JOIN: über Junction Table für Many-to-Many
+            JOIN aufgaben_tags at ON a.aufgaben_id = at.aufgaben_id    -- INNER JOIN: über Verknüpfungstabelle für N:N
             JOIN Tags t ON at.tag_id = t.tag_id                        -- INNER JOIN: für Tag-Details
             JOIN Users u ON a.users_id = u.users_id                    -- INNER JOIN: für User-Details
             JOIN Prioritaet p ON a.prio_id = p.prio_id                 -- INNER JOIN: für Prioritäts-Details
@@ -131,7 +131,7 @@ router.get('/tag/:tagId', async (req, res) => {
         res.json(result.rows);                                          // Sendet alle Datenzeilen als JSON-Response
     } catch (err) {                                                     // Fängt alle DB-Fehler ab
         console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
-        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+        res.status(500).json({ error: 'Datenbankfehler' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
     }
 });
 
@@ -170,7 +170,7 @@ router.post('/', async (req, res) => {
         res.status(201).json(result.rows[0]);                          // HTTP 201 Created + die neue Aufgabe als JSON (rows[0] = erste/einzige Zeile)
     } catch (err) {                                                     // Fängt alle DB-Fehler ab
         console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole  
-        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+        res.status(500).json({ error: 'Datenbankfehler' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
     }
 });    
 
@@ -215,7 +215,7 @@ router.put('/:id', async (req, res) => {
         res.status(200).json(result.rows[0]);                          // HTTP 200 OK + die aktualisierte Aufgabe als JSON
     } catch (err) {                                                     // Fängt alle DB-Fehler ab
         console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
-        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+        res.status(500).json({ error: 'Datenbankfehler' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
     }
 });
 
@@ -244,7 +244,7 @@ router.patch('/:id/status', async (req, res) => {
         res.status(200).json(result.rows[0]);                          // HTTP 200 OK + die aktualisierte Aufgabe als JSON
     } catch (err) {                                                     // Fängt alle DB-Fehler ab
         console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
-        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+        res.status(500).json({ error: 'Datenbankfehler' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
     }
 });
 
@@ -274,7 +274,7 @@ router.delete('/:id', async (req, res) => {
         });
     } catch (err) {                                                     // Fängt alle DB-Fehler ab
         console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
-        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+        res.status(500).json({ error: 'Datenbankfehler' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
     }
 });
 

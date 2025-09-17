@@ -29,7 +29,7 @@ router.get('/', async (req, res) => {
         res.json(result.rows);                                          // Sendet alle Tag-Daten als JSON
     } catch (err) {                                                     // Fängt DB-Fehler ab
         console.error(err);                                             // Loggt Fehler in Server-Konsole
-        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 mit Fehlermeldung
+        res.status(500).json({ error: 'Datenbankfehler' });             // Sendet HTTP 500 mit Fehlermeldung
     }
 });
 
@@ -62,7 +62,7 @@ router.get('/search', async (req, res) => {
         res.json(result.rows);                                          // Suchergebnisse als JSON
     } catch (err) {                                                     
         console.error(err);                                             
-        res.status(500).json({ error: 'Database error' });             
+        res.status(500).json({ error: 'Datenbankfehler' });             
     }
 });
 
@@ -91,7 +91,7 @@ router.get('/autocomplete', async (req, res) => {
         res.json(result.rows);                                          // Autocomplete-Vorschläge als JSON
     } catch (err) {                                                     
         console.error(err);                                             
-        res.status(500).json({ error: 'Database error' });             
+        res.status(500).json({ error: 'Datenbankfehler' });             
     }
 });
 
@@ -124,7 +124,7 @@ router.post('/', async (req, res) => {
         res.status(201).json(result.rows[0]);                          // HTTP 201 Created + der neue Tag als JSON (rows[0] = erste/einzige Zeile)
     } catch (err) {                                                     // Fängt alle DB-Fehler ab
         console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
-        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+        res.status(500).json({ error: 'Datenbankfehler' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
     }
 });
 
@@ -163,7 +163,7 @@ router.put('/:id', async (req, res) => {
         res.status(200).json(result.rows[0]);                          // HTTP 200 OK + der aktualisierte Tag als JSON
     } catch (err) {                                                     // Fängt alle DB-Fehler ab
         console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
-        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+        res.status(500).json({ error: 'Datenbankfehler' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
     }
 });
 
@@ -178,7 +178,7 @@ router.delete('/:id', async (req, res) => {
         }
         
         // Prüfen ob Tag in Aufgaben verwendet wird (Referential Integrity)
-        const usageCheck = await client.query(`                        // Prüft ob Tag in Junction-Table verwendet wird
+        const usageCheck = await client.query(`                        // Prüft ob Tag in Verknüpfungstabelle verwendet wird
             SELECT COUNT(*) as count FROM aufgaben_tags 
             WHERE tag_id = $1                                           -- Zählt Verknüpfungen mit diesem Tag
         `, [id]);
@@ -207,7 +207,7 @@ router.delete('/:id', async (req, res) => {
         });
     } catch (err) {                                                     // Fängt alle DB-Fehler ab
         console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
-        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+        res.status(500).json({ error: 'Datenbankfehler' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
     }
 });
 
