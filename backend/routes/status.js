@@ -4,7 +4,7 @@
 
 const express = require('express');
 const router = express.Router();
-const client = require('../db');
+const pool = require('../db');
 
 // GET /status - Alle Status für Dropdown-Menüs abrufen
 // Gibt eine Liste aller Status zurück, sortiert nach ID
@@ -14,12 +14,12 @@ router.get('/', async (req, res) => {
         // ORDER BY status_id sorgt für konsistente Reihenfolge
         const query = `
             SELECT status_id, status_name 
-            FROM status 
+            FROM Status 
             ORDER BY status_id ASC
         `;
         
         // Datenbankabfrage ausführen
-        const result = await client.query(query);
+        const result = await pool.query(query);
         
         // Erfolgreich: JSON-Array mit Status zurückgeben
         res.json(result.rows);
