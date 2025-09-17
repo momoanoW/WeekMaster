@@ -11,12 +11,14 @@ const pool = require('../db');
 // GET /users - Alle User für Dropdown-Listen
 router.get('/', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
-        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
+        // SQL-Query: Alle User für Dropdown-Listen holen
+        // Sortiert alphabetisch nach Benutzername
+        const result = await pool.query(`
             SELECT 
                 users_id,
                 users_name
-            FROM Users                                                  -- Haupttabelle
-            ORDER BY users_name                                         -- Alphabetische Sortierung
+            FROM Users
+            ORDER BY users_name
         `);
         
         res.json(result.rows);                                          // Alle Users als JSON
