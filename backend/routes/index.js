@@ -14,6 +14,7 @@ const tagsRoutes = require('./tags');
 const usersRoutes = require('./users');
 const dashboardRoutes = require('./dashboard');
 const prioritaetenRoutes = require('./prioritaeten');
+const statusRoutes = require('./status');
 
 // Root-Route für API-Test
 router.get('/', async (req, res) => {
@@ -26,5 +27,6 @@ router.use('/tags', tagsRoutes);            // Alle Tag-CRUD unter /tags/*
 router.use('/users', usersRoutes);          // Alle User-CRUD unter /users/*
 router.use('/dashboard', dashboardRoutes);  // Dashboard/Stats unter /dashboard/*
 router.use('/prioritaeten', prioritaetenRoutes); // Prioritäten unter /prioritaeten/*
+router.use('/status', statusRoutes);        // Status unter /status/*
 
 module.exports = router;
