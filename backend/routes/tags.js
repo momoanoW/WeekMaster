@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
                 t.tag_id,
                 t.tag_name,
                 COUNT(at.aufgaben_id) as aufgaben_anzahl,               -- Zählt wie viele Aufgaben diesen Tag haben
-                CASE                                                     -- CASE-Statement für benutzerfreundliche Anzeige
+                CASE                                                     -- Macht schönere Anzeige statt nur Zahlen
                     WHEN COUNT(at.aufgaben_id) = 0 THEN 'Nicht verwendet'
                     WHEN COUNT(at.aufgaben_id) = 1 THEN '1 Aufgabe'
                     ELSE CONCAT(COUNT(at.aufgaben_id), ' Aufgaben')
@@ -47,19 +47,48 @@ router.get('/search', async (req, res) => {
                 t.tag_id,
                 t.tag_name,
                 COUNT(at.aufgaben_id) as aufgaben_anzahl,               -- Zählt Aufgaben pro Tag
-                CASE                                                     -- Benutzerfreundliche Anzeige
+                CASE                                                     -- Macht schönere Anzeige statt nur Zahlen
                     WHEN COUNT(at.aufgaben_id) = 0 THEN 'Nicht verwendet'
                     WHEN COUNT(at.aufgaben_id) = 1 THEN '1 Aufgabe'
                     ELSE CONCAT(COUNT(at.aufgaben_id), ' Aufgaben')
                 END as verwendung_info
             FROM Tags t                                                 
             LEFT JOIN aufgaben_tags at ON t.tag_id = at.tag_id         
-            WHERE LOWER(t.tag_name) LIKE LOWER($1)                     -- $1 = sichere Parameterübergabe
+            WHERE LOWER(t.tag_name) LIKE LOWER($1)                     -- LOWER() = findet "Beispieltag" auch bei "beispieltag" oder "BEISPIELTAG"
             GROUP BY t.tag_id, t.tag_name                              
             ORDER BY t.tag_name                                        
-        `, [`%${searchTerm}%`]);                                        // Array mit Parametern - SQL-Injection unmöglich!
+        `, [`%${searchTerm}%`]);                                        // %searchterm% = findet auch "javascript" in "BeispieltagJavaScript"
         
         res.json(result.rows);                                          // Suchergebnisse als JSON
+    } catch (err) {                                                     
+        console.error(err);                                             
+        res.status(500).json({ error: 'Database error' });             
+    }
+});
+
+// GET /tags/autocomplete?q=searchterm - Live-Suche für Tag-Eingabe
+router.get('/autocomplete', async (req, res) => {
+    try {                                                               // try-catch für Fehlerbehandlung
+        const searchTerm = req.query.q;                                 // Benutzereingabe aus Query-Parameter
+        
+        if (!searchTerm || searchTerm.length < 1) {                     // Mindestens 1 Zeichen für Suche
+            return res.json([]);                                        // Leeres Array wenn zu kurz
+        }
+        
+        const result = await client.query(`                            // Parameterized Query mit $1 - SICHER!
+            SELECT 
+                t.tag_id,
+                t.tag_name,
+                COUNT(at.aufgaben_id) as aufgaben_anzahl               -- Zeigt wie beliebt der Tag ist
+            FROM Tags t                                                 
+            LEFT JOIN aufgaben_tags at ON t.tag_id = at.tag_id         
+            WHERE LOWER(t.tag_name) LIKE LOWER($1)                     -- LOWER() = findet "Beispieltag" auch bei "beispieltag" oder "BEISPIELTAG"
+            GROUP BY t.tag_id, t.tag_name                              
+            ORDER BY COUNT(at.aufgaben_id) DESC, t.tag_name            -- Beliebte Tags zuerst, dann alphabetisch
+            LIMIT 10                                                    -- Max 10 Vorschläge für schnelle Performance
+        `, [`%${searchTerm}%`]);                                        // %searchterm% = findet auch "java" in "javascript"
+        
+        res.json(result.rows);                                          // Autocomplete-Vorschläge als JSON
     } catch (err) {                                                     
         console.error(err);                                             
         res.status(500).json({ error: 'Database error' });             
