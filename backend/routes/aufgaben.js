@@ -41,8 +41,38 @@ router.get('/', async (req, res) => {
     }
 });
 
+// GET /aufgaben/urgent - Dringende Aufgaben (nächste 7 Tage)
+router.get('/urgent', async (req, res) => {
+    try {                                                               // try-catch für Fehlerbehandlung
+        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+            SELECT 
+                a.aufgaben_id,
+                a.beschreibung,
+                a.frist,
+                u.users_name,
+                p.prio_name,
+                s.status_name,
+                CASE                                                     // CASE-Statement für benutzerfreundliche Datumsanzeige (wie if-else)
+                    WHEN a.frist = CURRENT_DATE THEN 'Heute fällig!'                -- Fall 1: Einfacher String
+                    WHEN a.frist = CURRENT_DATE + 1 THEN 'Morgen fällig!'           -- Fall 2: Einfacher String
+                    ELSE CONCAT('Fällig in ', (a.frist - CURRENT_DATE), ' Tagen')   -- Fall 3: CONCAT nur hier ausgeführt
+                END as frist_info
+            FROM Aufgaben a                                              -- Haupttabelle
+            JOIN Users u ON a.users_id = u.users_id                     -- INNER JOIN: nur Aufgaben mit User
+            JOIN Prioritaet p ON a.prio_id = p.prio_id                  -- INNER JOIN: nur mit Priorität
+            JOIN Status s ON a.status_id = s.status_id                  -- INNER JOIN: nur mit Status
+            WHERE a.frist BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days'  -- Datumsbereich-Filter
+            AND s.status_name != 'Erledigt'                             -- Status-Filter mit != Operator
+            ORDER BY a.frist, p.prio_id                                 -- Mehrfach-Sortierung: erst Datum, dann Priorität
+        `);
+        res.json(result.rows);                                          // Sendet nur Datenzeilen als JSON-Response
+    } catch (err) {                                                     // Fängt alle DB-Fehler ab
+        console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
+        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+    }
+});
+
 // TODO: Weitere Aufgaben-Routen werden schrittweise hinzugefügt:
-// GET /aufgaben/urgent - Dringende Aufgaben (nächste 7 Tage)  
 // GET /aufgaben/user/:userId - Aufgaben nach Benutzer mit Statistiken
 // GET /aufgaben/tag/:tagId - Aufgaben nach Tag
 
