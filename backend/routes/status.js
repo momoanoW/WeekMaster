@@ -4,7 +4,7 @@
 
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
+const client = require('../db');
 
 // GET /status - Alle Status für Dropdown-Menüs abrufen
 // Gibt eine Liste aller Status zurück, sortiert nach ID
@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
         `;
         
         // Datenbankabfrage ausführen
-        const result = await db.query(query);
+        const result = await client.query(query);
         
         // Erfolgreich: JSON-Array mit Status zurückgeben
         res.json(result.rows);

@@ -21,7 +21,6 @@ const app = express();
 // oder wir nehmen Port 3000 als Standard, falls nichts anderes angegeben ist.
 const PORT = process.env.PORT || 3000; 
 
-
 //DANN BENUTZEN / AKTIVIEREN
 app.use(express.json()); // Middleware für JSON-Parsing aktivieren
 app.use(cors()); // CORS aktivieren

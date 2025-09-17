@@ -4,7 +4,7 @@
 
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
+const client = require('../db');
 
 // GET /priorities - Alle Prioritäten für Dropdown-Menüs abrufen
 // Gibt eine Liste aller Prioritäten zurück, sortiert nach Wichtigkeit
@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
         `;
         
         // Datenbankabfrage ausführen
-        const result = await db.query(query);
+        const result = await client.query(query);
         
         // Erfolgreich: JSON-Array mit Prioritäten zurückgeben
         res.json(result.rows);
