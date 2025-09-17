@@ -7,12 +7,12 @@
 
 const express = require('express');
 const router = express.Router();
-const client = require('../db');
+const pool = require('../db');
 
 // GET /tasks - Alle Aufgaben mit vollständigen Details (für Hauptansicht)
 router.get('/', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
-        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus, Backtick für mehrzeilige Strings
+        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus, Backtick für mehrzeilige Strings
             SELECT 
                 a.aufgaben_id,
                 a.beschreibung,
@@ -44,7 +44,7 @@ router.get('/', async (req, res) => {
 // GET /tasks/urgent - Dringende Aufgaben (nächste 7 Tage)
 router.get('/urgent', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
-        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
             SELECT 
                 a.aufgaben_id,
                 a.beschreibung,
@@ -76,7 +76,7 @@ router.get('/urgent', async (req, res) => {
 router.get('/user/:userId', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
         const { userId } = req.params;                                  // Destructuring: extrahiert userId aus URL-Parameter (User-Input!)
-        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
             SELECT 
                 a.aufgaben_id,
                 a.beschreibung,
@@ -110,7 +110,7 @@ router.get('/user/:userId', async (req, res) => {
 router.get('/tag/:tagId', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
         const { tagId } = req.params;                                   // Destructuring: extrahiert tagId aus URL-Parameter (User-Input!)
-        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
             SELECT 
                 a.aufgaben_id,
                 a.beschreibung,
@@ -154,7 +154,7 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ error: 'Status ist erforderlich' });
         }
         
-        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
             INSERT INTO Aufgaben (                                     -- INSERT INTO für neue Datenzeile
                 beschreibung, 
                 frist, 
@@ -196,7 +196,7 @@ router.put('/:id', async (req, res) => {
             return res.status(400).json({ error: 'Status ist erforderlich' });
         }
         
-        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
             UPDATE Aufgaben 
             SET beschreibung = $1,                                      -- UPDATE alle Felder mit neuen Werten
                 frist = $2,
@@ -230,7 +230,7 @@ router.patch('/:id/status', async (req, res) => {
             return res.status(400).json({ error: 'Status ID ist erforderlich' });  // HTTP 400 Bad Request mit Fehlermeldung
         }
         
-        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
             UPDATE Aufgaben 
             SET status_id = $1                                          -- UPDATE nur das status_id Feld
             WHERE aufgaben_id = $2                                      -- WHERE-Klausel für spezifische Aufgabe
@@ -258,7 +258,7 @@ router.delete('/:id', async (req, res) => {
             return res.status(400).json({ error: 'Gültige Aufgaben-ID ist erforderlich' });  // HTTP 400 Bad Request mit Fehlermeldung
         }
         
-        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
             DELETE FROM Aufgaben 
             WHERE aufgaben_id = $1                                      -- WHERE-Klausel für spezifische Aufgabe
             RETURNING *                                                 -- RETURNING * gibt die gelöschte Zeile zurück (zur Bestätigung)

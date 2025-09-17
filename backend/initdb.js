@@ -1,5 +1,5 @@
 const express = require("express");
-const client = require("./db");
+const pool = require("./db");
 const initdb = express.Router();
 const format = require("pg-format");
 
@@ -8,7 +8,7 @@ initdb.get("/", async (req, res) => {
     console.log("Starte Datenbank-Initialisierung...");
 
     // SCHRITT 1: Alle Tabellen löschen (in richtiger Reihenfolge)
-    await client.query(`
+    await pool.query(`
         DROP TABLE IF EXISTS aufgaben_tags CASCADE;
         DROP TABLE IF EXISTS Aufgaben CASCADE;
         DROP TABLE IF EXISTS Tags CASCADE;
@@ -19,7 +19,7 @@ initdb.get("/", async (req, res) => {
     console.log("Alte Tabellen gelöscht...");
 
     // SCHRITT 2: Tabellen neu erstellen
-    await client.query(`
+    await pool.query(`
         CREATE TABLE Users (
             users_id SERIAL PRIMARY KEY,
             users_name VARCHAR(50) NOT NULL
@@ -60,7 +60,7 @@ initdb.get("/", async (req, res) => {
     console.log("Neue Tabellen erstellt...");
 
     // SCHRITT 3: Stammdaten einfügen
-    await client.query(`
+    await pool.query(`
         INSERT INTO Prioritaet (prio_name) VALUES
         ('Hoch'), ('Mittel'), ('Niedrig');
         
@@ -78,7 +78,7 @@ initdb.get("/", async (req, res) => {
     console.log("Stammdaten eingefügt...");
 
     // SCHRITT 4: Beispielaufgaben einfügen
-    const result = await client.query(`
+    const result = await pool.query(`
         INSERT INTO Aufgaben 
         (beschreibung, frist, vorlaufzeit_tage, kontrolliert, prio_id, users_id, status_id) VALUES
         ('Kuendigungsfrist Hausratversicherung online', '2025-10-01', 0, false, 2, 1, 1),
@@ -107,7 +107,7 @@ initdb.get("/", async (req, res) => {
     console.log("Beispielaufgaben eingefügt...");
 
     // SCHRITT 5: Tags zu Aufgaben zuordnen
-    await client.query(`
+    await pool.query(`
         INSERT INTO aufgaben_tags (aufgaben_id, tag_id) VALUES
         (1, 10), (1, 1),
         (2, 10), (2, 1),

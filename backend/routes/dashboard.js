@@ -6,14 +6,14 @@
 
 const express = require('express');
 const router = express.Router();
-const client = require('../db');
+const pool = require('../db');
 
 // GET /dashboard/stats - Dashboard-Statistiken mit komplexen Aggregationen
 
 // GET /dashboard/stats - Dashboard-Statistiken mit komplexen Aggregationen
 router.get('/stats', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
-        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
             SELECT 
                 COUNT(*) as aufgaben_gesamt,                            -- Gesamtzahl aller Aufgaben
                 COUNT(CASE WHEN s.status_name = 'Erledigt' THEN 1 END) as aufgaben_erledigt,  -- Nur erledigte Aufgaben zählen
@@ -46,7 +46,7 @@ router.get('/stats', async (req, res) => {
 // GET /dashboard/recent - Kürzlich geänderte/erstellte Aufgaben für Activity Timeline
 router.get('/recent', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
-        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
             SELECT 
                 a.aufgaben_id,
                 a.beschreibung,
@@ -72,7 +72,7 @@ router.get('/recent', async (req, res) => {
 // GET /dashboard/priorities - Prioritäten-Verteilung für Charts
 router.get('/priorities', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
-        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
             SELECT 
                 p.prio_name,
                 p.prio_id,

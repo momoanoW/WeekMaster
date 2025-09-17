@@ -6,12 +6,12 @@
 
 const express = require('express');
 const router = express.Router();
-const client = require('../db');
+const pool = require('../db');
 
 // GET /tags - Alle Tags (für Dropdown-Listen und Übersicht)
 router.get('/', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
-        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
             SELECT 
                 t.tag_id,
                 t.tag_name,
@@ -42,7 +42,7 @@ router.get('/search', async (req, res) => {
             return res.status(400).json({ error: 'Query parameter q is required' });
         }
         
-        const result = await client.query(`                            // Parameterized Query mit $1 - SICHER!
+        const result = await pool.query(`                            // Parameterized Query mit $1 - SICHER!
             SELECT 
                 t.tag_id,
                 t.tag_name,
@@ -75,7 +75,7 @@ router.get('/autocomplete', async (req, res) => {
             return res.json([]);                                        // Leeres Array wenn zu kurz
         }
         
-        const result = await client.query(`                            // Parameterized Query mit $1 - SICHER!
+        const result = await pool.query(`                            // Parameterized Query mit $1 - SICHER!
             SELECT 
                 t.tag_id,
                 t.tag_name,
@@ -106,7 +106,7 @@ router.post('/', async (req, res) => {
         }
         
         // Prüfen ob Tag bereits existiert (Duplikat-Vermeidung)
-        const existingTag = await client.query(`                       // Prüft auf existierenden Tag-Namen
+        const existingTag = await pool.query(`                       // Prüft auf existierenden Tag-Namen
             SELECT tag_id FROM Tags 
             WHERE LOWER(tag_name) = LOWER($1)                          -- LOWER() macht die Suche case-insensitive
         `, [tag_name.trim()]);                                          // trim() entfernt Leerzeichen am Anfang/Ende
@@ -115,7 +115,7 @@ router.post('/', async (req, res) => {
             return res.status(409).json({ error: 'Tag existiert bereits' });  // HTTP 409 Conflict
         }
         
-        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
             INSERT INTO Tags (tag_name)                                -- INSERT INTO für neue Datenzeile
             VALUES ($1)                                                 -- SICHERHEIT: Parameterized Query verhindert SQL-Injection
             RETURNING *                                                 -- RETURNING * gibt die eingefügte Zeile mit allen Feldern zurück (inkl. Auto-ID)
@@ -140,7 +140,7 @@ router.put('/:id', async (req, res) => {
         }
         
         // Prüfen ob anderer Tag mit diesem Namen bereits existiert (Duplikat-Vermeidung)
-        const existingTag = await client.query(`                       // Prüft auf existierenden Tag-Namen (außer dem aktuellen)
+        const existingTag = await pool.query(`                       // Prüft auf existierenden Tag-Namen (außer dem aktuellen)
             SELECT tag_id FROM Tags 
             WHERE LOWER(tag_name) = LOWER($1) AND tag_id != $2         -- LOWER() macht die Suche case-insensitive, != $2 schließt aktuellen Tag aus
         `, [tag_name.trim(), id]);                                      // trim() entfernt Leerzeichen, id ist der aktuelle Tag
@@ -149,7 +149,7 @@ router.put('/:id', async (req, res) => {
             return res.status(409).json({ error: 'Tag existiert bereits' });  // HTTP 409 Conflict
         }
         
-        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
             UPDATE Tags 
             SET tag_name = $1                                           -- UPDATE tag_name mit neuem Wert
             WHERE tag_id = $2                                           -- WHERE-Klausel für spezifischen Tag
@@ -178,7 +178,7 @@ router.delete('/:id', async (req, res) => {
         }
         
         // Prüfen ob Tag in Aufgaben verwendet wird (Referential Integrity)
-        const usageCheck = await client.query(`                        // Prüft ob Tag in Verknüpfungstabelle verwendet wird
+        const usageCheck = await pool.query(`                        // Prüft ob Tag in Verknüpfungstabelle verwendet wird
             SELECT COUNT(*) as count FROM aufgaben_tags 
             WHERE tag_id = $1                                           -- Zählt Verknüpfungen mit diesem Tag
         `, [id]);
@@ -191,7 +191,7 @@ router.delete('/:id', async (req, res) => {
             });
         }
         
-        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
             DELETE FROM Tags 
             WHERE tag_id = $1                                           -- WHERE-Klausel für spezifischen Tag
             RETURNING *                                                 -- RETURNING * gibt die gelöschte Zeile zurück (zur Bestätigung)

@@ -8,32 +8,44 @@
 // Muss ZUERST stehen, damit process.env.PGUSER etc. verfügbar sind
 require('dotenv').config();
 
-// Importiert den PostgreSQL-Client aus dem 'pg' Paket
-// pg = PostgreSQL-Bibliothek für Node.js
-const pg = require('pg');
+// Importiert den PostgreSQL-Pool aus dem 'pg' Paket
+// Pool = Mehrere Verbindungen für parallele Requests (statt Single Client)
+const { Pool } = require('pg');
 
-// Erstellt einen neuen PostgreSQL-Client mit Verbindungsdaten aus .env
-// Alle Werte kommen aus der .env-Datei (PGUSER, PGHOST, etc.)
-const client = new pg.Client({
+// Erstellt einen neuen PostgreSQL-Pool mit Verbindungsdaten aus .env
+// Pool managed automatisch mehrere Verbindungen (Standard: 10-20 gleichzeitig)
+const pool = new Pool({
     user: process.env.PGUSER,         // Benutzername
     host: process.env.PGHOST,         // Server-Adresse 
     database: process.env.PGDATABASE, // Datenbankname 
     password: process.env.PGPASSWORD, // Passwort aus .env
     port: process.env.PGPORT,         // Port (meist 5432 für PostgreSQL)
+    max: 20,                          // Maximal 20 parallele Verbindungen
+    idleTimeoutMillis: 30000,         // Verbindung nach 30s Inaktivität schließen
+    connectionTimeoutMillis: 2000,    // 2s Timeout für neue Verbindung
 });
 
-// Stellt die Verbindung zur Datenbank her
-// Mit Fehlerbehandlung: zeigt Erfolg oder Fehler an
-client.connect(err => {
+// Pool-Events für besseres Debugging und Monitoring
+pool.on('connect', () => {
+    console.log('✅ Neue Datenbankverbindung im Pool erstellt');
+});
+
+pool.on('error', (err) => {
+    console.error('❌ Unerwarteter Fehler im Datenbankpool:', err);
+    process.exit(-1);  // Server beenden bei schwerwiegenden Pool-Fehlern
+});
+
+// Test-Verbindung beim Start (um Pool-Konfiguration zu validieren)
+pool.connect((err, client, release) => {
     if (err) {
-        // Falls Verbindung fehlschlägt: Fehler in Konsole ausgeben
-        console.error('❌ Datenbank-Verbindung fehlgeschlagen:', err);
-    } else {
-        // Falls Verbindung erfolgreich: Bestätigung ausgeben
-        console.log('✅ Erfolgreich mit PostgreSQL-Datenbank verbunden');
+        console.error('❌ Pool-Verbindung fehlgeschlagen:', err);
+        return;
     }
+    console.log('✅ Pool erfolgreich mit PostgreSQL-Datenbank verbunden');
+    release(); // Verbindung zurück in den Pool
 });
 
-// Exportiert den client, damit andere Dateien (wie routes.js, initdb.js) 
+// Exportiert den pool, damit andere Dateien (wie routes.js, initdb.js) 
 // ihn verwenden können für SQL-Queries
-module.exports = client;
+// VORTEIL: Automatisches Connection Management, keine Race Conditions
+module.exports = pool;
