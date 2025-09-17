@@ -176,7 +176,49 @@ router.post('/', async (req, res) => {
 
 
 
-// PUT /tasks/:id - Aufgabe bearbeiten  
+// PUT /tasks/:id - Ganze Aufgabe bearbeiten  
+router.put('/:id', async (req, res) => {
+    try {                                                               // try-catch für Fehlerbehandlung
+        const { id } = req.params;                                      // Destructuring: extrahiert id aus URL-Parameter (User-Input!)
+        const { beschreibung, frist, vorlaufzeit_tage, users_id, prio_id, status_id } = req.body;  // Destructuring: alle Felder aus Request Body
+        
+        // Input-Validierung: Pflichtfelder prüfen (wie bei POST)
+        if (!beschreibung || !beschreibung.trim()) {                   // Prüft auf null/undefined UND leeren String (trim() entfernt Leerzeichen am Anfang/Ende)
+            return res.status(400).json({ error: 'Beschreibung ist erforderlich' });  // HTTP 400 Bad Request mit Fehlermeldung
+        }
+        if (!users_id) {                                               // Prüft ob users_id vorhanden ist
+            return res.status(400).json({ error: 'User ID ist erforderlich' });
+        }
+        if (!prio_id) {                                                // Prüft ob prio_id vorhanden ist
+            return res.status(400).json({ error: 'Priorität ist erforderlich' });
+        }
+        if (!status_id) {                                              // Prüft ob status_id vorhanden ist
+            return res.status(400).json({ error: 'Status ist erforderlich' });
+        }
+        
+        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+            UPDATE Aufgaben 
+            SET beschreibung = $1,                                      -- UPDATE alle Felder mit neuen Werten
+                frist = $2,
+                vorlaufzeit_tage = $3,
+                users_id = $4,
+                prio_id = $5,
+                status_id = $6
+            WHERE aufgaben_id = $7                                      -- WHERE-Klausel für spezifische Aufgabe
+            RETURNING *                                                 -- RETURNING * gibt die aktualisierte Zeile mit allen Feldern zurück
+        `, [beschreibung, frist, vorlaufzeit_tage, users_id, prio_id, status_id, id]);  // SICHERHEIT: Array mit Parametern werden sicher für $1-$7 eingesetzt
+        
+        if (result.rows.length === 0) {                                 // Prüft ob Aufgabe gefunden wurde
+            return res.status(404).json({ error: 'Aufgabe nicht gefunden' });  // HTTP 404 Not Found wenn keine Zeile betroffen
+        }
+        
+        res.status(200).json(result.rows[0]);                          // HTTP 200 OK + die aktualisierte Aufgabe als JSON
+    } catch (err) {                                                     // Fängt alle DB-Fehler ab
+        console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
+        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+    }
+});
+
 // PATCH /tasks/:id/status - Status ändern
 router.patch('/:id/status', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
