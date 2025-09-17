@@ -13,20 +13,26 @@ const pool = require('../db');
 // GET /dashboard/stats - Dashboard-Statistiken mit komplexen Aggregationen
 router.get('/stats', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
-        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
+        // SQL-Query: Dashboard-Statistiken mit komplexen Aggregationen
+        // - COUNT mit CASE zählt Aufgaben nach Status
+        // - Überfällige Aufgaben: frist < CURRENT_DATE
+        // - Diese Woche fällig: BETWEEN CURRENT_DATE AND +7 days
+        // - Erledigungsquote in Prozent mit ROUND
+        // - NULLIF verhindert Division durch 0
+        const result = await pool.query(`
             SELECT 
-                COUNT(*) as aufgaben_gesamt,                            -- Gesamtzahl aller Aufgaben
-                COUNT(CASE WHEN s.status_name = 'Erledigt' THEN 1 END) as aufgaben_erledigt,  -- Nur erledigte Aufgaben zählen
-                COUNT(CASE WHEN s.status_name = 'In Bearbeitung' THEN 1 END) as aufgaben_in_bearbeitung,  -- In Bearbeitung
-                COUNT(CASE WHEN s.status_name = 'Offen' THEN 1 END) as aufgaben_offen,  -- Offene Aufgaben
-                COUNT(CASE WHEN a.frist < CURRENT_DATE AND s.status_name != 'Erledigt' THEN 1 END) as aufgaben_ueberfaellig,  -- Überfällige Aufgaben
-                COUNT(CASE WHEN a.frist BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days' AND s.status_name != 'Erledigt' THEN 1 END) as aufgaben_diese_woche,  -- Diese Woche fällig
-                ROUND(                                                  -- Rundet auf 2 Nachkommastellen
+                COUNT(*) as aufgaben_gesamt,
+                COUNT(CASE WHEN s.status_name = 'Erledigt' THEN 1 END) as aufgaben_erledigt,
+                COUNT(CASE WHEN s.status_name = 'In Bearbeitung' THEN 1 END) as aufgaben_in_bearbeitung,
+                COUNT(CASE WHEN s.status_name = 'Offen' THEN 1 END) as aufgaben_offen,
+                COUNT(CASE WHEN a.frist < CURRENT_DATE AND s.status_name != 'Erledigt' THEN 1 END) as aufgaben_ueberfaellig,
+                COUNT(CASE WHEN a.frist BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days' AND s.status_name != 'Erledigt' THEN 1 END) as aufgaben_diese_woche,
+                ROUND(
                     COUNT(CASE WHEN s.status_name = 'Erledigt' THEN 1 END)::DECIMAL / 
-                    NULLIF(COUNT(*), 0) * 100, 2                       -- NULLIF verhindert Division durch 0
-                ) as erledigungsquote_prozent                          -- Prozentuale Erledigungsquote
-            FROM Aufgaben a                                             -- Haupttabelle
-            LEFT JOIN Status s ON a.status_id = s.status_id            -- LEFT JOIN: auch Aufgaben ohne Status
+                    NULLIF(COUNT(*), 0) * 100, 2
+                ) as erledigungsquote_prozent
+            FROM Aufgaben a
+            LEFT JOIN Status s ON a.status_id = s.status_id
         `);
         
         const stats = result.rows[0];                                   // Erste (und einzige) Zeile mit allen Statistiken
@@ -46,7 +52,11 @@ router.get('/stats', async (req, res) => {
 // GET /dashboard/recent - Kürzlich geänderte/erstellte Aufgaben für Activity Timeline
 router.get('/recent', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
-        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
+        // SQL-Query: Kürzlich geänderte/erstellte Aufgaben für Activity Timeline
+        // - LEFT JOINs für vollständige Daten auch ohne Verknüpfungen
+        // - ORDER BY aufgaben_id DESC: Neueste zuerst (höhere ID = später erstellt)
+        // - LIMIT 10 für Performance und übersichtliche Darstellung
+        const result = await pool.query(`
             SELECT 
                 a.aufgaben_id,
                 a.beschreibung,
@@ -54,12 +64,12 @@ router.get('/recent', async (req, res) => {
                 u.users_name,
                 s.status_name,
                 p.prio_name
-            FROM Aufgaben a                                             -- Haupttabelle
-            LEFT JOIN Users u ON a.users_id = u.users_id               -- LEFT JOIN: auch ohne User
-            LEFT JOIN Status s ON a.status_id = s.status_id            -- LEFT JOIN: auch ohne Status
-            LEFT JOIN Prioritaet p ON a.prio_id = p.prio_id            -- LEFT JOIN: auch ohne Priorität
-            ORDER BY a.aufgaben_id DESC                                 -- Neueste zuerst (höhere ID = später erstellt)
-            LIMIT 10                                                    -- Nur die letzten 10 für Performance
+            FROM Aufgaben a
+            LEFT JOIN Users u ON a.users_id = u.users_id
+            LEFT JOIN Status s ON a.status_id = s.status_id
+            LEFT JOIN Prioritaet p ON a.prio_id = p.prio_id
+            ORDER BY a.aufgaben_id DESC
+            LIMIT 10
         `);
         
         res.json(result.rows);                                          // Recent Activities als JSON
@@ -72,21 +82,27 @@ router.get('/recent', async (req, res) => {
 // GET /dashboard/priorities - Prioritäten-Verteilung für Charts
 router.get('/priorities', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
-        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
+        // SQL-Query: Prioritäten-Verteilung für Charts und Statistiken
+        // - COUNT zählt Aufgaben pro Priorität
+        // - COUNT mit CASE zählt nur erledigte Aufgaben
+        // - ROUND berechnet Prozent der erledigten pro Priorität
+        // - LEFT JOIN zeigt auch Prioritäten ohne Aufgaben
+        // - GROUP BY für Aggregation nach Priorität
+        const result = await pool.query(`
             SELECT 
                 p.prio_name,
                 p.prio_id,
-                COUNT(a.aufgaben_id) as aufgaben_anzahl,                -- Wie viele Aufgaben pro Priorität
-                COUNT(CASE WHEN s.status_name = 'Erledigt' THEN 1 END) as erledigt_anzahl,  -- Erledigte pro Priorität
-                ROUND(                                                  -- Prozent der erledigten pro Priorität
+                COUNT(a.aufgaben_id) as aufgaben_anzahl,
+                COUNT(CASE WHEN s.status_name = 'Erledigt' THEN 1 END) as erledigt_anzahl,
+                ROUND(
                     COUNT(CASE WHEN s.status_name = 'Erledigt' THEN 1 END)::DECIMAL / 
                     NULLIF(COUNT(a.aufgaben_id), 0) * 100, 1
                 ) as erledigt_prozent
-            FROM Prioritaet p                                           -- Haupttabelle: alle Prioritäten
-            LEFT JOIN Aufgaben a ON p.prio_id = a.prio_id              -- LEFT JOIN: auch Prioritäten ohne Aufgaben
-            LEFT JOIN Status s ON a.status_id = s.status_id            -- LEFT JOIN: für Status-Filter
-            GROUP BY p.prio_id, p.prio_name                            -- Gruppierung nach Priorität
-            ORDER BY p.prio_id                                         -- Sortierung nach Prioritäts-ID (meist: Hoch → Niedrig)
+            FROM Prioritaet p
+            LEFT JOIN Aufgaben a ON p.prio_id = a.prio_id
+            LEFT JOIN Status s ON a.status_id = s.status_id
+            GROUP BY p.prio_id, p.prio_name
+            ORDER BY p.prio_id
         `);
         
         res.json(result.rows);                                          // Prioritäten-Verteilung als JSON
