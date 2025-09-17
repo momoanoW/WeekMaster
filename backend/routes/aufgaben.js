@@ -106,8 +106,34 @@ router.get('/user/:userId', async (req, res) => {
     }
 });
 
-// TODO: Weitere Aufgaben-Routen werden schrittweise hinzugefügt:
 // GET /aufgaben/tag/:tagId - Aufgaben nach Tag
+router.get('/tag/:tagId', async (req, res) => {
+    try {                                                               // try-catch für Fehlerbehandlung
+        const { tagId } = req.params;                                   // Destructuring: extrahiert tagId aus URL-Parameter (User-Input!)
+        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+            SELECT 
+                a.aufgaben_id,
+                a.beschreibung,
+                a.frist,
+                u.users_name,
+                p.prio_name,
+                s.status_name,
+                t.tag_name
+            FROM Aufgaben a                                             -- Haupttabelle
+            JOIN aufgaben_tags at ON a.aufgaben_id = at.aufgaben_id    -- INNER JOIN: über Junction Table für Many-to-Many
+            JOIN Tags t ON at.tag_id = t.tag_id                        -- INNER JOIN: für Tag-Details
+            JOIN Users u ON a.users_id = u.users_id                    -- INNER JOIN: für User-Details
+            JOIN Prioritaet p ON a.prio_id = p.prio_id                 -- INNER JOIN: für Prioritäts-Details
+            JOIN Status s ON a.status_id = s.status_id                 -- INNER JOIN: für Status-Details
+            WHERE t.tag_id = $1                                        -- SICHERHEIT: Parameterized Query verhindert SQL-Injection ($1 = Platzhalter)
+            ORDER BY a.frist ASC NULLS LAST                            -- Sortierung nach Frist, NULL-Werte am Ende
+        `, [tagId]);                                                    // SICHERHEIT: Array mit Parametern - tagId wird sicher für $1 eingesetzt
+        res.json(result.rows);                                          // Sendet alle Datenzeilen als JSON-Response
+    } catch (err) {                                                     // Fängt alle DB-Fehler ab
+        console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
+        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+    }
+});
 
 // TODO: CRUD-Operationen werden später hinzugefügt:
 // POST /aufgaben - Neue Aufgabe erstellen
