@@ -18,8 +18,26 @@ router.get('/', async (req, res) => {
         // - GROUP BY nötig wegen STRING_AGG Aggregatfunktion
         // - Sortierung nach Frist, NULL-Werte am Ende
         const result = await pool.query(`
-            SELECT aufgaben_id, beschreibung 
-            FROM Aufgaben 
+            SELECT 
+                a.aufgaben_id,
+                a.beschreibung,
+                a.frist,
+                a.vorlaufzeit_tage,
+                a.kontrolliert,
+                u.users_name,
+                p.prio_name,
+                s.status_name,
+                STRING_AGG(t.tag_name, ', ' ORDER BY t.tag_name) as tags
+            FROM Aufgaben a
+            LEFT JOIN Users u ON a.users_id = u.users_id
+            LEFT JOIN Prioritaet p ON a.prio_id = p.prio_id
+            LEFT JOIN Status s ON a.status_id = s.status_id
+            LEFT JOIN aufgaben_tags at ON a.aufgaben_id = at.aufgaben_id
+            LEFT JOIN Tags t ON at.tag_id = t.tag_id
+            GROUP BY
+                a.aufgaben_id, a.beschreibung, a.frist, a.vorlaufzeit_tage, a.kontrolliert,
+                u.users_name, p.prio_name, s.status_name
+            ORDER BY a.frist ASC NULLS LAST
             LIMIT 5
         `);
         res.json(result.rows);                                          // Sendet nur die Datenzeilen als JSON
