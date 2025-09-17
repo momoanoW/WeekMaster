@@ -11,7 +11,7 @@ const express = require('express'); // Express-Framework importieren
 const cors = require('cors');           // CORS-Middleware importieren
 // 2. dotenv FRÜH laden (damit andere Module .env nutzen können)
 require('dotenv').config();             // Umgebungsvariablen aus .env laden
-const routes = require('./routes'); // Routen importieren
+const routes = require('./routes/index'); // Neuer Resource-basierter Router aus routes/index.js
 const initdb = require('./initdb'); // NEU: Datenbank-Initialisierung importieren (für /init Route)
 
 // Wir erstellen eine neue Express-Anwendung, mit der wir einen Webserver bauen können.
@@ -25,7 +25,7 @@ const PORT = process.env.PORT || 3000;
 //DANN BENUTZEN / AKTIVIEREN
 app.use(express.json()); // Middleware für JSON-Parsing aktivieren
 app.use(cors()); // CORS aktivieren
-app.use('/', routes); // Routen unter dem Wurzelpfad verwenden (/, /users, etc.)
+app.use('/api', routes); // Alle API-Routen unter /api/* (resource-basiert organisiert)
 app.use('/init', initdb); // NEU: Datenbank-Initialisierung unter /init verfügbar machen
 
 // Server starten und auf Fehler prüfen
