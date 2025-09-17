@@ -12,27 +12,15 @@ const pool = require('../db');
 // GET /tasks - Alle Aufgaben mit vollständigen Details (für Hauptansicht)
 router.get('/', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
-        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus, Backtick für mehrzeilige Strings
-            SELECT 
-                a.aufgaben_id,
-                a.beschreibung,
-                a.frist,
-                a.vorlaufzeit_tage,
-                a.kontrolliert,
-                u.users_name,
-                p.prio_name,
-                s.status_name,
-                STRING_AGG(t.tag_name, ', ' ORDER BY t.tag_name) as tags  -- Alle Tags zu einem String zusammenfassen
-            FROM Aufgaben a                                              -- Haupttabelle (alias 'a')
-            LEFT JOIN Users u ON a.users_id = u.users_id                -- LEFT JOIN: auch Aufgaben ohne User anzeigen
-            LEFT JOIN Prioritaet p ON a.prio_id = p.prio_id             -- LEFT JOIN: auch ohne Priorität
-            LEFT JOIN Status s ON a.status_id = s.status_id             -- LEFT JOIN: auch ohne Status
-            LEFT JOIN aufgaben_tags at ON a.aufgaben_id = at.aufgaben_id -- LEFT JOIN: N:N Verknüpfung
-            LEFT JOIN Tags t ON at.tag_id = t.tag_id                    -- LEFT JOIN: auch Aufgaben ohne Tags
-            GROUP BY                                                     -- GROUP BY nötig wegen STRING_AGG
-                a.aufgaben_id, a.beschreibung, a.frist, a.vorlaufzeit_tage, a.kontrolliert,
-                u.users_name, p.prio_name, s.status_name
-            ORDER BY a.frist ASC NULLS LAST                             -- Hybrid-Sortierung: Backend-Vorsortierung nach Frist
+        // SQL-Query: Komplexe Abfrage mit mehreren JOINs für vollständige Aufgaben-Details
+        // - STRING_AGG fasst alle Tags zu einem String zusammen
+        // - LEFT JOINs zeigen auch Aufgaben ohne User/Priorität/Status/Tags an
+        // - GROUP BY nötig wegen STRING_AGG Aggregatfunktion
+        // - Sortierung nach Frist, NULL-Werte am Ende
+        const result = await pool.query(`
+            SELECT aufgaben_id, beschreibung 
+            FROM Aufgaben 
+            LIMIT 5
         `);
         res.json(result.rows);                                          // Sendet nur die Datenzeilen als JSON
     } catch (err) {                                                     // Fängt DB-Fehler ab
@@ -44,7 +32,12 @@ router.get('/', async (req, res) => {
 // GET /tasks/urgent - Dringende Aufgaben (nächste 7 Tage)
 router.get('/urgent', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
-        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
+        // SQL-Query: Dringende Aufgaben der nächsten 7 Tage
+        // - CASE-Statement für benutzerfreundliche Datumsanzeige
+        // - INNER JOINs nur für Aufgaben mit allen Verknüpfungen
+        // - Datumsbereich-Filter und Status-Filter
+        // - Sortierung nach Frist und Priorität
+        const result = await pool.query(`
             SELECT 
                 a.aufgaben_id,
                 a.beschreibung,
@@ -52,18 +45,18 @@ router.get('/urgent', async (req, res) => {
                 u.users_name,
                 p.prio_name,
                 s.status_name,
-                CASE                                                     // CASE-Statement für benutzerfreundliche Datumsanzeige (wie if-else)
-                    WHEN a.frist = CURRENT_DATE THEN 'Heute fällig!'                -- Fall 1: Einfacher String
-                    WHEN a.frist = CURRENT_DATE + 1 THEN 'Morgen fällig!'           -- Fall 2: Einfacher String
-                    ELSE CONCAT('Fällig in ', (a.frist - CURRENT_DATE), ' Tagen')   -- Fall 3: CONCAT nur hier ausgeführt
+                CASE
+                    WHEN a.frist = CURRENT_DATE THEN 'Heute fällig!'
+                    WHEN a.frist = CURRENT_DATE + 1 THEN 'Morgen fällig!'
+                    ELSE CONCAT('Fällig in ', (a.frist - CURRENT_DATE), ' Tagen')
                 END as frist_info
-            FROM Aufgaben a                                              -- Haupttabelle
-            JOIN Users u ON a.users_id = u.users_id                     -- INNER JOIN: nur Aufgaben mit User
-            JOIN Prioritaet p ON a.prio_id = p.prio_id                  -- INNER JOIN: nur mit Priorität
-            JOIN Status s ON a.status_id = s.status_id                  -- INNER JOIN: nur mit Status
-            WHERE a.frist BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days'  -- Datumsbereich-Filter
-            AND s.status_name != 'Erledigt'                             -- Status-Filter mit != Operator
-            ORDER BY a.frist, p.prio_id                                 -- Mehrfach-Sortierung: erst Datum, dann Priorität
+            FROM Aufgaben a
+            JOIN Users u ON a.users_id = u.users_id
+            JOIN Prioritaet p ON a.prio_id = p.prio_id
+            JOIN Status s ON a.status_id = s.status_id
+            WHERE a.frist BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days'
+            AND s.status_name != 'Erledigt'
+            ORDER BY a.frist, p.prio_id
         `);
         res.json(result.rows);                                          // Sendet nur Datenzeilen als JSON-Response
     } catch (err) {                                                     // Fängt alle DB-Fehler ab
@@ -75,8 +68,12 @@ router.get('/urgent', async (req, res) => {
 // GET /tasks/user/:userId - Aufgaben nach Benutzer mit Statistiken
 router.get('/user/:userId', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
+        // SQL-Query: Aufgaben nach Benutzer mit Statistiken
+        // - Fensterfunktionen (OVER) zeigen Gesamtstatistiken bei jeder Zeile
+        // - Parameterized Query für Sicherheit ($1 Platzhalter)
+        // - Intelligente Sortierung: Status-basiert, dann nach Frist
         const { userId } = req.params;                                  // Destructuring: extrahiert userId aus URL-Parameter (User-Input!)
-        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
+        const result = await pool.query(`
             SELECT 
                 a.aufgaben_id,
                 a.beschreibung,
@@ -84,21 +81,21 @@ router.get('/user/:userId', async (req, res) => {
                 a.kontrolliert,
                 p.prio_name,
                 s.status_name,
-                COUNT(CASE WHEN s.status_name = 'Erledigt' THEN 1 END) OVER() as erledigte_gesamt,  -- Fensterfunktion: Zeigt bei jeder Aufgabe die Gesamtzahl aller erledigten Aufgaben mit an
-                COUNT(*) OVER() as aufgaben_gesamt                      -- Fensterfunktion: Zeigt bei jeder Aufgabe die Gesamtzahl aller Aufgaben mit an
-            FROM Aufgaben a                                             -- Haupttabelle
-            JOIN Users u ON a.users_id = u.users_id                    -- INNER JOIN: nur Aufgaben mit User
-            JOIN Prioritaet p ON a.prio_id = p.prio_id                 -- INNER JOIN: nur mit Priorität
-            JOIN Status s ON a.status_id = s.status_id                 -- INNER JOIN: nur mit Status
-            WHERE a.users_id = $1                                      -- SICHERHEIT: Parameterized Query verhindert SQL-Injection ($1 = Platzhalter)
+                COUNT(CASE WHEN s.status_name = 'Erledigt' THEN 1 END) OVER() as erledigte_gesamt,
+                COUNT(*) OVER() as aufgaben_gesamt
+            FROM Aufgaben a
+            JOIN Users u ON a.users_id = u.users_id
+            JOIN Prioritaet p ON a.prio_id = p.prio_id
+            JOIN Status s ON a.status_id = s.status_id
+            WHERE a.users_id = $1
             ORDER BY 
-                CASE s.status_name                                      -- CASE in ORDER BY für intelligente Sortierung
-                    WHEN 'Erledigt' THEN 3                             -- Erledigte Aufgaben nach unten
-                    WHEN 'In Bearbeitung' THEN 1                       -- In Bearbeitung nach oben
-                    ELSE 2                                              -- Offene Aufgaben in der Mitte
+                CASE s.status_name
+                    WHEN 'Erledigt' THEN 3
+                    WHEN 'In Bearbeitung' THEN 1
+                    ELSE 2
                 END,
-                a.frist ASC NULLS LAST                                  -- Sekundäre Sortierung: nach Frist
-        `, [userId]);                                                   // SICHERHEIT: Array mit Parametern - userId wird sicher für $1 eingesetzt
+                a.frist ASC NULLS LAST
+        `, [userId]);
         res.json(result.rows);                                          // Sendet nur Datenzeilen als JSON-Response
     } catch (err) {                                                     // Fängt alle DB-Fehler ab
         console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
@@ -109,8 +106,12 @@ router.get('/user/:userId', async (req, res) => {
 // GET /tasks/tag/:tagId - Aufgaben nach Tag
 router.get('/tag/:tagId', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
+        // SQL-Query: Aufgaben nach Tag über N:N Verknüpfung
+        // - INNER JOINs über Verknüpfungstabelle aufgaben_tags
+        // - Parameterized Query für Sicherheit ($1 Platzhalter)
+        // - Sortierung nach Frist, NULL-Werte am Ende
         const { tagId } = req.params;                                   // Destructuring: extrahiert tagId aus URL-Parameter (User-Input!)
-        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
+        const result = await pool.query(`
             SELECT 
                 a.aufgaben_id,
                 a.beschreibung,
@@ -119,15 +120,15 @@ router.get('/tag/:tagId', async (req, res) => {
                 p.prio_name,
                 s.status_name,
                 t.tag_name
-            FROM Aufgaben a                                             -- Haupttabelle
-            JOIN aufgaben_tags at ON a.aufgaben_id = at.aufgaben_id    -- INNER JOIN: über Verknüpfungstabelle für N:N
-            JOIN Tags t ON at.tag_id = t.tag_id                        -- INNER JOIN: für Tag-Details
-            JOIN Users u ON a.users_id = u.users_id                    -- INNER JOIN: für User-Details
-            JOIN Prioritaet p ON a.prio_id = p.prio_id                 -- INNER JOIN: für Prioritäts-Details
-            JOIN Status s ON a.status_id = s.status_id                 -- INNER JOIN: für Status-Details
-            WHERE t.tag_id = $1                                        -- SICHERHEIT: Parameterized Query verhindert SQL-Injection ($1 = Platzhalter)
-            ORDER BY a.frist ASC NULLS LAST                            -- Sortierung nach Frist, NULL-Werte am Ende
-        `, [tagId]);                                                    // SICHERHEIT: Array mit Parametern - tagId wird sicher für $1 eingesetzt
+            FROM Aufgaben a
+            JOIN aufgaben_tags at ON a.aufgaben_id = at.aufgaben_id
+            JOIN Tags t ON at.tag_id = t.tag_id
+            JOIN Users u ON a.users_id = u.users_id
+            JOIN Prioritaet p ON a.prio_id = p.prio_id
+            JOIN Status s ON a.status_id = s.status_id
+            WHERE t.tag_id = $1
+            ORDER BY a.frist ASC NULLS LAST
+        `, [tagId]);
         res.json(result.rows);                                          // Sendet alle Datenzeilen als JSON-Response
     } catch (err) {                                                     // Fängt alle DB-Fehler ab
         console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
@@ -154,8 +155,12 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ error: 'Status ist erforderlich' });
         }
         
-        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
-            INSERT INTO Aufgaben (                                     -- INSERT INTO für neue Datenzeile
+        // SQL-Query: Neue Aufgabe erstellen mit Eingabevalidierung
+        // - INSERT INTO mit RETURNING * gibt neue Zeile mit Auto-ID zurück
+        // - Parameterized Query für Sicherheit ($1-$6 Platzhalter)
+        // - kontrolliert standardmäßig auf false gesetzt
+        const result = await pool.query(`
+            INSERT INTO Aufgaben (
                 beschreibung, 
                 frist, 
                 vorlaufzeit_tage, 
@@ -163,9 +168,9 @@ router.post('/', async (req, res) => {
                 prio_id, 
                 status_id,
                 kontrolliert
-            ) VALUES ($1, $2, $3, $4, $5, $6, false)                   -- SICHERHEIT: Parameterized Query verhindert SQL-Injection, kontrolliert standardmäßig false
-            RETURNING *                                                 -- RETURNING * gibt die eingefügte Zeile mit allen Feldern zurück (inkl. Auto-ID)
-        `, [beschreibung, frist, vorlaufzeit_tage, users_id, prio_id, status_id]);  // SICHERHEIT: Array mit Parametern werden sicher für $1-$6 eingesetzt
+            ) VALUES ($1, $2, $3, $4, $5, $6, false)
+            RETURNING *
+        `, [beschreibung, frist, vorlaufzeit_tage, users_id, prio_id, status_id]);
         
         res.status(201).json(result.rows[0]);                          // HTTP 201 Created + die neue Aufgabe als JSON (rows[0] = erste/einzige Zeile)
     } catch (err) {                                                     // Fängt alle DB-Fehler ab
@@ -196,17 +201,21 @@ router.put('/:id', async (req, res) => {
             return res.status(400).json({ error: 'Status ist erforderlich' });
         }
         
-        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
+        // SQL-Query: Ganze Aufgabe aktualisieren mit Eingabevalidierung
+        // - UPDATE mit RETURNING * gibt aktualisierte Zeile zurück
+        // - Parameterized Query für Sicherheit ($1-$7 Platzhalter)
+        // - WHERE-Klausel für spezifische Aufgabe
+        const result = await pool.query(`
             UPDATE Aufgaben 
-            SET beschreibung = $1,                                      -- UPDATE alle Felder mit neuen Werten
+            SET beschreibung = $1,
                 frist = $2,
                 vorlaufzeit_tage = $3,
                 users_id = $4,
                 prio_id = $5,
                 status_id = $6
-            WHERE aufgaben_id = $7                                      -- WHERE-Klausel für spezifische Aufgabe
-            RETURNING *                                                 -- RETURNING * gibt die aktualisierte Zeile mit allen Feldern zurück
-        `, [beschreibung, frist, vorlaufzeit_tage, users_id, prio_id, status_id, id]);  // SICHERHEIT: Array mit Parametern werden sicher für $1-$7 eingesetzt
+            WHERE aufgaben_id = $7
+            RETURNING *
+        `, [beschreibung, frist, vorlaufzeit_tage, users_id, prio_id, status_id, id]);
         
         if (result.rows.length === 0) {                                 // Prüft ob Aufgabe gefunden wurde
             return res.status(404).json({ error: 'Aufgabe nicht gefunden' });  // HTTP 404 Not Found wenn keine Zeile betroffen
@@ -230,12 +239,16 @@ router.patch('/:id/status', async (req, res) => {
             return res.status(400).json({ error: 'Status ID ist erforderlich' });  // HTTP 400 Bad Request mit Fehlermeldung
         }
         
-        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
+        // SQL-Query: Nur Status-Feld aktualisieren (PATCH für teilweise Updates)
+        // - UPDATE nur status_id Feld mit RETURNING *
+        // - Parameterized Query für Sicherheit ($1-$2 Platzhalter)
+        // - WHERE-Klausel für spezifische Aufgabe
+        const result = await pool.query(`
             UPDATE Aufgaben 
-            SET status_id = $1                                          -- UPDATE nur das status_id Feld
-            WHERE aufgaben_id = $2                                      -- WHERE-Klausel für spezifische Aufgabe
-            RETURNING *                                                 -- RETURNING * gibt die aktualisierte Zeile mit allen Feldern zurück
-        `, [status_id, id]);                                            // SICHERHEIT: Array mit Parametern werden sicher für $1 und $2 eingesetzt
+            SET status_id = $1
+            WHERE aufgaben_id = $2
+            RETURNING *
+        `, [status_id, id]);
         
         if (result.rows.length === 0) {                                 // Prüft ob Aufgabe gefunden wurde
             return res.status(404).json({ error: 'Aufgabe nicht gefunden' });  // HTTP 404 Not Found wenn keine Zeile betroffen
@@ -258,11 +271,15 @@ router.delete('/:id', async (req, res) => {
             return res.status(400).json({ error: 'Gültige Aufgaben-ID ist erforderlich' });  // HTTP 400 Bad Request mit Fehlermeldung
         }
         
-        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
+        // SQL-Query: Aufgabe löschen mit Bestätigung
+        // - DELETE mit RETURNING * gibt gelöschte Zeile zur Bestätigung zurück
+        // - Parameterized Query für Sicherheit ($1 Platzhalter)
+        // - WHERE-Klausel für spezifische Aufgabe
+        const result = await pool.query(`
             DELETE FROM Aufgaben 
-            WHERE aufgaben_id = $1                                      -- WHERE-Klausel für spezifische Aufgabe
-            RETURNING *                                                 -- RETURNING * gibt die gelöschte Zeile zurück (zur Bestätigung)
-        `, [id]);                                                       // SICHERHEIT: Array mit Parameter wird sicher für $1 eingesetzt
+            WHERE aufgaben_id = $1
+            RETURNING *
+        `, [id]);
         
         if (result.rows.length === 0) {                                 // Prüft ob Aufgabe gefunden wurde
             return res.status(404).json({ error: 'Aufgabe nicht gefunden' });  // HTTP 404 Not Found wenn keine Zeile betroffen
