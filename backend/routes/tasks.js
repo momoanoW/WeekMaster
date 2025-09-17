@@ -249,5 +249,33 @@ router.patch('/:id/status', async (req, res) => {
 });
 
 // DELETE /tasks/:id - Aufgabe löschen
+router.delete('/:id', async (req, res) => {
+    try {                                                               // try-catch für Fehlerbehandlung
+        const { id } = req.params;                                      // Destructuring: extrahiert id aus URL-Parameter (User-Input!)
+        
+        // Input-Validierung: ID muss eine gültige Zahl sein
+        if (!id || isNaN(id)) {                                        // Prüft ob ID vorhanden und numerisch ist (isNaN = is Not a Number)
+            return res.status(400).json({ error: 'Gültige Aufgaben-ID ist erforderlich' });  // HTTP 400 Bad Request mit Fehlermeldung
+        }
+        
+        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+            DELETE FROM Aufgaben 
+            WHERE aufgaben_id = $1                                      -- WHERE-Klausel für spezifische Aufgabe
+            RETURNING *                                                 -- RETURNING * gibt die gelöschte Zeile zurück (zur Bestätigung)
+        `, [id]);                                                       // SICHERHEIT: Array mit Parameter wird sicher für $1 eingesetzt
+        
+        if (result.rows.length === 0) {                                 // Prüft ob Aufgabe gefunden wurde
+            return res.status(404).json({ error: 'Aufgabe nicht gefunden' });  // HTTP 404 Not Found wenn keine Zeile betroffen
+        }
+        
+        res.status(200).json({ 
+            message: 'Aufgabe erfolgreich gelöscht',                   // Erfolgs-Nachricht
+            deleted_task: result.rows[0]                               // Die gelöschte Aufgabe zur Bestätigung
+        });
+    } catch (err) {                                                     // Fängt alle DB-Fehler ab
+        console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
+        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+    }
+});
 
 module.exports = router;
