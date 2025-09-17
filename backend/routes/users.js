@@ -8,11 +8,25 @@ const express = require('express');
 const router = express.Router();
 const client = require('../db');
 
-// TODO: User-Routen werden hier später implementiert:
-// GET /users - Alle User auflisten
-// GET /users/:id - Einzelnen User mit Details
-// POST /users - Neuen User erstellen
-// PUT /users/:id - User bearbeiten
-// DELETE /users/:id - User löschen
+// TODO: User-Routen werden schrittweise hinzugefügt:
+// GET /users - Alle User für Dropdown-Listen
+
+// GET /users - Alle User für Dropdown-Listen
+router.get('/', async (req, res) => {
+    try {                                                               // try-catch für Fehlerbehandlung
+        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+            SELECT 
+                users_id,
+                users_name
+            FROM Users                                                  -- Haupttabelle
+            ORDER BY users_name                                         -- Alphabetische Sortierung
+        `);
+        
+        res.json(result.rows);                                          // Alle Users als JSON
+    } catch (err) {                                                     // Fängt DB-Fehler ab
+        console.error(err);                                             // Loggt Fehler in Server-Konsole
+        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 mit Fehlermeldung
+    }
+});
 
 module.exports = router;
