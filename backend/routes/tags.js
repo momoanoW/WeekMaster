@@ -11,20 +11,25 @@ const pool = require('../db');
 // GET /tags - Alle Tags (für Dropdown-Listen und Übersicht)
 router.get('/', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
-        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
+        // SQL-Query: Alle Tags mit Aufgaben-Anzahl und Verwendungsinfo
+        // - COUNT zählt wie viele Aufgaben diesen Tag haben
+        // - CASE macht schönere Anzeige statt nur Zahlen
+        // - LEFT JOIN zeigt auch Tags ohne Aufgaben an
+        // - GROUP BY nötig wegen COUNT Aggregation
+        const result = await pool.query(`
             SELECT 
                 t.tag_id,
                 t.tag_name,
-                COUNT(at.aufgaben_id) as aufgaben_anzahl,               -- Zählt wie viele Aufgaben diesen Tag haben
-                CASE                                                     -- Macht schönere Anzeige statt nur Zahlen
+                COUNT(at.aufgaben_id) as aufgaben_anzahl,
+                CASE
                     WHEN COUNT(at.aufgaben_id) = 0 THEN 'Nicht verwendet'
                     WHEN COUNT(at.aufgaben_id) = 1 THEN '1 Aufgabe'
                     ELSE CONCAT(COUNT(at.aufgaben_id), ' Aufgaben')
                 END as verwendung_info
-            FROM Tags t                                                 -- Haupttabelle Tags
-            LEFT JOIN aufgaben_tags at ON t.tag_id = at.tag_id         -- LEFT JOIN: auch Tags ohne Aufgaben anzeigen
-            GROUP BY t.tag_id, t.tag_name                              -- GROUP BY nötig wegen COUNT Aggregation
-            ORDER BY t.tag_name                                        -- Alphabetische Sortierung der Tag-Namen
+            FROM Tags t
+            LEFT JOIN aufgaben_tags at ON t.tag_id = at.tag_id
+            GROUP BY t.tag_id, t.tag_name
+            ORDER BY t.tag_name
         `);
         res.json(result.rows);                                          // Sendet alle Tag-Daten als JSON
     } catch (err) {                                                     // Fängt DB-Fehler ab
@@ -42,22 +47,26 @@ router.get('/search', async (req, res) => {
             return res.status(400).json({ error: 'Query parameter q is required' });
         }
         
-        const result = await pool.query(`                            // Parameterized Query mit $1 - SICHER!
+        // SQL-Query: Tag-Suche mit Parameterized Query für Sicherheit
+        // - LOWER() macht Suche case-insensitive
+        // - %searchterm% findet auch Teilstrings
+        // - COUNT zählt Aufgaben pro Tag
+        const result = await pool.query(`
             SELECT 
                 t.tag_id,
                 t.tag_name,
-                COUNT(at.aufgaben_id) as aufgaben_anzahl,               -- Zählt Aufgaben pro Tag
-                CASE                                                     -- Macht schönere Anzeige statt nur Zahlen
+                COUNT(at.aufgaben_id) as aufgaben_anzahl,
+                CASE
                     WHEN COUNT(at.aufgaben_id) = 0 THEN 'Nicht verwendet'
                     WHEN COUNT(at.aufgaben_id) = 1 THEN '1 Aufgabe'
                     ELSE CONCAT(COUNT(at.aufgaben_id), ' Aufgaben')
                 END as verwendung_info
-            FROM Tags t                                                 
-            LEFT JOIN aufgaben_tags at ON t.tag_id = at.tag_id         
-            WHERE LOWER(t.tag_name) LIKE LOWER($1)                     -- LOWER() = findet "Beispieltag" auch bei "beispieltag" oder "BEISPIELTAG"
-            GROUP BY t.tag_id, t.tag_name                              
-            ORDER BY t.tag_name                                        
-        `, [`%${searchTerm}%`]);                                        // %searchterm% = findet auch "javascript" in "BeispieltagJavaScript"
+            FROM Tags t
+            LEFT JOIN aufgaben_tags at ON t.tag_id = at.tag_id
+            WHERE LOWER(t.tag_name) LIKE LOWER($1)
+            GROUP BY t.tag_id, t.tag_name
+            ORDER BY t.tag_name
+        `, [`%${searchTerm}%`]);
         
         res.json(result.rows);                                          // Suchergebnisse als JSON
     } catch (err) {                                                     
@@ -75,18 +84,23 @@ router.get('/autocomplete', async (req, res) => {
             return res.json([]);                                        // Leeres Array wenn zu kurz
         }
         
-        const result = await pool.query(`                            // Parameterized Query mit $1 - SICHER!
+        // SQL-Query: Autocomplete für Tag-Eingabe (max 10 Vorschläge)
+        // - LOWER() macht Suche case-insensitive
+        // - %searchterm% findet auch Teilstrings
+        // - ORDER BY Beliebte Tags zuerst, dann alphabetisch
+        // - LIMIT 10 für schnelle Performance
+        const result = await pool.query(`
             SELECT 
                 t.tag_id,
                 t.tag_name,
-                COUNT(at.aufgaben_id) as aufgaben_anzahl               -- Zeigt wie beliebt der Tag ist
-            FROM Tags t                                                 
-            LEFT JOIN aufgaben_tags at ON t.tag_id = at.tag_id         
-            WHERE LOWER(t.tag_name) LIKE LOWER($1)                     -- LOWER() = findet "Beispieltag" auch bei "beispieltag" oder "BEISPIELTAG"
-            GROUP BY t.tag_id, t.tag_name                              
-            ORDER BY COUNT(at.aufgaben_id) DESC, t.tag_name            -- Beliebte Tags zuerst, dann alphabetisch
-            LIMIT 10                                                    -- Max 10 Vorschläge für schnelle Performance
-        `, [`%${searchTerm}%`]);                                        // %searchterm% = findet auch "java" in "javascript"
+                COUNT(at.aufgaben_id) as aufgaben_anzahl
+            FROM Tags t
+            LEFT JOIN aufgaben_tags at ON t.tag_id = at.tag_id
+            WHERE LOWER(t.tag_name) LIKE LOWER($1)
+            GROUP BY t.tag_id, t.tag_name
+            ORDER BY COUNT(at.aufgaben_id) DESC, t.tag_name
+            LIMIT 10
+        `, [`%${searchTerm}%`]);
         
         res.json(result.rows);                                          // Autocomplete-Vorschläge als JSON
     } catch (err) {                                                     
@@ -105,21 +119,27 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ error: 'Tag-Name ist erforderlich' });  // HTTP 400 Bad Request mit Fehlermeldung
         }
         
-        // Prüfen ob Tag bereits existiert (Duplikat-Vermeidung)
-        const existingTag = await pool.query(`                       // Prüft auf existierenden Tag-Namen
+        // Prüfung ob Tag bereits existiert (Duplikat-Vermeidung)
+        // - LOWER() macht die Suche case-insensitive
+        // - trim() entfernt Leerzeichen am Anfang/Ende
+        const existingTag = await pool.query(`
             SELECT tag_id FROM Tags 
-            WHERE LOWER(tag_name) = LOWER($1)                          -- LOWER() macht die Suche case-insensitive
-        `, [tag_name.trim()]);                                          // trim() entfernt Leerzeichen am Anfang/Ende
+            WHERE LOWER(tag_name) = LOWER($1)
+        `, [tag_name.trim()]);
         
         if (existingTag.rows.length > 0) {                             // Wenn Tag bereits existiert
             return res.status(409).json({ error: 'Tag existiert bereits' });  // HTTP 409 Conflict
         }
         
-        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
-            INSERT INTO Tags (tag_name)                                -- INSERT INTO für neue Datenzeile
-            VALUES ($1)                                                 -- SICHERHEIT: Parameterized Query verhindert SQL-Injection
-            RETURNING *                                                 -- RETURNING * gibt die eingefügte Zeile mit allen Feldern zurück (inkl. Auto-ID)
-        `, [tag_name.trim()]);                                          // SICHERHEIT: Parameter wird sicher für $1 eingesetzt
+        // SQL-Query: Neuen Tag erstellen mit RETURNING für Auto-ID
+        // - INSERT INTO für neue Datenzeile
+        // - Parameterized Query verhindert SQL-Injection
+        // - RETURNING * gibt eingefügte Zeile mit Auto-ID zurück
+        const result = await pool.query(`
+            INSERT INTO Tags (tag_name)
+            VALUES ($1)
+            RETURNING *
+        `, [tag_name.trim()]);
         
         res.status(201).json(result.rows[0]);                          // HTTP 201 Created + der neue Tag als JSON (rows[0] = erste/einzige Zeile)
     } catch (err) {                                                     // Fängt alle DB-Fehler ab
@@ -139,22 +159,28 @@ router.put('/:id', async (req, res) => {
             return res.status(400).json({ error: 'Tag-Name ist erforderlich' });  // HTTP 400 Bad Request mit Fehlermeldung
         }
         
-        // Prüfen ob anderer Tag mit diesem Namen bereits existiert (Duplikat-Vermeidung)
-        const existingTag = await pool.query(`                       // Prüft auf existierenden Tag-Namen (außer dem aktuellen)
+        // Prüfung ob anderer Tag mit diesem Namen bereits existiert (Duplikat-Vermeidung)
+        // - LOWER() macht die Suche case-insensitive
+        // - != $2 schließt aktuellen Tag aus
+        const existingTag = await pool.query(`
             SELECT tag_id FROM Tags 
-            WHERE LOWER(tag_name) = LOWER($1) AND tag_id != $2         -- LOWER() macht die Suche case-insensitive, != $2 schließt aktuellen Tag aus
-        `, [tag_name.trim(), id]);                                      // trim() entfernt Leerzeichen, id ist der aktuelle Tag
+            WHERE LOWER(tag_name) = LOWER($1) AND tag_id != $2
+        `, [tag_name.trim(), id]);
         
         if (existingTag.rows.length > 0) {                             // Wenn anderer Tag mit diesem Namen bereits existiert
             return res.status(409).json({ error: 'Tag existiert bereits' });  // HTTP 409 Conflict
         }
         
-        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
+        // SQL-Query: Tag aktualisieren mit RETURNING für Bestätigung
+        // - UPDATE tag_name mit neuem Wert
+        // - WHERE-Klausel für spezifischen Tag
+        // - RETURNING * gibt aktualisierte Zeile zurück
+        const result = await pool.query(`
             UPDATE Tags 
-            SET tag_name = $1                                           -- UPDATE tag_name mit neuem Wert
-            WHERE tag_id = $2                                           -- WHERE-Klausel für spezifischen Tag
-            RETURNING *                                                 -- RETURNING * gibt die aktualisierte Zeile mit allen Feldern zurück
-        `, [tag_name.trim(), id]);                                      // SICHERHEIT: Array mit Parametern werden sicher für $1 und $2 eingesetzt
+            SET tag_name = $1
+            WHERE tag_id = $2
+            RETURNING *
+        `, [tag_name.trim(), id]);
         
         if (result.rows.length === 0) {                                 // Prüft ob Tag gefunden wurde
             return res.status(404).json({ error: 'Tag nicht gefunden' });  // HTTP 404 Not Found wenn keine Zeile betroffen
@@ -177,10 +203,11 @@ router.delete('/:id', async (req, res) => {
             return res.status(400).json({ error: 'Gültige Tag-ID ist erforderlich' });  // HTTP 400 Bad Request mit Fehlermeldung
         }
         
-        // Prüfen ob Tag in Aufgaben verwendet wird (Referential Integrity)
-        const usageCheck = await pool.query(`                        // Prüft ob Tag in Verknüpfungstabelle verwendet wird
+        // Prüfung ob Tag in Aufgaben verwendet wird (Referential Integrity)
+        // - Zählt Verknüpfungen mit diesem Tag in aufgaben_tags
+        const usageCheck = await pool.query(`
             SELECT COUNT(*) as count FROM aufgaben_tags 
-            WHERE tag_id = $1                                           -- Zählt Verknüpfungen mit diesem Tag
+            WHERE tag_id = $1
         `, [id]);
         
         const usageCount = parseInt(usageCheck.rows[0].count);         // Wandelt String in Zahl um
@@ -191,11 +218,15 @@ router.delete('/:id', async (req, res) => {
             });
         }
         
-        const result = await pool.query(`                            // await wartet auf DB-Antwort, pool.query() führt SQL aus
+        // SQL-Query: Tag löschen mit RETURNING für Bestätigung
+        // - DELETE FROM für Löschung
+        // - WHERE-Klausel für spezifischen Tag
+        // - RETURNING * gibt gelöschte Zeile zur Bestätigung zurück
+        const result = await pool.query(`
             DELETE FROM Tags 
-            WHERE tag_id = $1                                           -- WHERE-Klausel für spezifischen Tag
-            RETURNING *                                                 -- RETURNING * gibt die gelöschte Zeile zurück (zur Bestätigung)
-        `, [id]);                                                       // SICHERHEIT: Array mit Parameter wird sicher für $1 eingesetzt
+            WHERE tag_id = $1
+            RETURNING *
+        `, [id]);
         
         if (result.rows.length === 0) {                                 // Prüft ob Tag gefunden wurde
             return res.status(404).json({ error: 'Tag nicht gefunden' });  // HTTP 404 Not Found wenn keine Zeile betroffen
