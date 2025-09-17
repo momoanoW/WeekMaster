@@ -1,19 +1,40 @@
 /**
- * PRIORITAETEN.JS - Prioritäten Resource Router
- * - CRUD-Operationen für Prioritäten
- * - Prioritäten-Management (normalerweise statische Daten)
+ * PRIORITAETEN.JS - Router für Prioritäten-Verwaltung
  */
 
 const express = require('express');
 const router = express.Router();
-const client = require('../db');
+const db = require('../db');
 
-// TODO: Prioritäten-Routen werden schrittweise hinzugefügt:
-// GET /prioritaeten - Alle Prioritäten (für Dropdown-Listen)
+// GET /prioritaeten - Alle Prioritäten für Dropdown-Menüs abrufen
+// Gibt eine Liste aller Prioritäten zurück, sortiert nach Wichtigkeit
 
-// TODO: Weitere Prioritäten-Routen (falls nötig):
-// POST /prioritaeten - Neue Priorität erstellen
-// PUT /prioritaeten/:id - Priorität bearbeiten  
-// DELETE /prioritaeten/:id - Priorität löschen
+router.get('/', async (req, res) => {
+    try {
+        // SQL-Abfrage: Alle Prioritäten mit ID und Name abrufen
+        // ORDER BY prio_id sorgt für konsistente Reihenfolge (Niedrig → Hoch)
+        const query = `
+            SELECT prio_id, prio_name 
+            FROM prioritaeten 
+            ORDER BY prio_id ASC
+        `;
+        
+        // Datenbankabfrage ausführen
+        const result = await db.query(query);
+        
+        // Erfolgreich: JSON-Array mit Prioritäten zurückgeben
+        res.json(result.rows);
+        
+    } catch (error) {
+        // Fehlerbehandlung: Log für Debugging, generische Fehlermeldung für Client
+        console.error('Fehler beim Abrufen der Prioritäten:', error);
+        res.status(500).json({ 
+            error: 'Fehler beim Abrufen der Prioritäten',
+            message: 'Interner Serverfehler - bitte später nochmal versuchen'
+        });
+    }
+});
 
+// Router exportieren für Verwendung in index.js
+// Wird dort unter /api/prioritaeten registriert
 module.exports = router;
