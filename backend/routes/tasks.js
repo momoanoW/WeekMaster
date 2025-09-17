@@ -178,6 +178,34 @@ router.post('/', async (req, res) => {
 
 // PUT /tasks/:id - Aufgabe bearbeiten  
 // PATCH /tasks/:id/status - Status ändern
+router.patch('/:id/status', async (req, res) => {
+    try {                                                               // try-catch für Fehlerbehandlung
+        const { id } = req.params;                                      // Destructuring: extrahiert id aus URL-Parameter (User-Input!)
+        const { status_id } = req.body;                                 // Destructuring: nur status_id aus Request Body
+        
+        // Input-Validierung: Status ist Pflichtfeld
+        if (!status_id) {                                              // Prüft ob status_id vorhanden ist
+            return res.status(400).json({ error: 'Status ID ist erforderlich' });  // HTTP 400 Bad Request mit Fehlermeldung
+        }
+        
+        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+            UPDATE Aufgaben 
+            SET status_id = $1                                          -- UPDATE nur das status_id Feld
+            WHERE aufgaben_id = $2                                      -- WHERE-Klausel für spezifische Aufgabe
+            RETURNING *                                                 -- RETURNING * gibt die aktualisierte Zeile mit allen Feldern zurück
+        `, [status_id, id]);                                            // SICHERHEIT: Array mit Parametern werden sicher für $1 und $2 eingesetzt
+        
+        if (result.rows.length === 0) {                                 // Prüft ob Aufgabe gefunden wurde
+            return res.status(404).json({ error: 'Aufgabe nicht gefunden' });  // HTTP 404 Not Found wenn keine Zeile betroffen
+        }
+        
+        res.status(200).json(result.rows[0]);                          // HTTP 200 OK + die aktualisierte Aufgabe als JSON
+    } catch (err) {                                                     // Fängt alle DB-Fehler ab
+        console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
+        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+    }
+});
+
 // DELETE /tasks/:id - Aufgabe löschen
 
 module.exports = router;
