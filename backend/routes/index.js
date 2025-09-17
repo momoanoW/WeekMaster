@@ -9,11 +9,11 @@ const express = require('express');
 const router = express.Router();
 
 // Importiert alle Resource-Router
-const aufgabenRoutes = require('./aufgaben');
+const tasksRoutes = require('./tasks');
 const tagsRoutes = require('./tags');
 const usersRoutes = require('./users');
 const dashboardRoutes = require('./dashboard');
-const prioritaetenRoutes = require('./prioritaeten');
+const prioritiesRoutes = require('./priorities');
 const statusRoutes = require('./status');
 
 // Root-Route für API-Test
@@ -22,11 +22,11 @@ router.get('/', async (req, res) => {
 });
 
 // Registriert alle Resource-Router mit ihren Pfaden
-router.use('/aufgaben', aufgabenRoutes);    // Alle Aufgaben-CRUD unter /aufgaben/*
+router.use('/tasks', tasksRoutes);          // Alle Aufgaben-CRUD unter /tasks/*
 router.use('/tags', tagsRoutes);            // Alle Tag-CRUD unter /tags/*
 router.use('/users', usersRoutes);          // Alle User-CRUD unter /users/*
 router.use('/dashboard', dashboardRoutes);  // Dashboard/Stats unter /dashboard/*
-router.use('/prioritaeten', prioritaetenRoutes); // Prioritäten unter /prioritaeten/*
+router.use('/priorities', prioritiesRoutes); // Prioritäten unter /priorities/*
 router.use('/status', statusRoutes);        // Status unter /status/*
 
 module.exports = router;

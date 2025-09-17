@@ -1,5 +1,5 @@
 /**
- * AUFGABEN.JS - Aufgaben Resource Router
+ * TASKS.JS - Aufgaben Resource Router
  * - Alle CRUD-Operationen für Aufgaben
  * - GET (Read), POST (Create), PUT (Update), DELETE (Delete)
  * - Komplexe Queries mit JOINs für vollständige Aufgaben-Details
@@ -9,7 +9,7 @@ const express = require('express');
 const router = express.Router();
 const client = require('../db');
 
-// GET /aufgaben - Alle Aufgaben mit vollständigen Details (für Hauptansicht)
+// GET /tasks - Alle Aufgaben mit vollständigen Details (für Hauptansicht)
 router.get('/', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
         const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus, Backtick für mehrzeilige Strings
@@ -41,7 +41,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// GET /aufgaben/urgent - Dringende Aufgaben (nächste 7 Tage)
+// GET /tasks/urgent - Dringende Aufgaben (nächste 7 Tage)
 router.get('/urgent', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
         const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
@@ -72,7 +72,7 @@ router.get('/urgent', async (req, res) => {
     }
 });
 
-// GET /aufgaben/user/:userId - Aufgaben nach Benutzer mit Statistiken
+// GET /tasks/user/:userId - Aufgaben nach Benutzer mit Statistiken
 router.get('/user/:userId', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
         const { userId } = req.params;                                  // Destructuring: extrahiert userId aus URL-Parameter (User-Input!)
@@ -106,7 +106,7 @@ router.get('/user/:userId', async (req, res) => {
     }
 });
 
-// GET /aufgaben/tag/:tagId - Aufgaben nach Tag
+// GET /tasks/tag/:tagId - Aufgaben nach Tag
 router.get('/tag/:tagId', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
         const { tagId } = req.params;                                   // Destructuring: extrahiert tagId aus URL-Parameter (User-Input!)
@@ -136,9 +136,9 @@ router.get('/tag/:tagId', async (req, res) => {
 });
 
 // TODO: CRUD-Operationen werden später hinzugefügt:
-// POST /aufgaben - Neue Aufgabe erstellen
-// PUT /aufgaben/:id - Aufgabe bearbeiten  
-// PATCH /aufgaben/:id/status - Status ändern
-// DELETE /aufgaben/:id - Aufgabe löschen
+// POST /tasks - Neue Aufgabe erstellen
+// PUT /tasks/:id - Aufgabe bearbeiten  
+// PATCH /tasks/:id/status - Status ändern
+// DELETE /tasks/:id - Aufgabe löschen
 
 module.exports = router;

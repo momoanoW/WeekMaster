@@ -6,7 +6,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
-// GET /prioritaeten - Alle Prioritäten für Dropdown-Menüs abrufen
+// GET /prioritaet - Alle Prioritäten für Dropdown-Menüs abrufen
 // Gibt eine Liste aller Prioritäten zurück, sortiert nach Wichtigkeit
 
 router.get('/', async (req, res) => {
@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
         // ORDER BY prio_id sorgt für konsistente Reihenfolge (Niedrig → Hoch)
         const query = `
             SELECT prio_id, prio_name 
-            FROM prioritaeten 
+            FROM Prioritaet 
             ORDER BY prio_id ASC
         `;
         
@@ -36,5 +36,5 @@ router.get('/', async (req, res) => {
 });
 
 // Router exportieren für Verwendung in index.js
-// Wird dort unter /api/prioritaeten registriert
+// Wird dort unter /api/prioritaet registriert
 module.exports = router;
