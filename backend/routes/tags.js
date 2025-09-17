@@ -95,12 +95,120 @@ router.get('/autocomplete', async (req, res) => {
     }
 });
 
-
-// TODO: CRUD-Operationen werden später hinzugefügt:
 // POST /tags - Neuen Tag erstellen
+router.post('/', async (req, res) => {
+    try {                                                               // try-catch für Fehlerbehandlung
+        const { tag_name } = req.body;                                  // Destructuring: tag_name aus Request Body
+        
+        // Input-Validierung: Tag-Name ist Pflichtfeld
+        if (!tag_name || !tag_name.trim()) {                           // Prüft auf null/undefined UND leeren String (trim() entfernt Leerzeichen)
+            return res.status(400).json({ error: 'Tag-Name ist erforderlich' });  // HTTP 400 Bad Request mit Fehlermeldung
+        }
+        
+        // Prüfen ob Tag bereits existiert (Duplikat-Vermeidung)
+        const existingTag = await client.query(`                       // Prüft auf existierenden Tag-Namen
+            SELECT tag_id FROM Tags 
+            WHERE LOWER(tag_name) = LOWER($1)                          -- LOWER() macht die Suche case-insensitive
+        `, [tag_name.trim()]);                                          // trim() entfernt Leerzeichen am Anfang/Ende
+        
+        if (existingTag.rows.length > 0) {                             // Wenn Tag bereits existiert
+            return res.status(409).json({ error: 'Tag existiert bereits' });  // HTTP 409 Conflict
+        }
+        
+        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+            INSERT INTO Tags (tag_name)                                -- INSERT INTO für neue Datenzeile
+            VALUES ($1)                                                 -- SICHERHEIT: Parameterized Query verhindert SQL-Injection
+            RETURNING *                                                 -- RETURNING * gibt die eingefügte Zeile mit allen Feldern zurück (inkl. Auto-ID)
+        `, [tag_name.trim()]);                                          // SICHERHEIT: Parameter wird sicher für $1 eingesetzt
+        
+        res.status(201).json(result.rows[0]);                          // HTTP 201 Created + der neue Tag als JSON (rows[0] = erste/einzige Zeile)
+    } catch (err) {                                                     // Fängt alle DB-Fehler ab
+        console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
+        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+    }
+});
+
 // PUT /tags/:id - Tag bearbeiten
+router.put('/:id', async (req, res) => {
+    try {                                                               // try-catch für Fehlerbehandlung
+        const { id } = req.params;                                      // Destructuring: extrahiert id aus URL-Parameter (User-Input!)
+        const { tag_name } = req.body;                                  // Destructuring: tag_name aus Request Body
+        
+        // Input-Validierung: Tag-Name ist Pflichtfeld
+        if (!tag_name || !tag_name.trim()) {                           // Prüft auf null/undefined UND leeren String (trim() entfernt Leerzeichen)
+            return res.status(400).json({ error: 'Tag-Name ist erforderlich' });  // HTTP 400 Bad Request mit Fehlermeldung
+        }
+        
+        // Prüfen ob anderer Tag mit diesem Namen bereits existiert (Duplikat-Vermeidung)
+        const existingTag = await client.query(`                       // Prüft auf existierenden Tag-Namen (außer dem aktuellen)
+            SELECT tag_id FROM Tags 
+            WHERE LOWER(tag_name) = LOWER($1) AND tag_id != $2         -- LOWER() macht die Suche case-insensitive, != $2 schließt aktuellen Tag aus
+        `, [tag_name.trim(), id]);                                      // trim() entfernt Leerzeichen, id ist der aktuelle Tag
+        
+        if (existingTag.rows.length > 0) {                             // Wenn anderer Tag mit diesem Namen bereits existiert
+            return res.status(409).json({ error: 'Tag existiert bereits' });  // HTTP 409 Conflict
+        }
+        
+        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+            UPDATE Tags 
+            SET tag_name = $1                                           -- UPDATE tag_name mit neuem Wert
+            WHERE tag_id = $2                                           -- WHERE-Klausel für spezifischen Tag
+            RETURNING *                                                 -- RETURNING * gibt die aktualisierte Zeile mit allen Feldern zurück
+        `, [tag_name.trim(), id]);                                      // SICHERHEIT: Array mit Parametern werden sicher für $1 und $2 eingesetzt
+        
+        if (result.rows.length === 0) {                                 // Prüft ob Tag gefunden wurde
+            return res.status(404).json({ error: 'Tag nicht gefunden' });  // HTTP 404 Not Found wenn keine Zeile betroffen
+        }
+        
+        res.status(200).json(result.rows[0]);                          // HTTP 200 OK + der aktualisierte Tag als JSON
+    } catch (err) {                                                     // Fängt alle DB-Fehler ab
+        console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
+        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+    }
+});
+
 // DELETE /tags/:id - Tag löschen
-// POST /tags/:tagId/aufgaben/:aufgabenId - Tag zu Aufgabe hinzufügen
-// DELETE /tags/:tagId/aufgaben/:aufgabenId - Tag von Aufgabe entfernen
+router.delete('/:id', async (req, res) => {
+    try {                                                               // try-catch für Fehlerbehandlung
+        const { id } = req.params;                                      // Destructuring: extrahiert id aus URL-Parameter (User-Input!)
+        
+        // Input-Validierung: ID muss eine gültige Zahl sein
+        if (!id || isNaN(id)) {                                        // Prüft ob ID vorhanden und numerisch ist (isNaN = is Not a Number)
+            return res.status(400).json({ error: 'Gültige Tag-ID ist erforderlich' });  // HTTP 400 Bad Request mit Fehlermeldung
+        }
+        
+        // Prüfen ob Tag in Aufgaben verwendet wird (Referential Integrity)
+        const usageCheck = await client.query(`                        // Prüft ob Tag in Junction-Table verwendet wird
+            SELECT COUNT(*) as count FROM aufgaben_tags 
+            WHERE tag_id = $1                                           -- Zählt Verknüpfungen mit diesem Tag
+        `, [id]);
+        
+        const usageCount = parseInt(usageCheck.rows[0].count);         // Wandelt String in Zahl um
+        if (usageCount > 0) {                                          // Wenn Tag noch verwendet wird
+            return res.status(409).json({ 
+                error: 'Tag kann nicht gelöscht werden', 
+                reason: `Tag wird noch in ${usageCount} Aufgabe(n) verwendet`  // Informative Fehlermeldung
+            });
+        }
+        
+        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+            DELETE FROM Tags 
+            WHERE tag_id = $1                                           -- WHERE-Klausel für spezifischen Tag
+            RETURNING *                                                 -- RETURNING * gibt die gelöschte Zeile zurück (zur Bestätigung)
+        `, [id]);                                                       // SICHERHEIT: Array mit Parameter wird sicher für $1 eingesetzt
+        
+        if (result.rows.length === 0) {                                 // Prüft ob Tag gefunden wurde
+            return res.status(404).json({ error: 'Tag nicht gefunden' });  // HTTP 404 Not Found wenn keine Zeile betroffen
+        }
+        
+        res.status(200).json({ 
+            message: 'Tag erfolgreich gelöscht',                       // Erfolgs-Nachricht
+            deleted_tag: result.rows[0]                                 // Der gelöschte Tag zur Bestätigung
+        });
+    } catch (err) {                                                     // Fängt alle DB-Fehler ab
+        console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
+        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+    }
+});
 
 module.exports = router;

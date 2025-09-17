@@ -8,7 +8,6 @@ const express = require('express');
 const router = express.Router();
 const client = require('../db');
 
-// TODO: Dashboard-Routen werden schrittweise hinzugefügt:
 // GET /dashboard/stats - Dashboard-Statistiken mit komplexen Aggregationen
 
 // GET /dashboard/stats - Dashboard-Statistiken mit komplexen Aggregationen
@@ -96,7 +95,5 @@ router.get('/priorities', async (req, res) => {
         res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 mit Fehlermeldung
     }
 });
-
-// TODO: Charts werden im Frontend aus /stats, /recent, /priorities generiert
 
 module.exports = router;

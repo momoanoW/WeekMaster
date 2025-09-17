@@ -8,9 +8,6 @@ const express = require('express');
 const router = express.Router();
 const client = require('../db');
 
-// TODO: User-Routen werden schrittweise hinzugefügt:
-// GET /users - Alle User für Dropdown-Listen
-
 // GET /users - Alle User für Dropdown-Listen
 router.get('/', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
