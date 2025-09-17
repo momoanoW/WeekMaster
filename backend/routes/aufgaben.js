@@ -72,8 +72,41 @@ router.get('/urgent', async (req, res) => {
     }
 });
 
-// TODO: Weitere Aufgaben-Routen werden schrittweise hinzugefügt:
 // GET /aufgaben/user/:userId - Aufgaben nach Benutzer mit Statistiken
+router.get('/user/:userId', async (req, res) => {
+    try {                                                               // try-catch für Fehlerbehandlung
+        const { userId } = req.params;                                  // Destructuring: extrahiert userId aus URL-Parameter (User-Input!)
+        const result = await client.query(`                            // await wartet auf DB-Antwort, client.query() führt SQL aus
+            SELECT 
+                a.aufgaben_id,
+                a.beschreibung,
+                a.frist,
+                a.kontrolliert,
+                p.prio_name,
+                s.status_name,
+                COUNT(CASE WHEN s.status_name = 'Erledigt' THEN 1 END) OVER() as erledigte_gesamt,  -- Window Function: zählt erledigte Aufgaben über alle Zeilen
+                COUNT(*) OVER() as aufgaben_gesamt                      -- Window Function: zählt alle Aufgaben des Users
+            FROM Aufgaben a                                             -- Haupttabelle
+            JOIN Users u ON a.users_id = u.users_id                    -- INNER JOIN: nur Aufgaben mit User
+            JOIN Prioritaet p ON a.prio_id = p.prio_id                 -- INNER JOIN: nur mit Priorität
+            JOIN Status s ON a.status_id = s.status_id                 -- INNER JOIN: nur mit Status
+            WHERE a.users_id = $1                                      -- SICHERHEIT: Parameterized Query verhindert SQL-Injection ($1 = Platzhalter)
+            ORDER BY 
+                CASE s.status_name                                      -- CASE in ORDER BY für intelligente Sortierung
+                    WHEN 'Erledigt' THEN 3                             -- Erledigte Aufgaben nach unten
+                    WHEN 'In Bearbeitung' THEN 1                       -- In Bearbeitung nach oben
+                    ELSE 2                                              -- Offene Aufgaben in der Mitte
+                END,
+                a.frist ASC NULLS LAST                                  -- Sekundäre Sortierung: nach Frist
+        `, [userId]);                                                   // SICHERHEIT: Array mit Parametern - userId wird sicher für $1 eingesetzt
+        res.json(result.rows);                                          // Sendet nur Datenzeilen als JSON-Response
+    } catch (err) {                                                     // Fängt alle DB-Fehler ab
+        console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole
+        res.status(500).json({ error: 'Database error' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
+    }
+});
+
+// TODO: Weitere Aufgaben-Routen werden schrittweise hinzugefügt:
 // GET /aufgaben/tag/:tagId - Aufgaben nach Tag
 
 // TODO: CRUD-Operationen werden später hinzugefügt:
