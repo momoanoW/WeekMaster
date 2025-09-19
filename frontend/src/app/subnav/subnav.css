@@ -1,0 +1,41 @@
+/* Sub-Navigation - Kontextuelle Actions und Filter */
+.sub-nav {
+  background: var(--sanft-grau);        /* Heller Hintergrund zur Abgrenzung */
+  padding: var(--abstand-mittel);       /* Einheitlicher Innenabstand */
+  border-bottom: 1px solid #e5e5e5;    /* Visuelle Trennung zum Content */
+}
+
+/* Action Buttons Container */
+.actions {
+  display: flex;                        /* Horizontale Anordnung der Buttons */
+  gap: var(--abstand-mittel);          /* Gleichmäßige Abstände zwischen Buttons */
+}
+
+/* Primärer Button (Neue Aufgabe) */
+.btn-primary {
+  background: var(--akzent-farbe);      /* Hervorhebung durch Akzent-Farbe */
+  color: white;                         /* Weißer Text für guten Kontrast */
+  border: none;                         /* Keine Umrandung für cleanen Look */
+  padding: 0.5rem var(--abstand-mittel); /* Angenehme Klickfläche */
+  border-radius: 4px;                   /* Leicht gerundete Ecken */
+  font-weight: 500;                     /* Etwas dickere Schrift für Wichtigkeit */
+  font-size: var(--schrift-sm);        /* Kleintext für Buttons */
+  cursor: pointer;                      /* Zeiger-Cursor für Interaktion */
+}
+
+/* Sekundäre Buttons (Filter, Sortieren) */
+.btn-secondary {
+  background: white;                    /* Neutraler weißer Hintergrund */
+  color: var(--text-primaer);          /* Standard-Textfarbe */
+  border: 1px solid #e5e5e5;          /* Dezente Umrandung */
+  padding: 0.5rem var(--abstand-mittel); /* Gleiche Größe wie Primär-Button */
+  border-radius: 4px;                   /* Konsistente Abrundung */
+  font-size: var(--schrift-sm);        /* Kleintext für Buttons */
+  cursor: pointer;                      /* Zeiger-Cursor für Interaktion */
+}
+
+/* Hover-Effekt für sekundäre Buttons */
+.btn-secondary:hover {
+  border-color: var(--akzent-farbe);    /* Akzent-Farbe bei Hover */
+  color: var(--akzent-farbe);          /* Text wird zur Akzent-Farbe */
+}
