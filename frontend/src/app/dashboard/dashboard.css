@@ -16,14 +16,14 @@
 }
 
 .datum-anzeige {
-  color: var(--text-sekundaer); /* Weniger auffällig als Haupttext */
-  font-size: var(--schrift-s);
+  color: var(--text-sekundaer); /* weniger auffällig als haupttext */
+  font-size: var(--schrift-sm);
   margin: var(--abstand-s) 0;
 }
 
 .motivation-text {
-  color: var(--text-sekundaer); /* Gleiche Farbe wie Datum */
-  font-size: var(--schrift-s);
+  color: var(--text-sekundaer); /* gleiche farbe wie datum */
+  font-size: var(--schrift-sm);
   margin-top: var(--abstand-s);
 }
 
@@ -38,5 +38,37 @@
   border: 1px solid var(--rand-standard);
   border-radius: var(--radius-m);
   padding: var(--abstand-l);
-  text-align: center; /* Zentrierter Karteninhalt */
+  text-align: center; /* zentrierter karteninhalt */
+}
+
+.karten-zahl {
+  font-size: var(--schrift-xl); /* große zahl für aufmerksamkeit */
+  font-weight: bold;
+  color: var(--text-primaer);
+  margin-bottom: var(--abstand-s);
+}
+
+.karten-titel {
+  font-size: var(--schrift-sm);
+  color: var(--text-sekundaer); /* weniger auffällig */
+}
+
+/* aktionen bereich */
+.aktionen-bereich {
+  margin-top: var(--abstand-l);
+  text-align: center; /* button zentrieren */
+}
+
+.btn-primary {
+  background-color: var(--akzent-farbe);
+  color: white;
+  border: none;
+  padding: var(--abstand-m) var(--abstand-l);
+  border-radius: var(--radius-m);
+  font-size: var(--schrift-md);
+  cursor: pointer; /* zeiger bei hover */
+}
+
+.btn-primary:hover {
+  opacity: 0.9; /* leicht transparenter bei hover */
 }
