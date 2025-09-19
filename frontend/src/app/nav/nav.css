@@ -1,0 +1,30 @@
+/* Hauptnavigation - Elemente */
+.main-nav {
+  background: white;                    /* Weißer Hintergrund für Hauptnav */
+  border-bottom: 1px solid #e5e5e5;   /* Trennung zur SubNav */
+  padding: 0 var(--abstand-mittel);   /* Horizontaler Padding für Alignment */
+}
+
+/* Navigation Liste */
+.main-nav ul {
+  list-style: none;                    /* Entfernt Bullet-Points */
+  display: flex;                       /* Horizontale Anordnung der Links */
+  gap: 2rem;                          /* Große Abstände zwischen Nav-Items */
+  margin: 0;                          /* Entfernt Browser-Standard-Margin */
+  padding: 0;                         /* Entfernt Browser-Standard-Padding */
+}
+
+/* Nav Links */
+.main-nav a {
+  color: var(--text-primaer);         /* Standard-Textfarbe */
+  text-decoration: none;              /* Keine Unterstreichung */
+  padding: var(--abstand-mittel) 0;   /* Vertikaler Padding für Klickfläche */
+  display: block;                     /* Block für bessere Klickfläche */
+  font-weight: 500;                   /* Etwas dickere Schrift für Navigation */
+  font-size: var(--schrift-md);      /* Standard-Fließtext-Größe */
+}
+
+/* Hover-Effekt */
+.main-nav a:hover {
+  color: var(--akzent-farbe);         /* Akzent-Farbe bei Hover für Feedback */
+}
