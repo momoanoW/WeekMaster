@@ -10,8 +10,18 @@
   --akzent-farbe: #f37126;      /* Buttons, Links, Highlights */
   --text-primaer: #2d2d2d;      /* Haupttext, Paragraphen */
   
-  /* Typographie */
+  /* Typographie - Schriftarten */
   --schrift-primaer: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  
+  /* Typographie - Schriftgrößen */
+  --schrift-xl: 2rem;           /* Große Überschriften (H1) */
+  --schrift-lg: 1.5rem;         /* Mittlere Überschriften (H2, Logo) */
+  --schrift-md: 1rem;           /* Standard-Fließtext */
+  --schrift-sm: 0.875rem;       /* Kleintext, Subtitles, Labels */
+  --schrift-xs: 0.75rem;        /* Sehr kleintext, Hinweise */
+  
+  /* Abstände */
+  --abstand-mittel: 1rem;       /* Standard Abstand für Komponenten */
 }
 
 body {
