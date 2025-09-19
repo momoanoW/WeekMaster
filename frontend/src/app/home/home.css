@@ -1,0 +1,11 @@
+/* Home mit Dashboard */
+.container {
+  padding: var(--abstand-mittel);       /* Einheitlicher Innenabstand für Content */
+}
+
+/* Überschrift */
+h2 {
+  color: var(--haupt-schwarz);          /* Dunkle Farbe für guten Kontrast */
+  font-family: var(--schrift-primaer);  /* Haupt-Schriftart aus Design System */
+  font-size: var(--schrift-xl);        /* Große Überschrift für Hierarchie */
+}
