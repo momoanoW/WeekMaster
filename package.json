@@ -3,16 +3,21 @@
   "version": "1.0.0",
   "description": "task-manager app",
   "main": "index.js",
-"scripts": {
-  "test": "echo \"Error: no test specified\" && exit 1",
-  "dev": "npm run start:all",
-  "start:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-  "dev:backend": "cd backend && npm run dev",
-  "dev:frontend": "cd frontend && npm start"
-},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npm run start:all",
+    "start:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm start"
+  },
   "author": "momoanoW",
   "license": "MIT",
   "dependencies": {
     "concurrently": "^9.2.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.13"
   }
 }

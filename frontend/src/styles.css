@@ -1,1 +1,17 @@
-/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* WeekMaster Design System */
+:root {
+  /* Farben */
+  --primary-black: #1a1a1a;
+  --soft-gray: #f8f8f8;
+  --border-gray: #e5e5e5;
+  --accent-color: #f79515; /* Ein einziger oranger Akzent */
+  --text-primary: #2d2d2d;
+  --text-secondary: #6b7280;
+}
+
+/* Typographie */
+.font-primary { font-family: 'Inter', sans-serif; }
