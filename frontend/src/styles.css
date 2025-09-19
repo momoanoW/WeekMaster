@@ -21,7 +21,22 @@
   --schrift-xs: 0.75rem;        /* Sehr kleintext, Hinweise */
   
   /* Abstände */
+  --abstand-xs: 0.25rem;        /* Sehr kleine Abstände */
+  --abstand-s: 0.5rem;          /* Kleine Abstände */
+  --abstand-m: 1rem;            /* Mittlere Abstände */
+  --abstand-l: 1.5rem;          /* Große Abstände */
+  --abstand-xl: 2rem;           /* Sehr große Abstände */
   --abstand-mittel: 1rem;       /* Standard Abstand für Komponenten */
+  
+  /* Weitere Farben */
+  --text-sekundaer: #6b7280;    /* Sekundärer Text */
+  --hintergrund-sekundaer: #ffffff; /* Karten-Hintergrund */
+  --rand-standard: #e5e7eb;     /* Standard Rahmen */
+  
+  /* Border Radius */
+  --radius-s: 0.25rem;          /* Kleine Rundung */
+  --radius-m: 0.5rem;           /* Mittlere Rundung */
+  --radius-l: 0.75rem;          /* Große Rundung */
 }
 
 body {
