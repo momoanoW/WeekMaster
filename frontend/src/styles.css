@@ -4,14 +4,21 @@
 
 /* WeekMaster Design System */
 :root {
-  /* Farben */
-  --primary-black: #1a1a1a;
-  --soft-gray: #f8f8f8;
-  --border-gray: #e5e5e5;
-  --accent-color: #f79515; /* Ein einziger oranger Akzent */
-  --text-primary: #2d2d2d;
-  --text-secondary: #6b7280;
+  /* Basis-Farben */
+  --haupt-schwarz: #1a1a1a;     /* Überschriften, wichtige Texte */
+  --sanft-grau: #f8f8f8;        /* Hintergründe, subtile Bereiche */
+  --akzent-farbe: #f37126;      /* Buttons, Links, Highlights */
+  --text-primaer: #2d2d2d;      /* Haupttext, Paragraphen */
+  
+  /* Typographie */
+  --schrift-primaer: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Typographie */
-.font-primary { font-family: 'Inter', sans-serif; }
+body {
+  font-family: var(--schrift-primaer);
+  color: var(--text-primaer);
+}
+
+h1, h2, h3 {
+  color: var(--haupt-schwarz);
+}
