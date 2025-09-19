@@ -1,0 +1,42 @@
+.dashboard-inhalt {
+  padding: var(--abstand-l);
+  max-width: 1200px; /* Maximale Breite für Desktop */
+  margin: 0 auto; /* Zentriert den Inhalt */
+}
+
+/* Kopfbereich Styling */
+.seiten-kopf {
+  margin-bottom: var(--abstand-l); /* Abstand zum nachfolgenden Inhalt */
+}
+
+.dashboard-titel {
+  font-size: var(--schrift-xl);
+  color: var(--text-primaer);
+  margin-bottom: var(--abstand-s); /* Abstand zum Datum */
+}
+
+.datum-anzeige {
+  color: var(--text-sekundaer); /* Weniger auffällig als Haupttext */
+  font-size: var(--schrift-s);
+  margin: var(--abstand-s) 0;
+}
+
+.motivation-text {
+  color: var(--text-sekundaer); /* Gleiche Farbe wie Datum */
+  font-size: var(--schrift-s);
+  margin-top: var(--abstand-s);
+}
+
+.statistik-karten {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive Karten */
+  gap: var(--abstand-m);
+}
+
+.karte {
+  background: var(--hintergrund-sekundaer);
+  border: 1px solid var(--rand-standard);
+  border-radius: var(--radius-m);
+  padding: var(--abstand-l);
+  text-align: center; /* Zentrierter Karteninhalt */
+}
