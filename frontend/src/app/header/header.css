@@ -1,0 +1,21 @@
+/* Header - nur Branding ohne Nav */
+header {
+  background: var(--sanft-grau);       /* Heller Hintergrund für Abgrenzung */
+  padding: var(--abstand-mittel);      /* Einheitlicher Innenabstand */
+  border-bottom: 1px solid #e5e5e5;   /* Visuelle Trennung zur Navigation */
+}
+
+/* Logo und Titel */
+h1 {
+  font-family: var(--schrift-primaer); /* Haupt-Schriftart für Branding */
+  color: var(--haupt-schwarz);         /* Dunkle Farbe für starken Kontrast */
+  margin: 0;                           /* Entfernt Browser-Standard-Margin */
+  font-size: var(--schrift-lg);       /* Mittlere Überschrift für Logo */
+}
+
+/* Untertitel/Beschreibung */
+.subtitle {
+  color: var(--text-primaer);          /* Standard-Textfarbe */
+  font-size: var(--schrift-sm);       /* Kleine Schriftgröße für Subtitle */
+  opacity: 0.7;                       /* Dezente Transparenz für Hierarchie */
+}
