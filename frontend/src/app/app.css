@@ -1,0 +1,27 @@
+/* WeekMaster - Globales Layout */
+
+/* Hauptcontainer für die gesamte App */
+:host {
+  display: flex;                       /* Flexbox für Spalten-Layout */
+  flex-direction: column;              /* Vertikal: Header, Nav, SubNav, Content */
+  min-height: 100vh;                   /* Mindesthöhe = volle Viewport-Höhe */
+}
+
+/* Router-Outlet Bereich kann flexibel wachsen */
+router-outlet + * {
+  flex: 1;                            /* Nimmt verfügbaren Platz ein */
+  display: flex;                      /* Flexbox für Content-Layout */
+  flex-direction: column;             /* Vertikal für Content-Struktur */
+}
+
+/* Smooth Scrolling (bessere UX) */
+* {
+  scroll-behavior: smooth;            /* Sanfte Scroll-Animation */
+}
+
+/* Mobile Layout */
+@media (max-width: 768px) {
+  :host {
+    padding: var(--abstand-klein);    /* Kleinere Abstände auf Mobile */
+  }
+}
