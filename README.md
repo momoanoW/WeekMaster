@@ -111,7 +111,7 @@ erDiagram
 
 ## Datenbankdesign
 
-Das ER-Diagramm oben zeigt die vollständige Datenbankstruktur. Vollständige Details und SQL-Definitionen finden sich in `docs/DATABASE-SCHEMA.sql`.
+Das ER-Diagramm oben zeigt die vollständige Datenbankstruktur. Noch mehr Details findest du in `docs/DATABASE-SCHEMA.sql`.
 
 **Kernkonzepte:**
 - **Intelligentes Deadline-Management**: Vorlaufzeit-System ermöglicht frühzeitige Benachrichtigungen vor der eigentlichen Frist
