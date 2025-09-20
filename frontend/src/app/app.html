@@ -1,5 +1,12 @@
 <app-header></app-header>
-<app-nav></app-nav>
-<app-subnav></app-subnav>
 
-<router-outlet></router-outlet>
+<div class="haupt-container">
+  <main class="inhalt-bereich">
+    <router-outlet></router-outlet>
+  </main>
+  
+  <aside class="navigation-bereich">
+    <app-nav></app-nav>
+    <app-subnav></app-subnav>
+  </aside>
+</div>

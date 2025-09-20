@@ -47,3 +47,107 @@ body {
 h1, h2, h3 {
   color: var(--haupt-schwarz);
 }
+
+/* Grid Layout */
+.haupt-container {
+  display: grid;
+  grid-template-columns: 1fr 250px; /* Hauptinhalt flexibel, Navigation schmaler */
+  gap: var(--abstand-m);            /* Kleinerer Abstand */
+  min-height: calc(100vh - 120px);  
+  padding: 0 var(--abstand-m);     /* Nur seitliches Padding */
+  max-width: 1200px;               /* Kleinere max. Breite */
+  margin: 0 auto;                  
+}
+
+.inhalt-bereich {
+  /* Hauptinhalt-Bereich - weniger Padding für mehr Platz */
+  background-color: var(--hintergrund-sekundaer);
+  border-radius: var(--radius-m);
+  padding: var(--abstand-m);       /* Weniger Padding */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: visible;               /* Bessere Sichtbarkeit */
+}
+
+.navigation-bereich {
+  /* Rechte Navigation - kompakter */
+  display: flex;
+  flex-direction: column;
+  gap: var(--abstand-s);           /* Kleinerer Abstand */
+  margin-top: var(--abstand-m);    /* Abstand von oben */
+  
+  /* Navigation-Komponenten stylen */
+  app-nav, app-subnav {
+    background-color: var(--hintergrund-sekundaer);
+    border-radius: var(--radius-s);
+    padding: var(--abstand-s);     /* Weniger Padding */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--rand-standard);
+  }
+}
+
+/* Responsive Design für mobile Geräte */
+@media (max-width: 768px) {
+  .haupt-container {
+    grid-template-columns: 1fr;     /* Einspaltiges Layout auf Mobilgeräten */
+    grid-template-rows: auto auto;   /* Navigation unter dem Inhalt */
+  }
+  
+  .navigation-bereich {
+    order: -1;                       /* Navigation oben auf Mobilgeräten */
+    flex-direction: row;             /* Horizontale Anordnung */
+    justify-content: space-between;
+  }
+}
+
+/* Navigation Komponenten Styling */
+.main-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Navigation Links */
+.main-nav li {
+  margin-bottom: var(--abstand-xs);  /* Abstand zwischen Nav-Items */
+}
+
+.main-nav a {
+  display: block;                    /* Block für größere Klickfläche */
+  padding: var(--abstand-xs) var(--abstand-s);
+  color: var(--text-primaer);
+  text-decoration: none;
+  border-radius: var(--radius-s);
+  transition: all 0.2s ease;        /* Sanfte Hover-Animation */
+  font-size: var(--schrift-xs);
+  font-weight: 500;
+}
+
+.main-nav a:hover {
+  background-color: var(--akzent-farbe);  /* Orange Hover-Effekt */
+  color: white;
+}
+
+/* Sub-Navigation Buttons */
+.sub-nav .actions {
+  display: flex;
+  gap: var(--abstand-xs);
+  flex-wrap: wrap;                   /* Umbrechen bei wenig Platz */
+}
+
+/* Sekundäre Buttons */
+.btn-secondary {
+  padding: var(--abstand-xs) var(--abstand-s);
+  background-color: var(--sanft-grau);  /* Hellgrauer Grundzustand */
+  border: 1px solid var(--rand-standard);
+  border-radius: var(--radius-s);
+  color: var(--text-primaer);
+  cursor: pointer;
+  font-size: var(--schrift-xs);
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: var(--akzent-farbe);  /* Orange bei Hover */
+  color: white;
+  border-color: var(--akzent-farbe);
+}
