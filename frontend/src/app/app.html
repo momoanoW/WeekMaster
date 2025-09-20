@@ -1,39 +1,4 @@
-<!-- WeekMaster App Layout -->
-<div class="app-container">
-  <!-- Header Section -->
-  <header class="app-header">
-    <h1>{{ title() }}</h1>
-    <span class="version">v{{ version() }}</span>
-  </header>
+<!-- Standard Angular App Template -->
+<h1>Welcome to {{ title }}!</h1>
 
-  <!-- Main Content Area -->
-  <div class="haupt-container">
-    <!-- Navigation Area -->
-    <nav class="navigation-bereich">
-      <div class="nav-links">
-        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
-        <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
-        <a routerLink="/tasks" routerLinkActive="active">Aufgaben</a>
-        <a routerLink="/tasks/new" routerLinkActive="active">Neue Aufgabe</a>
-      </div>
-    </nav>
-    
-    <!-- Main Content -->
-    <main class="inhalt-bereich">
-      <!-- Loading Indicator -->
-      @if (isLoading()) {
-        <div class="loading-spinner">
-          <p>Lädt...</p>
-        </div>
-      }
-      
-      <!-- Router Content -->
-      <router-outlet></router-outlet>
-    </main>
-  </div>
-
-  <!-- Footer -->
-  <footer class="app-footer">
-    <p>&copy; 2025 {{ title() }} - HTW Berlin WebTech Projekt</p>
-  </footer>
-</div>
+<router-outlet></router-outlet>
