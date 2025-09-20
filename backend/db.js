@@ -12,14 +12,16 @@ require('dotenv').config();
 // Pool = Mehrere Verbindungen für parallele Requests (statt Single Client)
 const { Pool } = require('pg');
 
-// Erstellt einen neuen PostgreSQL-Pool mit Verbindungsdaten aus .env
-// Pool managed automatisch mehrere Verbindungen (Standard: 10-20 gleichzeitig)
+// PostgreSQL-Pool mit Verbindungsdaten
 const pool = new Pool({
-    user: process.env.PGUSER,         // Benutzername
-    host: process.env.PGHOST,         // Server-Adresse 
-    database: process.env.PGDATABASE, // Datenbankname 
-    password: process.env.PGPASSWORD, // Passwort aus .env
-    port: process.env.PGPORT,         // Port (meist 5432 für PostgreSQL)
+    // Vercel/Cloud: Verwende DATABASE_URL (Connection String)
+    // Lokal: Verwende einzelne Umgebungsvariablen
+    connectionString: process.env.DATABASE_URL || undefined, //undefined ist ein Ausschalter
+    user: process.env.DATABASE_URL ? undefined : process.env.PGUSER,
+    host: process.env.DATABASE_URL ? undefined : process.env.PGHOST,
+    database: process.env.DATABASE_URL ? undefined : process.env.PGDATABASE,
+    password: process.env.DATABASE_URL ? undefined : process.env.PGPASSWORD,
+    port: process.env.DATABASE_URL ? undefined : process.env.PGPORT,
     max: 20,                          // Maximal 20 parallele Verbindungen
     idleTimeoutMillis: 30000,         // Verbindung nach 30s Inaktivität schließen
     connectionTimeoutMillis: 2000,    // 2s Timeout für neue Verbindung
