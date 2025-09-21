@@ -1,1 +1,36 @@
-<p>task-table works!</p>
+<div class="overflow-x-auto shadow-md sm:rounded-lg">   <!-- Container mit Scrollbalken für kleine Bildschirme -->
+  
+    <!-- Tabelle mit Tailwind CSS-->
+  <table class="w-full text-sm text-left text-gray-500">    <!-- Volle Breite, kleine Schrift, linksbündig, graue Schrift -->
+
+    <!-- Tabellenkopf -->
+    <thead class="text-xs text-gray-700 uppercase bg-gray-50"> <!-- Sehr kleine Schrift, graue Schrift, Großbuchstaben, hellgrauer Hintergrund -->
+      <tr>
+        <th scope="col" class="px-6 py-3">Beschreibung</th> <!-- Spaltenkopf mit padding, Browser default ist eh schon fette Schrift-->
+        <th scope="col" class="px-6 py-3">Status</th>   
+        <th scope="col" class="px-6 py-3">Priorität</th>
+        <th scope="col" class="px-6 py-3">Frist</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (task of taskService.getTasks(); track task.id) { <!-- Schleife die über alle Aufgaben iteriert -->
+      <tr class="bg-white border-b hover:bg-orange-300">       <!-- Tabellenzeile mit Hover-Effekt -->
+
+        <!-- Erste Spalte als vertikale Header-Spalte -->
+        <th
+          scope="row"                                   
+          class="px-6 py-4 font-bold text-pink-900 whitespace-nowrap"
+        >                                                   
+          {{ task.beschreibung }}
+        </th>
+        <!-- Weitere horizontale Zellen in der Zeile -->
+        <td class="px-6 py-4">{{ task.status }}</td>
+        <td class="px-6 py-4">{{ task.prioritaet}}</td>
+        <td class="px-6 py-4">{{ task.frist | date : "dd.MM.yyyy" }}</td>
+      </tr>
+      }
+    </tbody>
+
+  </table>
+</div>
