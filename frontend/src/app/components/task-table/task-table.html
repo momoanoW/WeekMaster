@@ -14,7 +14,7 @@
     </thead>
 
     <tbody>
-      @for (task of taskService.getTasks(); track task.id) { <!-- Schleife die über alle Aufgaben iteriert -->
+      @for (task of tasks; track task.id) { <!-- Schleife die über alle Aufgaben iteriert -->
       <tr class="bg-white border-b hover:bg-orange-300">       <!-- Tabellenzeile mit Hover-Effekt -->
 
         <!-- Erste Spalte als vertikale Header-Spalte -->
