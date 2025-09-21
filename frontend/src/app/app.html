@@ -1,2 +1,8 @@
+<app-header></app-header> <!-- eingangsbereich, wird immer angezeigt, egal welche Seite-->
 
-<router-outlet></router-outlet>
+<main class="container mx-auto p-4 min-h-screen"> <!-- Zentriert, mit Padding und Mindesthöhe für Footer am Ende der Seite -->
+  
+<router-outlet></router-outlet> <!-- Platzhalter für geroutete Komponenten -->
+</main>
+
+<app-footer></app-footer> <!-- ausgangsbereich, wird immer angezeigt, egal welche Seite-->
