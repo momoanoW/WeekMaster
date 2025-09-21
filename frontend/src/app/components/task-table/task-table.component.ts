@@ -7,7 +7,8 @@ import { TaskService } from '../../services/task.service'; //holt sich den TaskS
   selector: 'app-task-table', //Name der Component, die in allen HTMLs verwendet werden kann
   standalone: true, //macht die Komponente eigenständig, ohne dass sie in einem Modul deklariert werden muss
   imports: [CommonModule], //CommonModule für grundlegende Angular-Sachen
-  templateUrl: './task-table.html', //sagt Angular, wo das Tabellen-Gesicht (HTML) zu finden ist
+  templateUrl: './task-table.component.html', //sagt Angular, wo das Tabellen-Gesicht (HTML) zu finden ist
+  styleUrl: './task-table.component.css'
 })
 
 

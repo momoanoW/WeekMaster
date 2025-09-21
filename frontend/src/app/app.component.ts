@@ -11,8 +11,8 @@ import { FooterComponent } from './core/footer/footer.component'; // ausgangsber
 
   //Alle Bauteile hier bekannt machen
   imports: [RouterOutlet, HeaderComponent, FooterComponent],
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.css'
 })
 
 
