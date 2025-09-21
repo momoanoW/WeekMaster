@@ -3,7 +3,9 @@
 
 
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Task } from '../models/task.model';
+import { Observable } from 'rxjs'; //für asynchrone Datenströme, z.B. HTTP-Antworten
 
 @Injectable({ //kennzeichnet diese Klasse als Service, damit ganze App darauf zugreifen kann
   providedIn: 'root' //erstellt eine einzige Instanzdieses Services, die in der ganzen App verwendet wird (Singleton Pattern)
@@ -12,16 +14,16 @@ import { Task } from '../models/task.model';
 
 export class TaskService { //Service-Klasse (importierbar wegen "export")
 
-  //private Variable "tasks" ist ein Array von den Bauplänen Tasks aus (task.model.ts). Muss private sein, damit nicht verändert werden kann von außen.
-  private tasks: Task[] = [ 
-    { id: 1, beschreibung: 'Hausarbeit fertigstellen', frist: new Date('2023-05-01'), vorlaufzeit_tage: 5, kontrolliert: false, prioritaet: 'Hoch', user: 'Max', status: 'In Bearbeitung' },
-    { id: 2, beschreibung: 'Für die Prüfung lernen', frist: new Date('2023-05-15'), vorlaufzeit_tage: 10, kontrolliert: false, prioritaet: 'Hoch', user: 'Anna', status: 'Offen' },
-    { id: 3, beschreibung: 'Einkaufen gehen', frist: new Date('2023-05-10'), vorlaufzeit_tage: 3, kontrolliert: false, prioritaet: 'Mittel', user: 'Tom', status: 'Offen' },
-  ]; //... jetzt wurden die Daten gespeichert. jedes Objekt hier MUSS exakt dem Bauplan vom Task Interface entsprechen.
-  constructor() { }
+  private apiUrl = 'http://localhost:3000/api/tasks'; // Backend-Endpunkt für Tasks. Andere Klassen können nicht URL ändern (wegen private)
 
-  getTasks(): Task[] { //Methode, die als Schnittstelle das fertig erstellte (aber private) Array tasks zurückgibt
-    return this.tasks; //dadurch wird das fertige Array öffentlich zugänglich
-    // (weil "providedIn: 'root'"" bleibt es ein einziger Service mit nur diesem einen task-Array im gesamten Projekt)
+  // HttpClient-Werkzeug per Dependency Injection geben lassen
+  constructor(private http: HttpClient) { }
+
+  // Methode zum Abrufen der Aufgaben von der API - gibt Observable zurück (asynchroner Datenstrom)
+  getTasks(): Observable<Task[]> {
+    return this.http.get<Task[]>(this.apiUrl); // Holt Array von Tasks vom Backend und gibt als Observable zurück
+    // Observable = "Ich verspreche, dass hier später Task-Daten ankommen werden" (weil HTTP-Anfragen Zeit brauchen)
+    // (wegen "providedIn: 'root'" bleibt es ein einziger Service im gesamten Projekt)
   }
+
 }

@@ -23,8 +23,12 @@ export class TaskTableComponent implements OnInit { //Klasse verspricht Angular:
 
   //passiert direkt nach Build
   ngOnInit(): void {
-    // Benutze mein privates Werkzeug 'taskService' mit 'getTasks'-Methode und fülle meine öffentliche 'tasks' Array-Variable damit."
-    this.tasks = this.taskService.getTasks();
+    // Benutze mein privates Werkzeug 'taskService' mit 'getTasks'-Methode, die ein Observable (zukünftigen Datenstrom) zurückgibt.
+    // subscribe() abonniert den Datenstrom
+    // sobald Daten eintreffen (data), fülle meine öffentliche 'tasks' Array-Variable damit."
+    this.taskService.getTasks().subscribe((data) => {
+      this.tasks = data;
+    });
   }
 }
 

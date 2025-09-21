@@ -38,7 +38,6 @@ router.get('/', async (req, res) => {
                 a.aufgaben_id, a.beschreibung, a.frist, a.vorlaufzeit_tage, a.kontrolliert,
                 u.users_name, p.prio_name, s.status_name
             ORDER BY a.frist ASC NULLS LAST
-            LIMIT 5
         `);
         res.json(result.rows);                                          // Sendet nur die Datenzeilen als JSON
     } catch (err) {                                                     // Fängt DB-Fehler ab
