@@ -2,9 +2,8 @@
 <!-- HINTERGRUND feste Position, ganzer Bildschirm, schwarzer Hintergrund, 50% durchsichtig, 
      Flexbox-Layout, horizontal zentriert, vertikal zentriert -->
 
-  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md"> 
-  <!-- DIALOG-FENSTER GENERELL weißer Hintergrund, 24px Innenabstand, abgerundete Ecken, großer Schatten, 
-       volle Breite, max. 448px -->
+  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg max-h-[80vh] overflow-auto">  
+  <!-- DIALOG-FENSTER: weißer Hintergrund, 24px Innenabstand, abgerundete Ecken, großer Schatten, volle Breite, max-Breite 32rem (max-w-lg), max-Höhe 80vh, overflow-auto für Scrollen bei Überlauf -->
 
     <div class="flex justify-between items-center mb-4"> 
     <!-- ERSTE ZEILE Flexbox-Layout, maximaler Abstand zwischen Elementen, vertikal zentriert, 
@@ -103,7 +102,7 @@
         </div>
       </div>
 
-      <div class="mb-4"> <!-- NEU: SECHSTE ZEILE - Tags -->
+      <div class="mb-4"> <!-- SECHSTE ZEILE - Tags -->
         <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
         <div class="grid grid-cols-2 gap-4" formArrayName="selectedTags">
           <label *ngFor="let tag of tags; let i = index" class="flex items-center">
@@ -113,6 +112,11 @@
         </div>
       </div>
 
+      <div class="mb-4"> <!-- Bestätigungsmeldung unter Tags -->
+        <div *ngIf="confirmationMessage" class="bg-green-100 text-green-800 p-2 rounded text-center">
+          {{ confirmationMessage }}
+        </div>
+      </div>
       <div class="flex justify-end gap-4 mt-6"> <!-- UNTERE ZEILE MIT BUTTONS -->
       <!-- Flexbox-Layout, Elemente rechts ausrichten, 16px Abstand zwischen Elementen, 
            24px Abstand nach oben -->
@@ -129,7 +133,6 @@
              16px Innenabstand l/r, abgerundete Ecken, mittlerer Schatten, dunkleres Blau beim Hover -->
           Speichern
         </button>
-        <!--HIER TODO : Erfolgreich eingetragen DIALOG ÖFFNEN-->
       </div>
     </form>
 

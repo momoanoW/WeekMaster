@@ -22,6 +22,7 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
   users: any[] = [];
   taskForm: FormGroup; // in "taskForm" wird das gesamte Formular-Modell aus den nächsten Schritten gespeichert
   tags: any[] = []; // Liste aller verfügbaren Tags für Mehrfachauswahl
+  confirmationMessage: string | null = null; // Bestätigungsmeldung nach Speichern
 
   constructor(private fb: FormBuilder, private taskService: TaskService) { //Dependency Injection: private "fb" wird Werkzeug zum Erstellen von Formularen (nach Bauplan von FormBuilder)
 
@@ -93,8 +94,12 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
       this.taskService.createTask(formValue).subscribe({
         next: (response) => {
           console.log('Aufgabe erfolgreich erstellt:', response); // Bestätigung für erfolgreiche Speicherung
-          this.taskSaved.emit(); // SENDE EVENT AN DASHBOARD
-          this.sendCloseSignal(); // Schließt den Dialog nach erfolgreichem Speichern
+          this.confirmationMessage = 'Aufgabe wurde erfolgreich hinzugefügt.';
+          // Nach kurzer Anzeige automatisch schließen
+          //setTimeout(() => {
+          //  this.taskSaved.emit(); // SENDE EVENT AN DASHBOARD
+          //  this.sendCloseSignal(); // Schließt den Dialog nach erfolgreichem Speichern
+          //}, 1500);
         },
         error: (error) => {
           console.error('Fehler beim Erstellen der Aufgabe:', error);
