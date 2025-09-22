@@ -17,32 +17,20 @@
     <form [formGroup]="taskForm" (ngSubmit)="onSubmit()"> <!-- FORMULAR -->
       <div class="mb-4"> <!-- ERSTE ZEILE 16px Abstand nach unten -->
         <label for="beschreibung" class="block text-sm font-medium text-gray-700 mb-1">Beschreibung</label> 
-        <!-- ganze Zeile, 14px Schrift, mittlere Schriftstärke, dunkles Grau, 4px Abstand nach unten -->
         <input type="text" id="beschreibung" formControlName="beschreibung" placeholder="Aufgabenname eingeben"
-               class="block w-full px-3 py-2 placeholder:text-gray-400 border border-gray-300 rounded-md shadow-xl focus:outline-none focus:ring-4 focus:ring-pink-300 focus:border-blue-500"> 
-        <!-- Texteingabefeld mit Placeholder, ganze Zeile, volle Breite, 12px Innenabstand l/r, 8px Innenabstand o/u, dünner Rahmen, 
-             hellgrauer Rahmen, abgerundete Ecken, großer Schatten, kein Standard-Fokusrahmen, 
-             dicker pinker Ring bei Fokus, blauer Rahmen bei Fokus -->
+               class="form-input shadow-xl focus:ring-4 focus:ring-pink-300"> 
+        <!-- Texteingabefeld mit besonderen Effekten -->
       </div>
 
       <div class="mb-4"> <!-- ZWEITE ZEILE 16px Abstand nach unten -->
         <label for="frist" class="block text-sm font-medium text-gray-700 mb-1">Frist</label> 
-        <!-- ganze Zeile, 14px Schrift, mittlere Schriftstärke, dunkles Grau, 4px Abstand nach unten -->
-        <input type="date" id="frist" formControlName="frist"
-               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"> 
-        <!-- Datumeingabefeld, ganze Zeile, volle Breite, 12px Innenabstand l/r, 8px Innenabstand o/u, dünner Rahmen, 
-             hellgrauer Rahmen, abgerundete Ecken, kleiner Schatten, kein Standard-Fokusrahmen, 
-             blauer Ring bei Fokus, blauer Rahmen bei Fokus -->
+        <input type="date" id="frist" formControlName="frist" class="form-input">
       </div>
 
       <div class="mb-4"> <!-- DRITTE ZEILE 16px Abstand nach unten -->
         <label for="prioritaet" class="block text-sm font-medium text-gray-700 mb-1">Priorität</label> 
-        <!-- ganze Zeile, 14px Schrift, mittlere Schriftstärke, dunkles Grau, 4px Abstand nach unten -->
-        <select id="prioritaet" formControlName="prio_name"
-                class="block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"> 
-        <!-- Dropdown-Menü, ganze Zeile, volle Breite, 12px Innenabstand l/r, 8px Innenabstand o/u, dünner Rahmen, 
-             hellgrauer Rahmen, weißer Hintergrund, abgerundete Ecken, kleiner Schatten, 
-             kein Standard-Fokusrahmen, blauer Ring bei Fokus, blauer Rahmen bei Fokus -->
+        <select id="prioritaet" formControlName="prio_name" class="form-select">
+          <option>Default</option>
           <option>Niedrig</option>
           <option>Mittel</option>
           <option>Hoch</option>
@@ -51,26 +39,24 @@
 
       <div class="mb-4"> <!-- VIERTE ZEILE 16px Abstand nach unten -->
         <label for="vorlaufzeit" class="block text-sm font-medium text-gray-700 mb-1">Vorlaufzeit (Tage)</label>
-        <!-- ganze Zeile, 14px Schrift, mittlere Schriftstärke, dunkles Grau, 4px Abstand nach unten -->
-        <input type="number" id="vorlaufzeit" formControlName="vorlaufzeit_tage" placeholder="0"
-               class="block w-full px-3 py-2 placeholder:text-gray-400 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-        <!-- Zahleneingabefeld mit Placeholder, ganze Zeile, volle Breite, 12px Innenabstand l/r, 8px Innenabstand o/u, 
-             grauer Placeholder-Text, dünner Rahmen, hellgrauer Rahmen, abgerundete Ecken, kleiner Schatten, 
-             kein Standard-Fokusrahmen, blauer Ring bei Fokus, blauer Rahmen bei Fokus -->
+        <input type="number" id="vorlaufzeit" formControlName="vorlaufzeit_tage" placeholder="0" class="form-input">
       </div>
 
       <div class="mb-4"> <!-- FÜNFTE ZEILE 16px Abstand nach unten -->
         <label for="user" class="block text-sm font-medium text-gray-700 mb-1">User</label>
-        <!-- ganze Zeile, 14px Schrift, mittlere Schriftstärke, dunkles Grau, 4px Abstand nach unten -->
-        <select id="user" formControlName="users_name"
-                class="block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-        <!-- Dropdown-Menü für User, ganze Zeile, volle Breite, 12px Innenabstand l/r, 8px Innenabstand o/u, dünner Rahmen, 
-             hellgrauer Rahmen, weißer Hintergrund, abgerundete Ecken, kleiner Schatten, 
-             kein Standard-Fokusrahmen, blauer Ring bei Fokus, blauer Rahmen bei Fokus -->
-          <option value="" disabled selected>Bitte User auswählen</option>
-          <!-- Placeholder-Option, kann nicht ausgewählt werden, standardmäßig ausgewählt -->
+        <select id="user" formControlName="users_name" class="form-select">
+          <option>Default</option>
           <option *ngFor="let user of users" [value]="user.users_name">{{ user.users_name }}</option>
-          <!-- Dynamische Optionen aus der Datenbank laden -->
+        </select>
+      </div>
+
+      <div class="mb-4"> <!-- SECHSTE ZEILE 16px Abstand nach unten -->
+        <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+        <select id="status" formControlName="status_name" class="form-select">
+          <option>Default</option>
+          <option>Offen</option>
+          <option>In Bearbeitung</option>
+          <option>Erledigt</option>
         </select>
       </div>
 

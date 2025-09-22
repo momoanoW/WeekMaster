@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Gemeinsame Formular-Komponenten mit @apply */
+@layer components {
+  .form-input { 
+    /* TEXTEINGABE-KLASSE: Block-Element volle Breite Innenabstand-3x2 Platzhalter-grau Rahmen-grau rund-mittel Schatten-klein Fokus-ohne-Outline Fokus-Ring-blau Fokus-Rahmen-blau */
+    @apply block w-full px-3 py-2 placeholder:text-gray-400 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500;
+  }
+
+  .form-select {
+    /* DROPDOWN-KLASSE: Block-Element volle Breite Innenabstand-3x2 Rahmen-grau Hintergrund-weiß rund-mittel Schatten-klein Fokus-ohne-Outline Fokus-Ring-blau Fokus-Rahmen-blau */
+    @apply block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500;
+  }
+}
+
 /* WeekMaster Design System */
 :root {
   /* Basis-Farben */
@@ -11,7 +24,7 @@
   --text-primaer: #2d2d2d;      /* Haupttext, Paragraphen */
   
   /* Typographie - Schriftarten */
-  --schrift-primaer: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --schrift-primaer: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; /* System-Font mit Fallbacks */
   
   /* Typographie - Schriftgrößen */
   --schrift-xl: 2rem;           /* Große Überschriften (H1) */
@@ -21,42 +34,42 @@
   --schrift-xs: 0.75rem;        /* Sehr kleintext, Hinweise */
   
   /* Abstände */
-  --abstand-xs: 0.25rem;        /* Sehr kleine Abstände */
-  --abstand-s: 0.5rem;          /* Kleine Abstände */
-  --abstand-m: 1rem;            /* Mittlere Abstände */
-  --abstand-l: 1.5rem;          /* Große Abstände */
-  --abstand-xl: 2rem;           /* Sehr große Abstände */
+  --abstand-xs: 0.25rem;        /* 4px - Sehr kleine Abstände */
+  --abstand-s: 0.5rem;          /* 8px - Kleine Abstände */
+  --abstand-m: 1rem;            /* 16px - Mittlere Abstände */
+  --abstand-l: 1.5rem;          /* 24px - Große Abstände */
+  --abstand-xl: 2rem;           /* 32px - Sehr große Abstände */
   --abstand-mittel: 1rem;       /* Standard Abstand für Komponenten */
   
   /* Weitere Farben */
-  --text-sekundaer: #6b7280;    /* Sekundärer Text */
-  --hintergrund-sekundaer: #ffffff; /* Karten-Hintergrund */
-  --rand-standard: #e5e7eb;     /* Standard Rahmen */
+  --text-sekundaer: #6b7280;    /* Sekundärer Text, weniger wichtig */
+  --hintergrund-sekundaer: #ffffff; /* Karten-Hintergrund, Overlay */
+  --rand-standard: #e5e7eb;     /* Standard Rahmen, Trennlinien */
   
   /* Border Radius */
-  --radius-s: 0.25rem;          /* Kleine Rundung */
-  --radius-m: 0.5rem;           /* Mittlere Rundung */
-  --radius-l: 0.75rem;          /* Große Rundung */
+  --radius-s: 0.25rem;          /* 4px - Kleine Rundung */
+  --radius-m: 0.5rem;           /* 8px - Mittlere Rundung */
+  --radius-l: 0.75rem;          /* 12px - Große Rundung */
 }
 
 body {
-  font-family: var(--schrift-primaer);
-  color: var(--text-primaer);
+  font-family: var(--schrift-primaer); /* Standard-Schriftart für gesamte App */
+  color: var(--text-primaer);          /* Standard-Textfarbe */
 }
 
 h1, h2, h3 {
-  color: var(--haupt-schwarz);
+  color: var(--haupt-schwarz);         /* Überschriften in dunklerem Schwarz */
 }
 
-/* Grid Layout */
+/* Grid Layout für Hauptseite */
 .haupt-container {
-  display: grid;
-  grid-template-columns: 1fr 250px; /* Hauptinhalt flexibel, Navigation schmaler */
-  gap: var(--abstand-m);            /* Kleinerer Abstand */
-  min-height: calc(100vh - 120px);  
-  padding: 0 var(--abstand-m);     /* Nur seitliches Padding */
-  max-width: 1200px;               /* Kleinere max. Breite */
-  margin: 0 auto;                  
+  display: grid;                       /* CSS Grid für flexible Layouts */
+  grid-template-columns: 1fr 250px;    /* Hauptinhalt flexibel, Navigation 250px */
+  gap: var(--abstand-m);               /* 16px Abstand zwischen Grid-Bereichen */
+  min-height: calc(100vh - 120px);     /* Mindesthöhe minus Header/Footer */
+  padding: 0 var(--abstand-m);         /* Nur seitliche Polsterung */
+  max-width: 1200px;                   /* Maximale Breite für große Bildschirme */
+  margin: 0 auto;                      /* Zentrierte Ausrichtung */
 }
 
 .inhalt-bereich {
@@ -88,14 +101,14 @@ h1, h2, h3 {
 /* Responsive Design für mobile Geräte */
 @media (max-width: 768px) {
   .haupt-container {
-    grid-template-columns: 1fr;     /* Einspaltiges Layout auf Mobilgeräten */
-    grid-template-rows: auto auto;   /* Navigation unter dem Inhalt */
+    grid-template-columns: 1fr;       /* Einspaltiges Layout auf Mobilgeräten */
+    grid-template-rows: auto auto;     /* Navigation unter dem Inhalt */
   }
   
   .navigation-bereich {
-    order: -1;                       /* Navigation oben auf Mobilgeräten */
-    flex-direction: row;             /* Horizontale Anordnung */
-    justify-content: space-between;
+    order: -1;                         /* Navigation oben auf Mobilgeräten */
+    flex-direction: row;               /* Horizontale Anordnung statt vertikal */
+    justify-content: space-between;    /* Gleichmäßige Verteilung */
   }
 }
 
