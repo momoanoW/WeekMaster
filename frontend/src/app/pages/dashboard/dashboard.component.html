@@ -1,4 +1,22 @@
-<div>
-  <p style="color: rgb(255, 0, 55); font-size: 20px;">WeekMaster - Test!</p>
+<div class="p-4 sm:p-6 lg:p-8"> <!-- Padding für verschiedene Bildschirmgrößen -->
+  <div class="flex justify-between items-center mb-6"> <!-- Flexbox für Überschrift und Button (justify-between: Platz zwischen den Elementen + items-center: vertikale Zentrierung) -->
+    <h1 class="text-3xl font-bold text-gray-800">WeekMaster</h1> <!-- Hauptüberschrift -->
+
+    <!-- Stil für den Button, der den Dialog öffnet. (click) = Trigger für openDialog() -->
+    <button
+     (click)="openDialog()"
+     class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300"> 
+      + Neue Aufgabe
+    </button>
+  
+  </div>
+
+
+  <app-task-table></app-task-table> <!-- Aufruf Eingebettete TaskTable-Komponente -->
+
+@if (isDialogOpen) { <!-- Öffne folgende KOmp nur wenn openDialog() geklickt wurde (Bedingte Anzeige)-->
+  <app-task-dialog></app-task-dialog> <!-- Aufruf Eingebettete TaskDialog-Komponente -->
+}
+
+
 </div>
-<app-task-table></app-task-table>
