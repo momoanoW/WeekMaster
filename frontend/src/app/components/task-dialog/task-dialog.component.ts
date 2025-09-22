@@ -47,10 +47,8 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
       next: (users) => {
         this.users = users;
         console.log('Users für Dropdown geladen:', this.users);
-        // Ersten User als Standard setzen, wenn vorhanden
-        if (this.users.length > 0) {
-          this.taskForm.patchValue({ users_name: this.users[0].users_name });
-        }
+        // "Default" (1) als Startwert
+        // Benutzer kann bewusst auswählen oder "Default" verwenden
       },
       error: (error) => {
         console.error('Fehler beim Laden der Users für Dropdown:', error);

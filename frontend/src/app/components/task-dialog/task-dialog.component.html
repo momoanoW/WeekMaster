@@ -9,7 +9,7 @@
     <div class="flex justify-between items-center mb-4"> 
     <!-- ERSTE ZEILE Flexbox-Layout, maximaler Abstand zwischen Elementen, vertikal zentriert, 
          16px Abstand nach unten -->
-      <h2 class="text-2xl font-bold">Neue Aufgabe</h2> <!-- 24px Schrift, fette Schrift -->
+      <h2 class="text-2xl font-bold">Neue Aufgabe notieren</h2> <!-- 24px Schrift, fette Schrift -->
       <button (click)="sendCloseSignal()" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button> <!-- BUTTON zum Schliessen-->
       <!-- mittleres Grau, dunkles Grau beim Darüberfahren, 24px Schrift -->
     </div>
@@ -23,26 +23,6 @@
       </div>
 
       <div class="mb-4"> <!-- ZWEITE ZEILE 16px Abstand nach unten -->
-        <label for="frist" class="block text-sm font-medium text-gray-700 mb-1">Frist</label> 
-        <input type="date" id="frist" formControlName="frist" class="form-input">
-      </div>
-
-      <div class="mb-4"> <!-- DRITTE ZEILE 16px Abstand nach unten -->
-        <label for="prioritaet" class="block text-sm font-medium text-gray-700 mb-1">Priorität</label> 
-        <select id="prioritaet" formControlName="prio_name" class="form-select">
-          <option>Default</option>
-          <option>Niedrig</option>
-          <option>Mittel</option>
-          <option>Hoch</option>
-        </select>
-      </div>
-
-      <div class="mb-4"> <!-- VIERTE ZEILE 16px Abstand nach unten -->
-        <label for="vorlaufzeit" class="block text-sm font-medium text-gray-700 mb-1">Vorlaufzeit (Tage)</label>
-        <input type="number" id="vorlaufzeit" formControlName="vorlaufzeit_tage" placeholder="0" class="form-input">
-      </div>
-
-      <div class="mb-4"> <!-- FÜNFTE ZEILE 16px Abstand nach unten -->
         <label for="user" class="block text-sm font-medium text-gray-700 mb-1">User</label>
         <select id="user" formControlName="users_name" class="form-select">
           <option>Default</option>
@@ -50,14 +30,59 @@
         </select>
       </div>
 
-      <div class="mb-4"> <!-- SECHSTE ZEILE 16px Abstand nach unten -->
-        <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-        <select id="status" formControlName="status_name" class="form-select">
-          <option>Default</option>
-          <option>Offen</option>
-          <option>In Bearbeitung</option>
-          <option>Erledigt</option>
-        </select>
+      <div class="mb-4 grid grid-cols-2 gap-4"> <!-- DRITTE ZEILE 16px Abstand nach unten, 2-spaltig mit 16px Lücke -->
+        <div>
+          <label for="frist" class="block text-sm font-medium text-gray-700 mb-1">Frist</label> 
+          <input type="date" id="frist" formControlName="frist" class="form-input">
+        </div>
+        <div>
+          <label for="vorlaufzeit" class="block text-sm font-medium text-gray-700 mb-1">Vorlaufzeit (Tage)</label>
+          <input type="number" id="vorlaufzeit" formControlName="vorlaufzeit_tage" placeholder="0" class="form-input">
+        </div>
+      </div>
+
+      <div class="mb-4"> <!-- VIERTE ZEILE 16px Abstand nach unten -->
+        <label class="block text-sm font-medium text-gray-700 mb-2">Priorität</label>
+        <div class="flex gap-4"> <!-- Flexbox mit 16px Abstand zwischen Elementen -->
+          <label class="flex items-center">
+            <input type="radio" formControlName="prio_name" value="Default" class="mr-2">
+            <span>Default</span>
+          </label>
+          <label class="flex items-center">
+            <input type="radio" formControlName="prio_name" value="Niedrig" class="mr-2">
+            <span>Niedrig</span>
+          </label>
+          <label class="flex items-center">
+            <input type="radio" formControlName="prio_name" value="Mittel" class="mr-2">
+            <span>Mittel</span>
+          </label>
+          <label class="flex items-center">
+            <input type="radio" formControlName="prio_name" value="Hoch" class="mr-2">
+            <span>Hoch</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="mb-4"> <!-- FÜNFTE ZEILE 16px Abstand nach unten -->
+        <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+        <div class="flex gap-4"> <!-- Flexbox mit 16px Abstand zwischen Elementen -->
+          <label class="flex items-center">
+            <input type="radio" formControlName="status_name" value="Default" class="mr-2">
+            <span>Default</span>
+          </label>
+          <label class="flex items-center">
+            <input type="radio" formControlName="status_name" value="Offen" class="mr-2">
+            <span>Offen</span>
+          </label>
+          <label class="flex items-center">
+            <input type="radio" formControlName="status_name" value="In Bearbeitung" class="mr-2">
+            <span>In Bearbeitung</span>
+          </label>
+          <label class="flex items-center">
+            <input type="radio" formControlName="status_name" value="Erledigt" class="mr-2">
+            <span>Erledigt</span>
+          </label>
+        </div>
       </div>
 
       <div class="flex justify-end gap-4 mt-6"> <!-- UNTERE ZEILE MIT BUTTONS -->
