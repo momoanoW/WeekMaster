@@ -25,7 +25,6 @@
       <div class="mb-4"> <!-- ZWEITE ZEILE 16px Abstand nach unten -->
         <label for="user" class="block text-sm font-medium text-gray-700 mb-1">User</label>
         <select id="user" formControlName="users_name" class="form-select">
-          <option>Default</option>
           <option *ngFor="let user of users" [value]="user.users_name">{{ user.users_name }}</option>
         </select>
       </div>
@@ -100,6 +99,16 @@
           <label class="flex items-center">
             <input type="radio" formControlName="status_name" value="Abstimmung nötig" class="mr-2">
             <span>Abstimmung nötig</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="mb-4"> <!-- NEU: SECHSTE ZEILE - Tags -->
+        <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+        <div class="grid grid-cols-2 gap-4" formArrayName="selectedTags">
+          <label *ngFor="let tag of tags; let i = index" class="flex items-center">
+            <input type="checkbox" [value]="tag.tag_id" (change)="onTagChange($event)" class="mr-2">
+            <span>{{ tag.tag_name }}</span>
           </label>
         </div>
       </div>
