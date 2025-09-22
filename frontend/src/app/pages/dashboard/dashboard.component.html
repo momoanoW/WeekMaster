@@ -12,10 +12,10 @@
   </div>
 
 
-  <app-task-table></app-task-table> <!-- Aufruf Eingebettete TaskTable-Komponente -->
+  <app-task-table #taskTable></app-task-table> <!-- Aufruf Eingebettete TaskTable-Komponente -->
 
 @if (isDialogOpen) { <!-- Öffne folgende KOmp nur wenn openDialog() geklickt wurde (Bedingte Anzeige)-->
-  <app-task-dialog (close)="closeDialog()"></app-task-dialog> <!-- Aufruf Eingebettete TaskDialog-Komponente -->
+  <app-task-dialog (close)="closeDialog()" (taskSaved)="onTaskSaved()"></app-task-dialog> <!-- Aufruf Eingebettete TaskDialog-Komponente -->
 }
 
 

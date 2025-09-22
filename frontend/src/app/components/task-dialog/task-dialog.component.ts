@@ -16,6 +16,8 @@ import { TaskService } from '../../services/task.service'; // Service importiere
 export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (Popup fesnter). Klasse verspricht Angular: Ich besitze eine ngOnInit-Methode
 
   @Output() close = new EventEmitter<void>(); // =Ereignis mit Namen "close"-> sagt Elternkomponente Bescheid, dass der Dialog geschlossen werden soll
+  @Output() taskSaved = new EventEmitter<void>(); // Ereignis, um Elternkomponente zu informieren, dass eine neue Aufgabe erstellt wurde
+
 
   taskForm: FormGroup; // in "taskForm" wird das gesamte Formular-Modell aus den nächsten Schritten gespeichert
 
@@ -44,6 +46,7 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
       this.taskService.createTask(this.taskForm.value).subscribe({
         next: (response) => {
           console.log('Aufgabe erfolgreich erstellt:', response); // Bestätigung für erfolgreiche Speicherung
+          this.taskSaved.emit(); // SENDE EVENT AN DASHBOARD
           this.sendCloseSignal(); // Schließt den Dialog nach erfolgreichem Speichern
         },
         error: (error) => {

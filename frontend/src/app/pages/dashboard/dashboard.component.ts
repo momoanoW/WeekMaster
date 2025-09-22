@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { TaskTableComponent } from '../../components/task-table/task-table.component'; // TaskTable importieren
 import { TaskDialogComponent } from '../../components/task-dialog/task-dialog.component'; // Dialog für neue Aufgabe importieren
 import { CommonModule } from '@angular/common'; // 2. CommonModule für @if importieren
@@ -12,6 +12,9 @@ import { CommonModule } from '@angular/common'; // 2. CommonModule für @if impo
 })
 export class DashboardComponent {
 
+  // Holt sich eine Referenz auf die Kind-Komponente im HTML
+  @ViewChild('taskTable') taskTable!: TaskTableComponent;
+
   // Dialog "Schalter", anfangs ist der Dialog geschlossen
   isDialogOpen = false;
 
@@ -24,5 +27,11 @@ export class DashboardComponent {
   // Methode legt Schalter wieder auf 'false' um.
   closeDialog(): void {
     this.isDialogOpen = false;
+  }
+
+  // Diese Methode wird aufgerufen, wenn der Dialog "taskSaved" meldet
+  onTaskSaved(): void {
+    this.taskTable.loadTasks(); // Ruft die öffentliche Methode der Kind-Komponente auf
+    this.closeDialog();
   }
 }

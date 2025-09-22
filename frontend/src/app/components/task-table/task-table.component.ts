@@ -11,7 +11,6 @@ import { TaskService } from '../../services/task.service'; //holt sich den TaskS
   styleUrl: './task-table.component.css'
 })
 
-
 export class TaskTableComponent implements OnInit { //Klasse verspricht Angular: Ich besitze eine ngOnInit-Methode
 
   // Erstellt öffentliches Array 'tasks', HTML-Datei darf hier reinschauen (public)
@@ -23,11 +22,16 @@ export class TaskTableComponent implements OnInit { //Klasse verspricht Angular:
 
   //passiert direkt nach Build
   ngOnInit(): void {
+    this.loadTasks(); // Wir lagern das Laden in eine eigene Methode aus
+  }
+
+  // NEUE, WIEDERVERWENDBARE METHODE zum Laden/Aktualisieren der Tasks - PUBLIC damit Dashboard darauf zugreifen kann
+  public loadTasks(): void {
     // Benutze mein privates Werkzeug 'taskService' mit 'getTasks'-Methode, die ein Observable (zukünftigen Datenstrom) zurückgibt.
     // subscribe() abonniert den Datenstrom
-    // sobald Daten eintreffen (data), fülle meine öffentliche 'tasks' Array-Variable damit."
-    this.taskService.getTasks().subscribe((data) => {
-      this.tasks = data;
+    // sobald Daten eintreffen (datenVomServer), fülle meine öffentliche 'tasks' Array-Variable damit."
+    this.taskService.getTasks().subscribe((datenVomServer) => {
+      this.tasks = datenVomServer;
     });
   }
 }
