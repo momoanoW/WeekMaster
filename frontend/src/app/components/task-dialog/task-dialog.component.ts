@@ -25,13 +25,13 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
   constructor(private fb: FormBuilder, private taskService: TaskService) { //Dependency Injection: private "fb" wird Werkzeug zum Erstellen von Formularen (nach Bauplan von FormBuilder)
 
     this.taskForm = this.fb.group({ //FormBuilder erstellt neue Formular-Gruppe (=Container) und speichert sie in "taskForm"
-      beschreibung: ['', Validators.required], // Feldtext (muss leer bleiben), Feld ist ein Pflichtfeld
-      frist: [null], //Datumswert (leer)
-      prio_name: ['Mittel', Validators.required], // Standardwert ist 'Mittel', Feld ist ein Pflichtfeld
-      vorlaufzeit_tage: [7], // Beispiel-Startwert von 7 Tagen
-      users_name: ['', Validators.required], // Wird dynamisch gesetzt, wenn User geladen sind
-      kontrolliert: [false], // Startwert für Checkbox ist 'nicht angehakt'
-      status_name: ['Offen', Validators.required] // Beispiel-Startwert, Feld ist ein Pflichtfeld
+      beschreibung: ['', Validators.required], // REQUIRED - einziges Muss-Feld für User
+      frist: [null], // OPTIONAL - NULL für offene Aufgaben ohne Deadline
+      prio_name: ['Default', Validators.required], // REQUIRED mit explizitem Default-Wert
+      vorlaufzeit_tage: [0], // OPTIONAL - 0 als Standard (entspricht DB-Default)
+      users_name: ['Default', Validators.required], // REQUIRED mit explizitem Default-Wert
+      status_name: ['Default', Validators.required] // REQUIRED mit explizitem Default-Wert
+      // kontrolliert entfernt - DB-Default false übernimmt automatisch
     });
   }
 
@@ -47,7 +47,10 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
       next: (users) => {
         this.users = users;
         console.log('Users für Dropdown geladen:', this.users);
-        // Kein automatisches Setzen - User soll bewusst auswählen
+        // Ersten User als Standard setzen, wenn vorhanden
+        if (this.users.length > 0) {
+          this.taskForm.patchValue({ users_name: this.users[0].users_name });
+        }
       },
       error: (error) => {
         console.error('Fehler beim Laden der Users für Dropdown:', error);

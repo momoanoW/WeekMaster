@@ -53,27 +53,37 @@ export class TaskService { //Service-Klasse (importierbar wegen "export")
     // (wegen "providedIn: 'root'" bleibt es ein einziger Service im gesamten Projekt)
   }
 
-  // NEUE AUFGABE HINZUFÜGEN
+  // NEUE AUFGABE HINZUFÜGEN - SAUBERER NOT NULL ANSATZ MIT EXPLIZITEN DEFAULTS
   createTask(neueAufgabe: Task): Observable<Task> {
    const datenFuerBackend = {   // Backend erwartet IDs, aber Formular liefert Namen -> manche übersetzen
-    beschreibung: neueAufgabe.beschreibung,  // REQUIRED in DB
-    frist: neueAufgabe.frist,                // OPTIONAL (kann NULL sein)
-    vorlaufzeit_tage: neueAufgabe.vorlaufzeit_tage,  // OPTIONAL (DEFAULT 0)
-    kontrolliert: neueAufgabe.kontrolliert,  // OPTIONAL (DEFAULT false)
+    beschreibung: neueAufgabe.beschreibung,  // REQUIRED in DB (NOT NULL)
+    frist: neueAufgabe.frist || null,        // OPTIONAL (NULL erlaubt) - nicht alle Aufgaben haben Deadline
+    vorlaufzeit_tage: neueAufgabe.vorlaufzeit_tage,  // OPTIONAL - DB DEFAULT 0 übernimmt wenn null/undefined
+    // kontrolliert wird weggelassen - DB DEFAULT false übernimmt automatisch!
    
-    // Ab hier brauchts Übersetzungsmethoden - alle REQUIRED in DB
-    users_id: this.mapUserToId(neueAufgabe.users_name),    // REQUIRED
-    status_id: this.mapStatusToId('Offen'),                // REQUIRED - neue Aufgaben sind immer "Offen"
-    prio_id: this.mapPriorityToId(neueAufgabe.prio_name)   // REQUIRED
+    // ALLE REQUIRED (NOT NULL) - explizite Default-Einträge für schnelle Notizen
+    users_id: neueAufgabe.users_name ? 
+               this.mapUserToId(neueAufgabe.users_name) : 
+               8,  // DEFAULT-User (ID 8 = "Default") für schnelle Notizen
+               
+    status_id: neueAufgabe.status_name ? 
+                this.mapStatusToId(neueAufgabe.status_name) : 
+                4,  // DEFAULT-Status (ID 4 = "Default") - kann später geändert werden
+                
+    prio_id: neueAufgabe.prio_name ? 
+              this.mapPriorityToId(neueAufgabe.prio_name) : 
+              4   // DEFAULT-Priorität (ID 4 = "Default") - kann später geändert werden
   };
   return this.http.post<Task>(this.apiUrl, datenFuerBackend);
 }
 
 // Kleine private Hilfsmethode für Übersetzung Prio
-private mapPriorityToId(prioName: 'Niedrig' | 'Mittel' | 'Hoch'): number {
+private mapPriorityToId(prioName: 'Niedrig' | 'Mittel' | 'Hoch' | 'Default'): number {
   if (prioName === 'Hoch') return 1;
   if (prioName === 'Mittel') return 2;
-  return 3; // Niedrig
+  if (prioName === 'Niedrig') return 3;
+  if (prioName === 'Default') return 4;
+  return 4; // Fallback zu Default
 }
 
 // DYNAMISCHE Hilfsmethode für Übersetzung User (nutzt geladene Daten)
@@ -88,10 +98,12 @@ private mapUserToId(userName: string): number {
 }
 
 // Kleine private Hilfsmethode für Übersetzung Status
-private mapStatusToId(statusName: 'Offen' | 'In Bearbeitung' | 'Erledigt'): number {
+private mapStatusToId(statusName: 'Offen' | 'In Bearbeitung' | 'Erledigt' | 'Default'): number {
   if (statusName === 'Offen') return 1;
   if (statusName === 'In Bearbeitung') return 2;
-  return 3; // Erledigt
+  if (statusName === 'Erledigt') return 3;
+  if (statusName === 'Default') return 4;
+  return 4; // Fallback zu Default
 }
 
 }

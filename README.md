@@ -121,15 +121,25 @@ Das ER-Diagramm oben zeigt die vollständige Datenbankstruktur. Noch mehr Detail
 
 **Technische Datenbank-Features:**
 - PostgreSQL mit CASCADE DELETE für referentielle Integrität
-- Nullable Felder für optionale Fristen (weil nicht immer gegeben)
+- NULL-erlaubte Fristen für flexible Aufgabenplanung (nicht alle Aufgaben haben Deadline)
+- NOT NULL mit expliziten Default-Einträgen für Referenztabellen (User: ID 8, Status/Priorität: ID 4)
+- DB-Defaults für einfache Werte: vorlaufzeit_tage DEFAULT 0, kontrolliert DEFAULT false
 - UNIQUE Constraints zur Vermeidung von Doppeleinträgen
 - Verknüpfungstabelle für N:N Beziehungen (aufgaben_tags)
+
+**Optimierte Default-Strategie (ohne redundante Fallbacks):**
+- **DB-Defaults**: Übernehmen automatisch für INTEGER/BOOLEAN (vorlaufzeit_tage, kontrolliert)
+- **Frontend-Fallbacks**: Nur für komplexe Logik (Foreign Key Mapping zu Default-IDs)
+- **Backend-Fallbacks**: Nur für explizite NULL-Konvertierung (frist-Feld)
+- **Keine doppelten Fallbacks**: Jeder Default wird nur an einer Stelle definiert
 
 ## Datenbestand
 
 Das System enthält ein Initialskript (`initdb.js`) mit umfangreichen Beispieldaten für eine realistische Demonstration:
 
-- **7 Benutzer** mit verschiedenen Aufgabenprofilen
+- **8 Benutzer** (7 echte + 1 Default-User für schnelle Notizen)
+- **4 Prioritätsstufen** (Hoch, Mittel, Niedrig + Default)
+- **4 Status-Optionen** (Offen, In Bearbeitung, Erledigt + Default)  
 - **13 Tag-Kategorien** für Lebens- und Arbeitsbereiche (Wohnung, Familie, Studium, etc.)
 - **21 Beispiel-Aufgaben** mit realistischen Fristen und Vorlaufzeiten (0-30 Tage)
 

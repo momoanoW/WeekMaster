@@ -172,10 +172,11 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ error: 'Status ist erforderlich' });
         }
         
-        // SQL-Query: Neue Aufgabe erstellen mit Eingabevalidierung
+        // SQL-Query: Neue Aufgabe erstellen mit optimierter Default-Behandlung
         // - INSERT INTO mit RETURNING * gibt neue Zeile mit Auto-ID zurück
         // - Parameterized Query für Sicherheit ($1-$6 Platzhalter)
-        // - kontrolliert standardmäßig auf false gesetzt
+        // - kontrolliert wird weggelassen - DB DEFAULT false übernimmt automatisch
+        // - vorlaufzeit_tage wird weggelassen wenn null/undefined - DB DEFAULT 0 übernimmt
         const result = await pool.query(`
             INSERT INTO Aufgaben (
                 beschreibung, 
@@ -183,11 +184,10 @@ router.post('/', async (req, res) => {
                 vorlaufzeit_tage, 
                 users_id, 
                 prio_id, 
-                status_id,
-                kontrolliert
-            ) VALUES ($1, $2, $3, $4, $5, $6, false)
+                status_id
+            ) VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *
-        `, [beschreibung, frist, vorlaufzeit_tage, users_id, prio_id, status_id]);
+        `, [beschreibung, frist || null, vorlaufzeit_tage, users_id, prio_id, status_id]);
         
         res.status(201).json(result.rows[0]);                          // HTTP 201 Created + die neue Aufgabe als JSON (rows[0] = erste/einzige Zeile)
     } catch (err) {                                                     // Fängt alle DB-Fehler ab

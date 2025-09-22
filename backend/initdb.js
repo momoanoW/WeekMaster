@@ -42,13 +42,13 @@ initdb.get("/", async (req, res) => {
         
         CREATE TABLE Aufgaben (
             aufgaben_id SERIAL PRIMARY KEY,
-            beschreibung TEXT NOT NULL,
-            frist DATE,
-            vorlaufzeit_tage INTEGER DEFAULT 0,
-            kontrolliert BOOLEAN DEFAULT false,
-            prio_id INTEGER REFERENCES Prioritaet(prio_id),
-            users_id INTEGER REFERENCES Users(users_id),
-            status_id INTEGER REFERENCES Status(status_id)
+            beschreibung TEXT NOT NULL,                         -- REQUIRED: Jede Aufgabe braucht Beschreibung
+            frist DATE,                                          -- OPTIONAL: NULL für offene Aufgaben ohne Deadline
+            vorlaufzeit_tage INTEGER DEFAULT 0,                 -- OPTIONAL: DB-Default 0 (keine Vorlaufzeit)
+            kontrolliert BOOLEAN DEFAULT false,                 -- OPTIONAL: DB-Default false (neue Aufgaben ungeprüft)
+            prio_id INTEGER NOT NULL REFERENCES Prioritaet(prio_id),     -- REQUIRED: Immer Priorität (Default-ID: 4)
+            users_id INTEGER NOT NULL REFERENCES Users(users_id),        -- REQUIRED: Immer User zugeordnet (Default-ID: 8)
+            status_id INTEGER NOT NULL REFERENCES Status(status_id)      -- REQUIRED: Immer Status (Default-ID: 4)
         );
         
         CREATE TABLE aufgaben_tags (
@@ -62,10 +62,10 @@ initdb.get("/", async (req, res) => {
     // SCHRITT 3: Stammdaten einfügen
     await pool.query(`
         INSERT INTO Prioritaet (prio_name) VALUES
-        ('Hoch'), ('Mittel'), ('Niedrig');
+        ('Hoch'), ('Mittel'), ('Niedrig'), ('Default');
         
         INSERT INTO Status (status_name) VALUES
-        ('Offen'), ('In Bearbeitung'), ('Erledigt');
+        ('Offen'), ('In Bearbeitung'), ('Erledigt'), ('Default');
         
         INSERT INTO Tags (tag_name) VALUES
         ('Wohnung'), ('Garten'), ('Atelier'), ('Auto'), ('Moped'),
@@ -73,7 +73,7 @@ initdb.get("/", async (req, res) => {
         ('Versicherungen'), ('Kommunikation'), ('Einkauf'), ('Sonstiges');
         
         INSERT INTO Users (users_name) VALUES
-        ('MS'), ('RM'), ('KM'), ('MRK'), ('MR'), ('MK'), ('RK');
+        ('MS'), ('RM'), ('KM'), ('MRK'), ('MR'), ('MK'), ('RK'), ('Default');
     `);
     console.log("Stammdaten eingefügt...");
 
@@ -126,12 +126,12 @@ initdb.get("/", async (req, res) => {
     res.status(200).json({
       message: "WeekMaster Datenbank erfolgreich initialisiert!",
       created: {
-        users: 7,
-        priorities: 3,
-        statuses: 3,
+        users: 8,        // 7 echte + 1 Default
+        priorities: 4,   // 3 echte + 1 Default
+        statuses: 4,     // 3 echte + 1 Default
         tags: 13,
-        aufgaben: 10,
-        tag_assignments: 12,
+        aufgaben: 21,
+        tag_assignments: 10,
       },
     });
   } catch (err) {

@@ -35,12 +35,12 @@ CREATE TABLE Tags (
 CREATE TABLE Aufgaben (
     aufgaben_id SERIAL PRIMARY KEY,               -- Auto-Increment ID
     beschreibung TEXT NOT NULL,                   -- Aufgabenbeschreibung (Pflichtfeld)
-    frist DATE,                                   -- Deadline (optional)
-    vorlaufzeit_tage INTEGER DEFAULT 0,          -- Tage vor Frist für Erinnerung (Standardwert: 0)
-    kontrolliert BOOLEAN DEFAULT FALSE,          -- Wurde die Aufgabe kontrolliert? (Standardwert: false)
-    users_id INTEGER NOT NULL,                   -- Zugewiesene Person (Pflichtfeld)
-    prio_id INTEGER NOT NULL,                    -- Priorität (Pflichtfeld)
-    status_id INTEGER NOT NULL,                  -- Bearbeitungsstand (Pflichtfeld)
+    frist DATE,                                   -- Deadline (optional) - NULL für offene Aufgaben
+    vorlaufzeit_tage INTEGER DEFAULT 0,          -- Tage vor Frist für Erinnerung (DB-Default: 0)
+    kontrolliert BOOLEAN DEFAULT FALSE,          -- Wurde die Aufgabe kontrolliert? (DB-Default: false)
+    users_id INTEGER NOT NULL,                   -- Zugewiesene Person (Pflichtfeld, Default-User ID 8)
+    prio_id INTEGER NOT NULL,                    -- Priorität (Pflichtfeld, Default-Priorität ID 4)
+    status_id INTEGER NOT NULL,                  -- Bearbeitungsstand (Pflichtfeld, Default-Status ID 4)
     
     -- Foreign Key Constraints (Fremdschlüssel-Beziehungen)
     CONSTRAINT fk_aufgaben_users FOREIGN KEY (users_id) REFERENCES Users(users_id),      -- Verweist auf Users Tabelle
@@ -67,13 +67,15 @@ CREATE TABLE aufgaben_tags (
 INSERT INTO Prioritaet (prio_name) VALUES
 ('Hoch'),
 ('Mittel'),
-('Niedrig');
+('Niedrig'),
+('Default');
 
 -- Status einfügen
 INSERT INTO Status (status_name) VALUES
 ('Offen'),
 ('In Bearbeitung'),
-('Erledigt');
+('Erledigt'),
+('Default');
 
 -- Tags einfügen (Kategorien für bessere Organisation)
 INSERT INTO Tags (tag_name) VALUES
@@ -99,7 +101,8 @@ INSERT INTO Users (users_name) VALUES
 ('MRK'),
 ('MR'),
 ('MK'),
-('RK');
+('RK'),
+('Default');
 
 -- ========================================
 -- BEISPIELDATEN
