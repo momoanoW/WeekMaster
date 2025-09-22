@@ -40,9 +40,9 @@ export class TaskService { //Service-Klasse (importierbar wegen "export")
     });
   }
 
-  // METHODE: Öffentliche Methode um Users für Dropdown zu bekommen (aus Cache)
+  // READ Users für Dropdown zu bekommen (aus Cache)
   getUsers(): Observable<any[]> {
-    // Nutze of() um gecachte User als Observable zurückzugeben
+    // Nutze of() um alle User als Observable zurückzugeben
     return of(this.users);
   }
 
@@ -53,61 +53,57 @@ export class TaskService { //Service-Klasse (importierbar wegen "export")
     // (wegen "providedIn: 'root'" bleibt es ein einziger Service im gesamten Projekt)
   }
 
-  // NEUE AUFGABE HINZUFÜGEN - SAUBERER NOT NULL ANSATZ MIT EXPLIZITEN DEFAULTS
-  createTask(neueAufgabe: Task): Observable<Task> {
-   const datenFuerBackend = {   // Backend erwartet neue Struktur mit hat_frist und frist_datum
-    beschreibung: neueAufgabe.beschreibung,  // REQUIRED in DB (NOT NULL)
-    hat_frist: neueAufgabe.hat_frist || false,  // EXPLICIT boolean statt NULL für bessere Datenqualität
-    frist_datum: neueAufgabe.hat_frist ? neueAufgabe.frist_datum : null,  // Nur setzen wenn hat_frist=true
-    vorlaufzeit_tage: neueAufgabe.vorlaufzeit_tage,  // OPTIONAL - DB DEFAULT 0 übernimmt wenn null/undefined
-  
-   
-    // ALLE REQUIRED (NOT NULL) - explizite Default-Einträge für schnelle Notizen
-    users_id: neueAufgabe.users_name ? 
-               this.mapUserToId(neueAufgabe.users_name) : 
-               1,  // DEFAULT-User (ID 1 = "Default") für schnelle Notizen
-               
-    status_id: neueAufgabe.status_name ? 
-                this.mapStatusToId(neueAufgabe.status_name) : 
-                1,  // DEFAULT-Status (ID 1 = "Default") - kann später geändert werden
-                
-    prio_id: neueAufgabe.prio_name ? 
-              this.mapPriorityToId(neueAufgabe.prio_name) : 
-              1   // DEFAULT-Priorität (ID 1 = "Default") - kann später geändert werden
-  };
-  return this.http.post<Task>(this.apiUrl, datenFuerBackend);
+  // READ Tags für Mehrfachauswahl in Dialog
+  getTags(): Observable<any[]> {
+  return this.http.get<any[]>(this.apiUrl.replace('tasks', 'tags'));
 }
 
-// Kleine private Hilfsmethode für Übersetzung Prio
-private mapPriorityToId(prioName: 'Niedrig' | 'Mittel' | 'Hoch' | 'Default'): number {
-  if (prioName === 'Default') return 1;
-  if (prioName === 'Hoch') return 2;
-  if (prioName === 'Mittel') return 3;
-  if (prioName === 'Niedrig') return 4;
-  return 1; // Fallback zu Default
-}
-
-// DYNAMISCHE Hilfsmethode für Übersetzung User (nutzt geladene Daten)
-private mapUserToId(userName: string): number {
-  const user = this.users.find(u => u.users_name === userName);
-  if (user) {
-    return user.users_id;
+  // NEUE AUFGABE HINZUFÜGEN - send full form values matching backend
+  createTask(neueAufgabe: any): Observable<Task> {
+    // Backend erwartet names and selectedTags
+    const payload = {
+      beschreibung: neueAufgabe.beschreibung,
+      hat_frist: neueAufgabe.hat_frist || false,
+      frist_datum: neueAufgabe.hat_frist ? neueAufgabe.frist_datum : null,
+      vorlaufzeit_tage: neueAufgabe.vorlaufzeit_tage,
+      users_name: neueAufgabe.users_name,
+      prio_name: neueAufgabe.prio_name,
+      status_name: neueAufgabe.status_name,
+      selectedTags: (neueAufgabe.selectedTags || []).map((id: any) => +id)
+    };
+    return this.http.post<Task>(this.apiUrl, payload);
   }
-  // Kein Fallback - wenn User nicht gefunden wird, dann stimmt etwas nicht
-  console.error('User nicht gefunden:', userName, 'Verfügbare User:', this.users);
-  return 0; // Ungültige ID - wird Backend-Fehler verursachen (was gut ist!)
-}
 
-// Kleine private Hilfsmethode für Übersetzung Status
-private mapStatusToId(statusName: 'Offen' | 'In Bearbeitung' | 'Erledigt' | 'Problem' | 'Beobachten' | 'Abstimmung nötig' | 'Default'): number {
-  if (statusName === 'Default') return 1;
-  if (statusName === 'Offen') return 2;
-  if (statusName === 'In Bearbeitung') return 3;
-  if (statusName === 'Problem') return 4;
-  if (statusName === 'Beobachten') return 5;
-  if (statusName === 'Abstimmung nötig') return 6;
-  if (statusName === 'Erledigt') return 7;
-  return 1; // Fallback zu Default
+  // Kleine private Hilfsmethode für Übersetzung Prio
+  private mapPriorityToId(prioName: 'Niedrig' | 'Mittel' | 'Hoch' | 'Default'): number {
+    if (prioName === 'Default') return 1;
+    if (prioName === 'Hoch') return 2;
+    if (prioName === 'Mittel') return 3;
+    if (prioName === 'Niedrig') return 4;
+    return 1; // Fallback zu Default
+  }
+
+  // DYNAMISCHE Hilfsmethode für Übersetzung User (nutzt geladene Daten)
+  private mapUserToId(userName: string): number {
+    const user = this.users.find(u => u.users_name === userName);
+    if (user) {
+      return user.users_id;
+    }
+    // Kein Fallback - wenn User nicht gefunden wird, dann stimmt etwas nicht
+    console.error('User nicht gefunden:', userName, 'Verfügbare User:', this.users);
+    return 0; // Ungültige ID - wird Backend-Fehler verursachen (was gut ist!)
+  }
+
+  // Kleine private Hilfsmethode für Übersetzung Status
+  private mapStatusToId(statusName: 'Offen' | 'In Bearbeitung' | 'Erledigt' | 'Problem' | 'Beobachten' | 'Abstimmung nötig' | 'Default'): number {
+    if (statusName === 'Default') return 1;
+    if (statusName === 'Offen') return 2;
+    if (statusName === 'In Bearbeitung') return 3;
+    if (statusName === 'Problem') return 4;
+    if (statusName === 'Beobachten') return 5;
+    if (statusName === 'Abstimmung nötig') return 6;
+    if (statusName === 'Erledigt') return 7;
+    return 1; // Fallback zu Default
 }
 
 }

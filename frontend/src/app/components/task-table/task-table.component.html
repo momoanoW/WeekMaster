@@ -11,6 +11,7 @@
         <th scope="col" class="px-6 py-3">Priorität</th>
         <th scope="col" class="px-6 py-3">Frist</th>
         <th scope="col" class="px-6 py-3">Hat Frist</th>
+        <th scope="col" class="px-6 py-3">Tags</th>
       </tr>
     </thead>
 
@@ -33,6 +34,7 @@
           <span *ngIf="task.hat_frist" class="text-green-600 font-semibold">✓ Ja</span>
           <span *ngIf="!task.hat_frist" class="text-gray-400">✗ Nein</span>
         </td>
+        <td class="px-6 py-4">{{ task.tags }}</td>
       </tr>
       }
     </tbody>

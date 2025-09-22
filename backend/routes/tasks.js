@@ -163,84 +163,119 @@ router.get('/tag/:tagId', async (req, res) => {
 
 // POST /tasks - Neue Aufgabe erstellen
 router.post('/', async (req, res) => {
-    const client = await pool.connect();                               // Database transaction für Konsistenz
-    try {                                                               // try-catch für Fehlerbehandlung
-        await client.query('BEGIN');                                   // Transaction starten
-        
-        const { beschreibung, hat_frist, frist_datum, vorlaufzeit_tage, users_id, prio_id, status_id } = req.body;  // Destructuring mit neuen Feldern
-        
-        // Input-Validierung: Pflichtfelder prüfen
-        if (!beschreibung || !beschreibung.trim()) {                   // Prüft auf null/undefined UND leeren String
-            return res.status(400).json({ error: 'Beschreibung ist erforderlich' });
-        }
-        if (!users_id) {                                               // Prüft ob users_id vorhanden ist
-            return res.status(400).json({ error: 'User ID ist erforderlich' });
-        }
-        if (!prio_id) {                                                // Prüft ob prio_id vorhanden ist
-            return res.status(400).json({ error: 'Priorität ist erforderlich' });
-        }
-        if (!status_id) {                                              // Prüft ob status_id vorhanden ist
-            return res.status(400).json({ error: 'Status ist erforderlich' });
-        }
-        if (hat_frist && !frist_datum) {                              // Validierung: wenn hat_frist=true, dann muss frist_datum vorhanden sein
-            return res.status(400).json({ error: 'Frist-Datum ist erforderlich wenn "Hat Frist" aktiviert ist' });
-        }
-        
-        // SCHRITT 1: Aufgabe erstellen
-        const aufgabenResult = await client.query(`
-            INSERT INTO Aufgaben (
-                beschreibung, 
-                hat_frist,
-                vorlaufzeit_tage, 
-                users_id, 
-                prio_id, 
-                status_id
-            ) VALUES ($1, $2, $3, $4, $5, $6)
-            RETURNING *
-        `, [beschreibung, hat_frist || false, vorlaufzeit_tage || 0, users_id, prio_id, status_id]);
-        
-        const neue_aufgabe = aufgabenResult.rows[0];
-        
-        // SCHRITT 2: NUR wenn hat_frist=true, dann Frist-Eintrag erstellen
-        if (hat_frist && frist_datum) {
-            await client.query(`
-                INSERT INTO Aufgaben_Fristen (aufgaben_id, frist_datum)
-                VALUES ($1, $2)
-            `, [neue_aufgabe.aufgaben_id, frist_datum]);
-        }
-        
-        await client.query('COMMIT');                                  // Transaction bestätigen
-        
-        // Vollständige Aufgabe mit Frist-Info zurückgeben
-        const vollstaendigeAufgabe = await pool.query(`
-            SELECT 
-                a.aufgaben_id,
-                a.beschreibung,
-                a.hat_frist,
-                af.frist_datum,
-                a.vorlaufzeit_tage,
-                u.users_name,
-                p.prio_name,
-                s.status_name
-            FROM Aufgaben a
-            LEFT JOIN Aufgaben_Fristen af ON a.aufgaben_id = af.aufgaben_id
-            LEFT JOIN Users u ON a.users_id = u.users_id
-            LEFT JOIN Prioritaet p ON a.prio_id = p.prio_id
-            LEFT JOIN Status s ON a.status_id = s.status_id
-            WHERE a.aufgaben_id = $1
-        `, [neue_aufgabe.aufgaben_id]);
-        
-        res.status(201).json(vollstaendigeAufgabe.rows[0]);            // HTTP 201 Created + vollständige Aufgabe
-    } catch (err) {                                                     // Fängt alle DB-Fehler ab
-        await client.query('ROLLBACK');                               // Transaction rückgängig machen bei Fehler
-        console.error(err);                                             // Loggt Fehlerdetails in Server-Konsole  
-        res.status(500).json({ error: 'Datenbankfehler' });             // Sendet HTTP 500 Status mit JSON-Fehlermeldung
-    } finally {
-        client.release();                                              // Database connection freigeben
+  const client = await pool.connect(); // Datenbank-Transaktion für Konsistenz
+  try {
+    await client.query('BEGIN'); // Transaktion starten
+
+    const {
+      beschreibung,
+      hat_frist,
+      frist_datum,
+      vorlaufzeit_tage,
+      users_name,
+      prio_name,
+      status_name,
+      selectedTags
+    } = req.body;
+
+    // Input-Validierung
+    if (!beschreibung || !beschreibung.trim()) {
+      return res.status(400).json({ error: 'Beschreibung ist erforderlich' });
     }
-});    
+    if (!users_name) {
+      return res.status(400).json({ error: 'User-Name ist erforderlich' });
+    }
+    if (!prio_name) {
+      return res.status(400).json({ error: 'Priorität ist erforderlich' });
+    }
+    if (!status_name) {
+      return res.status(400).json({ error: 'Status ist erforderlich' });
+    }
+    if (hat_frist && !frist_datum) {
+      return res.status(400).json({ error: 'Frist-Datum ist erforderlich, wenn "Hat Frist" aktiviert ist' });
+    }
 
+    // IDs nach Namen nachschlagen
+    const userRes = await client.query('SELECT users_id FROM Users WHERE users_name = $1', [users_name]);
+    if (userRes.rows.length === 0) {
+      throw new Error(`User nicht gefunden: ${users_name}`);
+    }
+    const users_id = userRes.rows[0].users_id;
 
+    const prioRes = await client.query('SELECT prio_id FROM Prioritaet WHERE prio_name = $1', [prio_name]);
+    if (prioRes.rows.length === 0) {
+      throw new Error(`Priorität nicht gefunden: ${prio_name}`);
+    }
+    const prio_id = prioRes.rows[0].prio_id;
+
+    const statusRes = await client.query('SELECT status_id FROM Status WHERE status_name = $1', [status_name]);
+    if (statusRes.rows.length === 0) {
+      throw new Error(`Status nicht gefunden: ${status_name}`);
+    }
+    const status_id = statusRes.rows[0].status_id;
+
+    // Aufgabe erstellen
+    const insertAufgabe = await client.query(
+      `INSERT INTO Aufgaben (beschreibung, hat_frist, vorlaufzeit_tage, users_id, prio_id, status_id)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING aufgaben_id`,
+      [beschreibung, hat_frist || false, vorlaufzeit_tage || 0, users_id, prio_id, status_id]
+    );
+    const aufgaben_id = insertAufgabe.rows[0].aufgaben_id;
+
+    // Frist anlegen, wenn gesetzt
+    if (hat_frist && frist_datum) {
+      await client.query(
+        `INSERT INTO Aufgaben_Fristen (aufgaben_id, frist_datum) VALUES ($1, $2)`,
+        [aufgaben_id, frist_datum]
+      );
+    }
+
+    // Tags zuweisen
+    if (Array.isArray(selectedTags) && selectedTags.length > 0) {
+      for (const tagId of selectedTags) {
+        await client.query(
+          `INSERT INTO Aufgaben_Tags (aufgaben_id, tag_id) VALUES ($1, $2)`,
+          [aufgaben_id, tagId]
+        );
+      }
+    }
+
+    await client.query('COMMIT'); // Transaktion abschließen
+
+    // Vollständige Aufgabe mit Tags zurückgeben
+    const result = await pool.query(
+      `SELECT 
+         a.aufgaben_id,
+         a.beschreibung,
+         a.hat_frist,
+         af.frist_datum,
+         a.vorlaufzeit_tage,
+         u.users_name,
+         p.prio_name,
+         s.status_name,
+         STRING_AGG(t.tag_name, ', ' ORDER BY t.tag_name) as tags
+       FROM Aufgaben a
+       LEFT JOIN Aufgaben_Fristen af ON a.aufgaben_id = af.aufgaben_id
+       LEFT JOIN Users u ON a.users_id = u.users_id
+       LEFT JOIN Prioritaet p ON a.prio_id = p.prio_id
+       LEFT JOIN Status s ON a.status_id = s.status_id
+       LEFT JOIN Aufgaben_Tags at ON a.aufgaben_id = at.aufgaben_id
+       LEFT JOIN Tags t ON at.tag_id = t.tag_id
+       WHERE a.aufgaben_id = $1
+       GROUP BY a.aufgaben_id, a.beschreibung, a.hat_frist, af.frist_datum, a.vorlaufzeit_tage, u.users_name, p.prio_name, s.status_name`,
+      [aufgaben_id]
+    );
+
+    res.status(201).json(result.rows[0]); // HTTP 201 Created
+  } catch (err) {
+    await client.query('ROLLBACK'); // Bei Fehler rollback
+    console.error(err);
+    res.status(500).json({ error: 'Datenbankfehler' });
+  } finally {
+    client.release(); // Verbindung freigeben
+  }
+});
 
 // PUT /tasks/:id - Ganze Aufgabe bearbeiten  
 router.put('/:id', async (req, res) => {

@@ -2,7 +2,7 @@
 
 import { Component, OnInit, Output, EventEmitter } from '@angular/core'; //verschiedene Standardelemente importieren
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms'; // Für reaktive Formulare
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray, FormControl } from '@angular/forms'; // Für reaktive Formulare
 import { TaskService } from '../../services/task.service'; // Service importieren, um neue Aufgaben zu speichern
 
 
@@ -21,6 +21,7 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
   // NEUE EIGENSCHAFT: Liste aller verfügbaren User für das Dropdown
   users: any[] = [];
   taskForm: FormGroup; // in "taskForm" wird das gesamte Formular-Modell aus den nächsten Schritten gespeichert
+  tags: any[] = []; // Liste aller verfügbaren Tags für Mehrfachauswahl
 
   constructor(private fb: FormBuilder, private taskService: TaskService) { //Dependency Injection: private "fb" wird Werkzeug zum Erstellen von Formularen (nach Bauplan von FormBuilder)
 
@@ -31,8 +32,9 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
       prio_name: ['Default', Validators.required], // REQUIRED mit explizitem Default-Wert
       vorlaufzeit_tage: [0], // OPTIONAL - 0 als Standard (entspricht DB-Default)
       users_name: ['Default', Validators.required], // REQUIRED mit explizitem Default-Wert
-      status_name: ['Default', Validators.required] // REQUIRED mit explizitem Default-Wert
+      status_name: ['Default', Validators.required], // REQUIRED mit explizitem Default-Wert
       // kontrolliert entfernt - DB-Default false übernimmt automatisch
+      selectedTags: this.fb.array([]) // NEU: FormArray für die ausgewählten Tags
     });
   }
 
@@ -40,22 +42,44 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
   ngOnInit(): void { 
     // User-Liste beim Initialisieren laden
     this.loadUsers();
+    // Tag-Liste beim Initialisieren laden
+    this.loadTags();
   }
 
-  // NEUE METHODE: User-Liste für Dropdown laden
+  //  User-Liste für Dropdown laden
   private loadUsers(): void {
-    this.taskService.getUsers().subscribe({
-      next: (users) => {
-        this.users = users;
-        console.log('Users für Dropdown geladen:', this.users);
-        // "Default" (1) als Startwert
-        // Benutzer kann bewusst auswählen oder "Default" verwenden
+    this.taskService.getUsers().subscribe({ // subscribe() abonniert den Datenstrom
+      next: (users) => { // sobald Daten eintreffen (users), fülle meine öffentliche 'users' Array-Variable damit."
+        this.users = users; 
+        console.log('Users für Dropdown geladen:', this.users); 
       },
       error: (error) => {
         console.error('Fehler beim Laden der Users für Dropdown:', error);
-        // Kein Fallback nötig - TaskService hat bereits Fallback-Mechanismus
       }
     });
+  }
+
+  //  Tags für Mehrfachauswahl laden
+  private loadTags(): void {
+    this.taskService.getTags().subscribe({
+      next: (tags) => {
+        this.tags = tags;
+        console.log('Tags für Checkboxen geladen:', this.tags);
+      },
+      error: (error) => console.error('Fehler beim Laden der Tags:', error)
+    });
+  }
+
+  // Wird aufgerufen, wenn eine Checkbox geändert wird
+  onTagChange(event: any): void {
+    const selectedTags = this.taskForm.controls['selectedTags'] as FormArray;
+
+    if (event.target.checked) {
+      selectedTags.push(new FormControl(event.target.value));
+    } else {
+      const index = selectedTags.controls.findIndex(x => x.value === event.target.value);
+      selectedTags.removeAt(index);
+    }
   }
 
   // Folgendes passiert wenn User auf "Speichern" (type="submit") klickt
@@ -63,8 +87,10 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
     // Prüfen, ob alle Pflichtfelder ausgefüllt sind
     if (this.taskForm.valid) {
       // this.taskForm.value= MAGISCHER BEFEHL; gibt alle aktuellen Werte des Formulars als Objekt zurück, um später an Service zu senden
-      console.log('Formular abgeschickt:', this.taskForm.value); // Bestätigung für korrekte Usereingabe
-      this.taskService.createTask(this.taskForm.value).subscribe({
+      const formValue = this.taskForm.value;
+      console.log('Formular abgeschickt:', formValue); // Bestätigung für korrekte Usereingabe
+      
+      this.taskService.createTask(formValue).subscribe({
         next: (response) => {
           console.log('Aufgabe erfolgreich erstellt:', response); // Bestätigung für erfolgreiche Speicherung
           this.taskSaved.emit(); // SENDE EVENT AN DASHBOARD
