@@ -8,8 +8,8 @@ export interface Task {
   frist: Date;
   vorlaufzeit_tage: number;
   kontrolliert: boolean;
-  prioritaet: 'Niedrig' | 'Mittel' | 'Hoch';
-  user: string;
-  status: 'Offen' | 'In Bearbeitung' | 'Erledigt';
+  prio_name: 'Niedrig' | 'Mittel' | 'Hoch';
+  users_name: string;
+  status_name: 'Offen' | 'In Bearbeitung' | 'Erledigt';
 
 }
