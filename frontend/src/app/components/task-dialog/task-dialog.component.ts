@@ -96,22 +96,33 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
           console.log('Aufgabe erfolgreich erstellt:', response); // Bestätigung für erfolgreiche Speicherung
           this.confirmationMessage = 'Aufgabe wurde erfolgreich hinzugefügt.';
           // Nach kurzer Anzeige automatisch schließen
-          //setTimeout(() => {
-          //  this.taskSaved.emit(); // SENDE EVENT AN DASHBOARD
-          //  this.sendCloseSignal(); // Schließt den Dialog nach erfolgreichem Speichern
-          //}, 1500);
+          setTimeout(() => {
+          this.taskSaved.emit(); // SENDE EVENT AN DASHBOARD
+          this.sendCloseSignal(); // Schließt den Dialog nach erfolgreichem Speichern
+          }, 1500);
         },
         error: (error) => {
           console.error('Fehler beim Erstellen der Aufgabe:', error);
         }
       });
     }
-  }  
-  
+  }
+
+  confirmCloseDialog(): void {
+    if (this.taskForm.dirty) {
+      const ok = window.confirm(
+        'Es sind ungespeicherte Änderungen vorhanden. Dialog wirklich schließen?'
+      );
+      if (!ok) {
+        return; // Abbruch
+      }
+    }
+    this.sendCloseSignal();
+  }
+
   sendCloseSignal(): void { // Methode, um das Ereignis auszulösen
     this.close.emit(); // Ereignis "close" auslösen
   }
-
+}
   //= sendet Signal an Elten-Komponente wenn ein bestimmtes Ereignis eintritt (hier wenn User auf "Schließen" im Popup der Eltern-KOmp "Dashboard" klickt)
 
-}
