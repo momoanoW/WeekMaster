@@ -48,13 +48,6 @@
         </div>
       </div>
 
-      <div class="mb-4" *ngIf="!taskForm.get('hat_frist')?.value"> <!-- ALTERNATIVE: Nur Vorlaufzeit wenn keine Frist -->
-        <div>
-          <label for="vorlaufzeit" class="block text-sm font-medium text-gray-700 mb-1">Vorlaufzeit (Tage)</label>
-          <input type="number" id="vorlaufzeit" formControlName="vorlaufzeit_tage" placeholder="0" class="form-input">
-        </div>
-      </div>
-
       <div class="mb-4"> <!-- VIERTE ZEILE 16px Abstand nach unten -->
         <label class="block text-sm font-medium text-gray-700 mb-2">Priorität</label>
         <div class="flex gap-4"> <!-- Flexbox mit 16px Abstand zwischen Elementen -->
