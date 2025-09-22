@@ -18,7 +18,8 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
   @Output() close = new EventEmitter<void>(); // =Ereignis mit Namen "close"-> sagt Elternkomponente Bescheid, dass der Dialog geschlossen werden soll
   @Output() taskSaved = new EventEmitter<void>(); // Ereignis, um Elternkomponente zu informieren, dass eine neue Aufgabe erstellt wurde
 
-
+  // NEUE EIGENSCHAFT: Liste aller verfügbaren User für das Dropdown
+  users: any[] = [];
   taskForm: FormGroup; // in "taskForm" wird das gesamte Formular-Modell aus den nächsten Schritten gespeichert
 
   constructor(private fb: FormBuilder, private taskService: TaskService) { //Dependency Injection: private "fb" wird Werkzeug zum Erstellen von Formularen (nach Bauplan von FormBuilder)
@@ -28,14 +29,32 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
       frist: [null], //Datumswert (leer)
       prio_name: ['Mittel', Validators.required], // Standardwert ist 'Mittel', Feld ist ein Pflichtfeld
       vorlaufzeit_tage: [7], // Beispiel-Startwert von 7 Tagen
-      users_name: ['MS', Validators.required], // Beispiel-Startwert, Feld ist ein Pflichtfeld
+      users_name: ['', Validators.required], // Wird dynamisch gesetzt, wenn User geladen sind
       kontrolliert: [false], // Startwert für Checkbox ist 'nicht angehakt'
       status_name: ['Offen', Validators.required] // Beispiel-Startwert, Feld ist ein Pflichtfeld
     });
   }
 
    //passiert direkt nach Build
-  ngOnInit(): void { }
+  ngOnInit(): void { 
+    // User-Liste beim Initialisieren laden
+    this.loadUsers();
+  }
+
+  // NEUE METHODE: User-Liste für Dropdown laden
+  private loadUsers(): void {
+    this.taskService.getUsers().subscribe({
+      next: (users) => {
+        this.users = users;
+        console.log('Users für Dropdown geladen:', this.users);
+        // Kein automatisches Setzen - User soll bewusst auswählen
+      },
+      error: (error) => {
+        console.error('Fehler beim Laden der Users für Dropdown:', error);
+        // Kein Fallback nötig - TaskService hat bereits Fallback-Mechanismus
+      }
+    });
+  }
 
   // Folgendes passiert wenn User auf "Speichern" (type="submit") klickt
   onSubmit(): void {

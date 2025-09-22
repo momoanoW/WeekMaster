@@ -5,7 +5,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Task } from '../models/task.model';
-import { Observable } from 'rxjs'; //für asynchrone Datenströme, z.B. HTTP-Antworten
+import { Observable, of } from 'rxjs'; //für asynchrone Datenströme, z.B. HTTP-Antworten
 
 @Injectable({ //kennzeichnet diese Klasse als Service, damit ganze App darauf zugreifen kann
   providedIn: 'root' //erstellt eine einzige Instanzdieses Services, die in der ganzen App verwendet wird (Singleton Pattern)
@@ -15,9 +15,36 @@ import { Observable } from 'rxjs'; //für asynchrone Datenströme, z.B. HTTP-Ant
 export class TaskService { //Service-Klasse (importierbar wegen "export")
 
   private apiUrl = 'http://localhost:3000/api/tasks'; // Backend-Endpunkt für Tasks. Andere Klassen können nicht URL ändern (wegen private)
+  private usersUrl = 'http://localhost:3000/api/users'; // Backend-Endpunkt für Users
+  
+  // Cache für geladene User-Daten (um nicht bei jeder Aufgabe neu zu laden)
+  private users: any[] = [];
 
   // HttpClient-Werkzeug per Dependency Injection geben lassen
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) { 
+    // Beim Start des Services die User-Daten laden
+    this.loadUsers();
+  }
+
+  // NEUE METHODE: Lade alle User aus der Datenbank
+  private loadUsers(): void {
+    this.http.get<any[]>(this.usersUrl).subscribe({
+      next: (users) => {
+        this.users = users;
+        console.log('Users geladen:', this.users);
+      },
+      error: (error) => {
+        console.error('Fehler beim Laden der Users:', error);
+        this.users = [];
+      }
+    });
+  }
+
+  // METHODE: Öffentliche Methode um Users für Dropdown zu bekommen (aus Cache)
+  getUsers(): Observable<any[]> {
+    // Nutze of() um gecachte User als Observable zurückzugeben
+    return of(this.users);
+  }
 
   // READ AUFGABEN zum Abrufen der Aufgaben von der API - gibt Observable zurück (asynchroner Datenstrom)
   getTasks(): Observable<Task[]> {
@@ -49,16 +76,15 @@ private mapPriorityToId(prioName: 'Niedrig' | 'Mittel' | 'Hoch'): number {
   return 3; // Niedrig
 }
 
-// Kleine private Hilfsmethode für Übersetzung User
+// DYNAMISCHE Hilfsmethode für Übersetzung User (nutzt geladene Daten)
 private mapUserToId(userName: string): number {
-  if (userName === 'MS') return 1;
-  if (userName === 'RM') return 2;
-  if (userName === 'KM') return 3;
-  if (userName === 'MRK') return 4;
-  if (userName === 'MR') return 5;
-  if (userName === 'MK') return 6;
-  if (userName === 'RK') return 7;
-  return 1; // Default "MS"
+  const user = this.users.find(u => u.users_name === userName);
+  if (user) {
+    return user.users_id;
+  }
+  // Kein Fallback - wenn User nicht gefunden wird, dann stimmt etwas nicht
+  console.error('User nicht gefunden:', userName, 'Verfügbare User:', this.users);
+  return 0; // Ungültige ID - wird Backend-Fehler verursachen (was gut ist!)
 }
 
 // Kleine private Hilfsmethode für Übersetzung Status
