@@ -3,7 +3,7 @@
 //ich hab mich an die Aufgaben-Entität aus der DB gehalten
 
 export interface Task {
-  id: number;
+  aufgaben_id: number;
   beschreibung: string;
   frist: Date;
   vorlaufzeit_tage: number;

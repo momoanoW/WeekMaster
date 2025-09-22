@@ -1,15 +1,73 @@
-<div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"> <!-- Schwarz-transparenter Hintergrund mit zentriertem Inhalt -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"> 
+<!-- HINTERGRUND feste Position, ganzer Bildschirm, schwarzer Hintergrund, 50% durchsichtig, 
+     Flexbox-Layout, horizontal zentriert, vertikal zentriert -->
 
-  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md"> <!-- Weißer Kasten mit Padding, abgerundeten Ecken, Schatten und volle Breite aber nur bis max. Breite von md (medium) (damit nicht riesig)-->
+  <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md"> 
+  <!-- DIALOG-FENSTER GENERELL weißer Hintergrund, 24px Innenabstand, abgerundete Ecken, großer Schatten, 
+       volle Breite, max. 448px -->
 
-    <div class="flex justify-between items-center mb-4"> <!-- Flexbox für Überschrift und Schließen-Button -->
-      <h2 class="text-2xl font-bold">Neue Aufgabe</h2> <!-- Überschrift -->
-      <button class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button> <!-- Schließen-Button (X) -->
+    <div class="flex justify-between items-center mb-4"> 
+    <!-- ERSTE ZEILE Flexbox-Layout, maximaler Abstand zwischen Elementen, vertikal zentriert, 
+         16px Abstand nach unten -->
+      <h2 class="text-2xl font-bold">Neue Aufgabe</h2> <!-- 24px Schrift, fette Schrift -->
+      <button (click)="sendCloseSignal()" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button> <!-- BUTTON zum Schliessen-->
+      <!-- mittleres Grau, dunkles Grau beim Darüberfahren, 24px Schrift -->
     </div>
 
-    <div>
-      <p>Hier kommt bald das Formular hin...</p>
-    </div>
+    <form [formGroup]="taskForm" (ngSubmit)="onSubmit()"> <!-- FORMULAR -->
+      <div class="mb-4"> <!-- ERSTE ZEILE 16px Abstand nach unten -->
+        <label for="beschreibung" class="block text-sm font-medium text-gray-700 mb-1">Beschreibung</label> 
+        <!-- ganze Zeile, 14px Schrift, mittlere Schriftstärke, dunkles Grau, 4px Abstand nach unten -->
+        <input type="text" id="beschreibung" formControlName="beschreibung" placeholder="Hier Aufgabenname eingeben"
+               class="block w-full px-3 py-2 placeholder:text-gray-400 border border-gray-300 rounded-md shadow-xl focus:outline-none focus:ring-4 focus:ring-pink-300 focus:border-blue-500"> 
+        <!-- Texteingabefeld mit Placeholder, ganze Zeile, volle Breite, 12px Innenabstand l/r, 8px Innenabstand o/u, dünner Rahmen, 
+             hellgrauer Rahmen, abgerundete Ecken, großer Schatten, kein Standard-Fokusrahmen, 
+             dicker pinker Ring bei Fokus, blauer Rahmen bei Fokus -->
+      </div>
+
+      <div class="mb-4"> <!-- ZWEITE ZEILE 16px Abstand nach unten -->
+        <label for="frist" class="block text-sm font-medium text-gray-700 mb-1">Frist</label> 
+        <!-- ganze Zeile, 14px Schrift, mittlere Schriftstärke, dunkles Grau, 4px Abstand nach unten -->
+        <input type="date" id="frist" formControlName="frist"
+               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"> 
+        <!-- Datumeingabefeld, ganze Zeile, volle Breite, 12px Innenabstand l/r, 8px Innenabstand o/u, dünner Rahmen, 
+             hellgrauer Rahmen, abgerundete Ecken, kleiner Schatten, kein Standard-Fokusrahmen, 
+             blauer Ring bei Fokus, blauer Rahmen bei Fokus -->
+      </div>
+
+      <div class="mb-4"> <!-- DRITTE ZEILE 16px Abstand nach unten -->
+        <label for="prioritaet" class="block text-sm font-medium text-gray-700 mb-1">Priorität</label> 
+        <!-- ganze Zeile, 14px Schrift, mittlere Schriftstärke, dunkles Grau, 4px Abstand nach unten -->
+        <select id="prioritaet" formControlName="prioritaet"
+                class="block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"> 
+        <!-- Dropdown-Menü, ganze Zeile, volle Breite, 12px Innenabstand l/r, 8px Innenabstand o/u, dünner Rahmen, 
+             hellgrauer Rahmen, weißer Hintergrund, abgerundete Ecken, kleiner Schatten, 
+             kein Standard-Fokusrahmen, blauer Ring bei Fokus, blauer Rahmen bei Fokus -->
+          <option>Niedrig</option>
+          <option>Mittel</option>
+          <option>Hoch</option>
+        </select>
+      </div>
+
+      <div class="flex justify-end gap-4 mt-6"> <!-- UNTERE ZEILE MIT BUTTONS -->
+      <!-- Flexbox-Layout, Elemente rechts ausrichten, 16px Abstand zwischen Elementen, 
+           24px Abstand nach oben -->
+        <button type="button" (click)="sendCloseSignal()" class="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300"> 
+        <!-- hellgrauer Hintergrund, dunkelgrauer Text, fette Schrift, 8px Innenabstand o/u, 
+             16px Innenabstand l/r, abgerundete Ecken, dunklerer Grau beim Hover -->
+          Abbrechen
+        </button>
+        <!--HIER TODO : WIRKLICH SCHLIESSEN? DIALOG ÖFFNEN-->
+
+
+        <button type="submit" [disabled]="taskForm.invalid" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700"> 
+        <!-- Automatisch erstmal deaktiviert, solange nicht alle Pflichtfelder ausgefüllt sind, blauer Hintergrund, weißer Text, fette Schrift, 8px Innenabstand o/u, 
+             16px Innenabstand l/r, abgerundete Ecken, mittlerer Schatten, dunkleres Blau beim Hover -->
+          Speichern
+        </button>
+        <!--HIER TODO : Erfolgreich eingetragen DIALOG ÖFFNEN-->
+      </div>
+    </form>
 
   </div>
 </div>

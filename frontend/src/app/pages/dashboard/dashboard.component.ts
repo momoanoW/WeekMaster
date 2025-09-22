@@ -19,5 +19,10 @@ export class DashboardComponent {
   openDialog(): void {
   // Ändere den Wert der Eigenschaft 'isDialogOpen' von 'false' auf 'true'
   this.isDialogOpen = true;
-}
+  }
+
+  // Methode legt Schalter wieder auf 'false' um.
+  closeDialog(): void {
+    this.isDialogOpen = false;
+  }
 }
