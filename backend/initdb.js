@@ -9,7 +9,8 @@ initdb.get("/", async (req, res) => {
 
     // SCHRITT 1: Alle Tabellen löschen (in richtiger Reihenfolge)
     await pool.query(`
-        DROP TABLE IF EXISTS aufgaben_tags CASCADE;
+        DROP TABLE IF EXISTS Aufgaben_Fristen CASCADE;
+        DROP TABLE IF EXISTS Aufgaben_Tags CASCADE;
         DROP TABLE IF EXISTS Aufgaben CASCADE;
         DROP TABLE IF EXISTS Tags CASCADE;
         DROP TABLE IF EXISTS Prioritaet CASCADE;
@@ -43,29 +44,44 @@ initdb.get("/", async (req, res) => {
         CREATE TABLE Aufgaben (
             aufgaben_id SERIAL PRIMARY KEY,
             beschreibung TEXT NOT NULL,                         -- REQUIRED: Jede Aufgabe braucht Beschreibung
-            frist DATE,                                          -- OPTIONAL: NULL für offene Aufgaben ohne Deadline
-            vorlaufzeit_tage INTEGER DEFAULT 0,                 -- OPTIONAL: DB-Default 0 (keine Vorlaufzeit)
-            kontrolliert BOOLEAN DEFAULT false,                 -- OPTIONAL: DB-Default false (neue Aufgaben ungeprüft)
-            prio_id INTEGER NOT NULL REFERENCES Prioritaet(prio_id),     -- REQUIRED: Immer Priorität (Default-ID: 4)
-            users_id INTEGER NOT NULL REFERENCES Users(users_id),        -- REQUIRED: Immer User zugeordnet (Default-ID: 8)
-            status_id INTEGER NOT NULL REFERENCES Status(status_id)      -- REQUIRED: Immer Status (Default-ID: 4)
+            hat_frist BOOLEAN NOT NULL DEFAULT false,           -- EXPLICIT: true/false statt NULL für bessere Datenqualität
+            vorlaufzeit_tage INTEGER NOT NULL DEFAULT 0,        -- EXPLICIT: Immer numerischer Wert statt NULL
+            prio_id INTEGER NOT NULL REFERENCES Prioritaet(prio_id),     -- REQUIRED: Immer Priorität (Default-ID: 1)
+            users_id INTEGER NOT NULL REFERENCES Users(users_id),        -- REQUIRED: Immer User zugeordnet (Default-ID: 1)
+            status_id INTEGER NOT NULL REFERENCES Status(status_id)      -- REQUIRED: Immer Status (Default-ID: 1)
         );
         
-        CREATE TABLE aufgaben_tags (
-            aufgaben_id INTEGER REFERENCES Aufgaben(aufgaben_id) ON DELETE CASCADE,
-            tag_id INTEGER REFERENCES Tags(tag_id) ON DELETE CASCADE,
+        CREATE TABLE Aufgaben_Fristen (
+            aufgaben_id INTEGER PRIMARY KEY REFERENCES Aufgaben(aufgaben_id) ON DELETE CASCADE,
+            frist_datum DATE NOT NULL                           -- REQUIRED: Kein NULL möglich - nur Einträge wenn hat_frist=true
+        );
+        
+        CREATE TABLE Aufgaben_Tags (
+            aufgaben_id INTEGER NOT NULL REFERENCES Aufgaben(aufgaben_id) ON DELETE CASCADE,
+            tag_id INTEGER NOT NULL REFERENCES Tags(tag_id) ON DELETE CASCADE,
             PRIMARY KEY (aufgaben_id, tag_id)
         );
     `);
     console.log("Neue Tabellen erstellt...");
 
+    // SCHRITT 2a: SERIAL-Sequenzen zurücksetzen (vor Dateneinfügung)
+    await pool.query(`
+        ALTER SEQUENCE users_users_id_seq RESTART WITH 1;
+        ALTER SEQUENCE prioritaet_prio_id_seq RESTART WITH 1;
+        ALTER SEQUENCE status_status_id_seq RESTART WITH 1;
+        ALTER SEQUENCE tags_tag_id_seq RESTART WITH 1;
+        ALTER SEQUENCE aufgaben_aufgaben_id_seq RESTART WITH 1;
+    `);
+    console.log("SERIAL-Sequenzen zurückgesetzt...");
+
     // SCHRITT 3: Stammdaten einfügen
     await pool.query(`
         INSERT INTO Prioritaet (prio_name) VALUES
-        ('Hoch'), ('Mittel'), ('Niedrig'), ('Default');
+        ('Default'), ('Hoch'), ('Mittel'), ('Niedrig');
         
         INSERT INTO Status (status_name) VALUES
-        ('Offen'), ('In Bearbeitung'), ('Erledigt'), ('Default');
+        ('Default'), ('Offen'), ('In Bearbeitung'), ('Problem'), 
+        ('Beobachten'), ('Abstimmung nötig'), ('Erledigt');
         
         INSERT INTO Tags (tag_name) VALUES
         ('Wohnung'), ('Garten'), ('Atelier'), ('Auto'), ('Moped'),
@@ -73,52 +89,83 @@ initdb.get("/", async (req, res) => {
         ('Versicherungen'), ('Kommunikation'), ('Einkauf'), ('Sonstiges');
         
         INSERT INTO Users (users_name) VALUES
-        ('MS'), ('RM'), ('KM'), ('MRK'), ('MR'), ('MK'), ('RK'), ('Default');
+        ('Default'), ('MS'), ('RM'), ('KM'), ('MRK'), ('MR'), ('MK'), ('RK');
     `);
     console.log("Stammdaten eingefügt...");
 
     // SCHRITT 4: Beispielaufgaben einfügen
     const result = await pool.query(`
         INSERT INTO Aufgaben 
-        (beschreibung, frist, vorlaufzeit_tage, kontrolliert, prio_id, users_id, status_id) VALUES
-        ('Kuendigungsfrist Hausratversicherung online', '2025-10-01', 0, false, 2, 1, 1),
-        ('Kuendigungsfrist Haftpflichtversicherung online', '2025-10-15', 0, false, 2, 1, 1),
-        ('Danke-Email an Domaine schicken', '2025-09-30', 0, false, 3, 1, 2),
-        ('Bewertung AirBnB Cottbus schreiben', '2025-09-30', 0, false, 3, 1, 2),
-        ('WhatsApp von Lisa beantworten', NULL, 0, false, 3, 5, 1),
-        ('Weihnachten planen', '2025-12-15', 20, false, 2, 4, 1),
-        ('Anmeldung bei VGBK per Post abschicken', '2025-10-30', 4, false, 1, 1, 1),
-        ('Anruf Papa wegen Besuch', NULL, 0, false, 2, 2, 1),
-        ('Gluehbirne für Backofen kaufen', NULL, 0, false, 3, 5, 1),
-        ('Schulhefte besorgen', '2025-09-08', 4, false, 1, 5, 2),
-        ('Spülmittel im Supermarkt kaufen', NULL, 0, false, 1, 5, 1),
-        ('Einladungen zur Feier von K basteln', '2025-09-08', 0, false, 1, 4, 1),
-        ('Widerspruch bei Krankenkasse einlegen online', '2025-09-15', 0, false, 1, 1, 2),
-        ('Anruf bei Hausverwaltung wegen Therme', '2025-09-08', 0, false, 1, 5, 2),
-        ('Praktikumsbescheinigung einholen', '2025-10-15', 0, false, 2, 1, 1),
-        ('Rueckmeldung Stundenerhoehung geben an Sabine', NULL, 0, false, 2, 1, 1),
-        ('Ruecklicht Auto reparieren lassen', NULL, 0, false, 2, 2, 1),
-        ('Logopaedie anmelden', NULL, 0, false, 2, 6, 1),
-        ('Tag der offenen Tuer Termine notieren', '2025-09-15', 0, false, 2, 5, 1),
-        ('Rueckmeldung KuBiz beobachten', '2025-09-25', 0, false, 2, 5, 1),
-        ('Zugtickets buchen fuer Mainz', '2025-09-11', 0, false, 2, 5, 1)
+        (beschreibung, hat_frist, vorlaufzeit_tage, prio_id, users_id, status_id) VALUES
+        ('Kuendigungsfrist Hausratversicherung online', true, 0, 2, 2, 2),
+        ('Kuendigungsfrist Haftpflichtversicherung online', true, 0, 2, 2, 2),
+        ('Danke-Email an Domaine schicken', true, 0, 3, 2, 3),
+        ('Bewertung AirBnB Cottbus schreiben', true, 0, 3, 2, 3),
+        ('WhatsApp von Lisa beantworten', false, 0, 3, 6, 2),
+        ('Weihnachten planen', true, 20, 2, 5, 5),      -- Status: Beobachten
+        ('Anmeldung bei VGBK per Post abschicken', true, 4, 2, 2, 2),
+        ('Anruf Papa wegen Besuch', false, 0, 2, 3, 2),
+        ('Gluehbirne für Backofen kaufen', false, 0, 3, 6, 4),  -- Status: Problem
+        ('Schulhefte besorgen', true, 4, 2, 6, 3),
+        ('Spülmittel im Supermarkt kaufen', false, 0, 2, 6, 2),
+        ('Einladungen zur Feier von K basteln', true, 0, 2, 5, 6), -- Status: Abstimmung nötig
+        ('Widerspruch bei Krankenkasse einlegen online', true, 0, 2, 2, 3),
+        ('Anruf bei Hausverwaltung wegen Therme', true, 0, 2, 6, 4), -- Status: Problem
+        ('Praktikumsbescheinigung einholen', true, 0, 2, 2, 2),
+        ('Rueckmeldung Stundenerhoehung geben an Sabine', false, 0, 2, 2, 6), -- Status: Abstimmung nötig
+        ('Ruecklicht Auto reparieren lassen', false, 0, 2, 3, 5), -- Status: Beobachten
+        ('Logopaedie anmelden', false, 0, 2, 7, 2),
+        ('Tag der offenen Tuer Termine notieren', true, 0, 2, 6, 2),
+        ('Rueckmeldung KuBiz beobachten', true, 0, 2, 6, 5), -- Status: Beobachten
+        ('Zugtickets buchen fuer Mainz', true, 0, 2, 6, 2)
         RETURNING aufgaben_id;
     `);
     console.log("Beispielaufgaben eingefügt...");
 
+    // SCHRITT 4a: Fristen für Aufgaben mit hat_frist=true einfügen
+    await pool.query(`
+        INSERT INTO Aufgaben_Fristen (aufgaben_id, frist_datum) VALUES
+        (1, '2025-10-01'),   -- Kuendigungsfrist Hausratversicherung
+        (2, '2025-10-15'),   -- Kuendigungsfrist Haftpflichtversicherung
+        (3, '2025-09-30'),   -- Danke-Email an Domaine
+        (4, '2025-09-30'),   -- Bewertung AirBnB Cottbus
+        (6, '2025-12-15'),   -- Weihnachten planen
+        (7, '2025-10-30'),   -- Anmeldung bei VGBK
+        (10, '2025-09-08'),  -- Schulhefte besorgen
+        (12, '2025-09-08'),  -- Einladungen zur Feier
+        (13, '2025-09-15'),  -- Widerspruch bei Krankenkasse
+        (14, '2025-09-08'),  -- Anruf bei Hausverwaltung
+        (15, '2025-10-15'),  -- Praktikumsbescheinigung
+        (19, '2025-09-15'),  -- Tag der offenen Tuer
+        (20, '2025-09-25'),  -- Rueckmeldung KuBiz
+        (21, '2025-09-11');  -- Zugtickets buchen
+    `);
+    console.log("Fristen für Aufgaben eingefügt...");
+
     // SCHRITT 5: Tags zu Aufgaben zuordnen
     await pool.query(`
-        INSERT INTO aufgaben_tags (aufgaben_id, tag_id) VALUES
-        (1, 10), (1, 1),
-        (2, 10), (2, 1),
-        (3, 13),
-        (4, 13),
-        (5, 6),
-        (6, 6),
-        (7, 7),
-        (8, 6),
-        (9, 1),
-        (10, 6);
+        INSERT INTO Aufgaben_Tags (aufgaben_id, tag_id) VALUES
+        (1, 10), (1, 1),     -- Hausratversicherung: Versicherungen + Wohnung
+        (2, 10), (2, 1),     -- Haftpflichtversicherung: Versicherungen + Wohnung
+        (3, 11),             -- Danke-Email: Kommunikation
+        (4, 11),             -- Bewertung AirBnB: Kommunikation
+        (5, 6),              -- WhatsApp Lisa: Familie
+        (6, 6),              -- Weihnachten: Familie
+        (7, 7),              -- VGBK Anmeldung: Arbeit
+        (8, 6),              -- Anruf Papa: Familie
+        (9, 1), (9, 12),     -- Gluehbirne Backofen: Wohnung + Einkauf
+        (10, 6), (10, 12),   -- Schulhefte: Familie + Einkauf
+        (11, 1), (11, 12),   -- Spülmittel: Wohnung + Einkauf
+        (12, 6),             -- Einladungen Feier: Familie
+        (13, 10),            -- Widerspruch Krankenkasse: Versicherungen
+        (14, 1),             -- Anruf Hausverwaltung: Wohnung
+        (15, 8),             -- Praktikumsbescheinigung: Studium
+        (16, 7),             -- Stundenerhoehung Sabine: Arbeit
+        (17, 4),             -- Ruecklicht Auto: Auto
+        (18, 6),             -- Logopaedie: Familie
+        (19, 8),             -- Tag der offenen Tuer: Studium
+        (20, 8),             -- Rueckmeldung KuBiz: Studium
+        (21, 12);            -- Zugtickets: Einkauf
     `);
     console.log("Tag-Zuordnungen erstellt...");
 
@@ -126,12 +173,13 @@ initdb.get("/", async (req, res) => {
     res.status(200).json({
       message: "WeekMaster Datenbank erfolgreich initialisiert!",
       created: {
-        users: 8,        // 7 echte + 1 Default
-        priorities: 4,   // 3 echte + 1 Default
-        statuses: 4,     // 3 echte + 1 Default
-        tags: 13,
-        aufgaben: 21,
-        tag_assignments: 10,
+        Users: 8,              // 7 echte + 1 Default
+        Prioritaet: 4,         // 3 echte + 1 Default
+        Status: 7,             // 6 echte + 1 Default
+        Tags: 13,
+        Aufgaben: 21,
+        Aufgaben_Fristen: 14,  // 14 Aufgaben mit Fristen
+        Aufgaben_Tags: 24,
       },
     });
   } catch (err) {

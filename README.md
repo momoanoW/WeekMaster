@@ -89,12 +89,16 @@ erDiagram
     Aufgaben {
         int aufgaben_id PK
         text beschreibung
-        date frist
+        boolean hat_frist
         int vorlaufzeit_tage
-        boolean kontrolliert
         int users_id FK
         int prio_id FK
         int status_id FK
+    }
+    
+    aufgaben_fristen {
+        int aufgaben_id PK FK
+        date frist_datum
     }
     
     aufgaben_tags {
@@ -114,23 +118,24 @@ erDiagram
 Das ER-Diagramm oben zeigt die vollständige Datenbankstruktur. Noch mehr Details findest du in `docs/DATABASE-SCHEMA.sql`.
 
 **Kernkonzepte:**
-- **Intelligentes Deadline-Management**: Vorlaufzeit-System ermöglicht frühzeitige Benachrichtigungen vor der eigentlichen Frist
+- **Intelligentes Deadline-Management**: Vorlaufzeit-System ermöglicht frühzeitige Benachrichtigungen vor der eigentlichen Frist mit optimierter Datenstruktur (separate Fristen-Tabelle)
 - **Flexibles Tag-System**: N:N Tag-Beziehungen für Aufgabenokategorien
 - **Normalisierte Datenstruktur**: Separate Referenztabellen für Users, Prioritäten und Status für Datenkonsistenz
 - **Dashboard-Auswertungen**: Statistische Ansichten und Prioritäten-Verteilungen
 
 **Technische Datenbank-Features:**
 - PostgreSQL mit CASCADE DELETE für referentielle Integrität
-- NULL-erlaubte Fristen für flexible Aufgabenplanung (nicht alle Aufgaben haben Deadline)
-- NOT NULL mit expliziten Default-Einträgen für Referenztabellen (User: ID 8, Status/Priorität: ID 4)
-- DB-Defaults für einfache Werte: vorlaufzeit_tage DEFAULT 0, kontrolliert DEFAULT false
+- Explizite `hat_frist` Boolean-Felder statt NULL-Werte für bessere Datenqualität
+- Separate `Aufgaben_Fristen` Tabelle für normalisierte Frist-Verwaltung
+- NOT NULL mit expliziten Default-Einträgen für Referenztabellen (User: ID 1, Status: ID 1, Priorität: ID 1)
+- DB-Defaults für einfache Werte: vorlaufzeit_tage DEFAULT 0, hat_frist DEFAULT false
 - UNIQUE Constraints zur Vermeidung von Doppeleinträgen
 - Verknüpfungstabelle für N:N Beziehungen (aufgaben_tags)
 
 **Optimierte Default-Strategie (ohne redundante Fallbacks):**
-- **DB-Defaults**: Übernehmen automatisch für INTEGER/BOOLEAN (vorlaufzeit_tage, kontrolliert)
+- **DB-Defaults**: Übernehmen automatisch für INTEGER/BOOLEAN (vorlaufzeit_tage, hat_frist)
 - **Frontend-Fallbacks**: Nur für komplexe Logik (Foreign Key Mapping zu Default-IDs)
-- **Backend-Fallbacks**: Nur für explizite NULL-Konvertierung (frist-Feld)
+- **Backend-Fallbacks**: Nur für explizite Null-Konvertierung und Frist-Management mit Transaction-Logic
 - **Keine doppelten Fallbacks**: Jeder Default wird nur an einer Stelle definiert
 
 ## Datenbestand
@@ -139,7 +144,7 @@ Das System enthält ein Initialskript (`initdb.js`) mit umfangreichen Beispielda
 
 - **8 Benutzer** (7 echte + 1 Default-User für schnelle Notizen)
 - **4 Prioritätsstufen** (Hoch, Mittel, Niedrig + Default)
-- **4 Status-Optionen** (Offen, In Bearbeitung, Erledigt + Default)  
+- **7 Status-Optionen** (Offen, In Bearbeitung, Erledigt, Problem, Beobachten, Abstimmung nötig + Default)  
 - **13 Tag-Kategorien** für Lebens- und Arbeitsbereiche (Wohnung, Familie, Studium, etc.)
 - **21 Beispiel-Aufgaben** mit realistischen Fristen und Vorlaufzeiten (0-30 Tage)
 
@@ -150,11 +155,11 @@ Vollständige Daten und SQL-Inserts finden sich in `docs/DATABASE-SCHEMA.sql`. Z
 Das System implementiert ein intelligentes Deadline-Management:
 
 ```
-Erinnerung = Frist - Vorlaufzeit (in Tagen)
+Erinnerung = frist_datum - Vorlaufzeit (in Tagen)
 
 Beispiele:
-- Weihnachten planen Frist am 15.12 + 20 Tage Vorlauf = Erinnerung ab 25.11
-- Praktikumsbescheinigung Frist am 15.10 + 0 Tage = Erinnerung am 15.10
+- Weihnachten planen hat_frist=true + frist_datum am 15.12 + 20 Tage Vorlauf = Erinnerung ab 25.11
+- Praktikumsbescheinigung hat_frist=true + frist_datum am 15.10 + 0 Tage = Erinnerung am 15.10
 - Anmeldung VGBK 30.10 + 4 Tage Vorlauf = Erinnerung ab 26.10
 ```
 

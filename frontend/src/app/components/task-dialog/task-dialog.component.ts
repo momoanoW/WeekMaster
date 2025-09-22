@@ -26,7 +26,8 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
 
     this.taskForm = this.fb.group({ //FormBuilder erstellt neue Formular-Gruppe (=Container) und speichert sie in "taskForm"
       beschreibung: ['', Validators.required], // REQUIRED - einziges Muss-Feld für User
-      frist: [null], // OPTIONAL - NULL für offene Aufgaben ohne Deadline
+      hat_frist: [false], // EXPLICIT boolean - false als Standard für neue Aufgaben
+      frist_datum: [null], // OPTIONAL - nur gefüllt wenn hat_frist=true
       prio_name: ['Default', Validators.required], // REQUIRED mit explizitem Default-Wert
       vorlaufzeit_tage: [0], // OPTIONAL - 0 als Standard (entspricht DB-Default)
       users_name: ['Default', Validators.required], // REQUIRED mit explizitem Default-Wert

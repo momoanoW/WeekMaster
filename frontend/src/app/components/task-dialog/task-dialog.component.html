@@ -30,11 +30,25 @@
         </select>
       </div>
 
-      <div class="mb-4 grid grid-cols-2 gap-4"> <!-- DRITTE ZEILE 16px Abstand nach unten, 2-spaltig mit 16px Lücke -->
+      <div class="mb-4"> <!-- DRITTE ZEILE - Frist-Checkbox -->
+        <label class="flex items-center">
+          <input type="checkbox" formControlName="hat_frist" class="mr-2">
+          <span class="text-sm font-medium text-gray-700">Hat Frist</span>
+        </label>
+      </div>
+
+      <div class="mb-4 grid grid-cols-2 gap-4" *ngIf="taskForm.get('hat_frist')?.value"> <!-- VIERTE ZEILE - nur wenn hat_frist=true -->
         <div>
-          <label for="frist" class="block text-sm font-medium text-gray-700 mb-1">Frist</label> 
-          <input type="date" id="frist" formControlName="frist" class="form-input">
+          <label for="frist_datum" class="block text-sm font-medium text-gray-700 mb-1">Frist-Datum</label> 
+          <input type="date" id="frist_datum" formControlName="frist_datum" class="form-input">
         </div>
+        <div>
+          <label for="vorlaufzeit" class="block text-sm font-medium text-gray-700 mb-1">Vorlaufzeit (Tage)</label>
+          <input type="number" id="vorlaufzeit" formControlName="vorlaufzeit_tage" placeholder="0" class="form-input">
+        </div>
+      </div>
+
+      <div class="mb-4" *ngIf="!taskForm.get('hat_frist')?.value"> <!-- ALTERNATIVE: Nur Vorlaufzeit wenn keine Frist -->
         <div>
           <label for="vorlaufzeit" class="block text-sm font-medium text-gray-700 mb-1">Vorlaufzeit (Tage)</label>
           <input type="number" id="vorlaufzeit" formControlName="vorlaufzeit_tage" placeholder="0" class="form-input">
@@ -65,7 +79,7 @@
 
       <div class="mb-4"> <!-- FÜNFTE ZEILE 16px Abstand nach unten -->
         <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-        <div class="flex gap-4"> <!-- Flexbox mit 16px Abstand zwischen Elementen -->
+        <div class="grid grid-cols-2 gap-4"> <!-- Grid layout für bessere Übersicht bei mehr Status -->
           <label class="flex items-center">
             <input type="radio" formControlName="status_name" value="Default" class="mr-2">
             <span>Default</span>
@@ -81,6 +95,18 @@
           <label class="flex items-center">
             <input type="radio" formControlName="status_name" value="Erledigt" class="mr-2">
             <span>Erledigt</span>
+          </label>
+          <label class="flex items-center">
+            <input type="radio" formControlName="status_name" value="Problem" class="mr-2">
+            <span>Problem</span>
+          </label>
+          <label class="flex items-center">
+            <input type="radio" formControlName="status_name" value="Beobachten" class="mr-2">
+            <span>Beobachten</span>
+          </label>
+          <label class="flex items-center">
+            <input type="radio" formControlName="status_name" value="Abstimmung nötig" class="mr-2">
+            <span>Abstimmung nötig</span>
           </label>
         </div>
       </div>

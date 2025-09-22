@@ -55,35 +55,36 @@ export class TaskService { //Service-Klasse (importierbar wegen "export")
 
   // NEUE AUFGABE HINZUFÜGEN - SAUBERER NOT NULL ANSATZ MIT EXPLIZITEN DEFAULTS
   createTask(neueAufgabe: Task): Observable<Task> {
-   const datenFuerBackend = {   // Backend erwartet IDs, aber Formular liefert Namen -> manche übersetzen
+   const datenFuerBackend = {   // Backend erwartet neue Struktur mit hat_frist und frist_datum
     beschreibung: neueAufgabe.beschreibung,  // REQUIRED in DB (NOT NULL)
-    frist: neueAufgabe.frist || null,        // OPTIONAL (NULL erlaubt) - nicht alle Aufgaben haben Deadline
+    hat_frist: neueAufgabe.hat_frist || false,  // EXPLICIT boolean statt NULL für bessere Datenqualität
+    frist_datum: neueAufgabe.hat_frist ? neueAufgabe.frist_datum : null,  // Nur setzen wenn hat_frist=true
     vorlaufzeit_tage: neueAufgabe.vorlaufzeit_tage,  // OPTIONAL - DB DEFAULT 0 übernimmt wenn null/undefined
-    // kontrolliert wird weggelassen - DB DEFAULT false übernimmt automatisch!
+  
    
     // ALLE REQUIRED (NOT NULL) - explizite Default-Einträge für schnelle Notizen
     users_id: neueAufgabe.users_name ? 
                this.mapUserToId(neueAufgabe.users_name) : 
-               8,  // DEFAULT-User (ID 8 = "Default") für schnelle Notizen
+               1,  // DEFAULT-User (ID 1 = "Default") für schnelle Notizen
                
     status_id: neueAufgabe.status_name ? 
                 this.mapStatusToId(neueAufgabe.status_name) : 
-                4,  // DEFAULT-Status (ID 4 = "Default") - kann später geändert werden
+                1,  // DEFAULT-Status (ID 1 = "Default") - kann später geändert werden
                 
     prio_id: neueAufgabe.prio_name ? 
               this.mapPriorityToId(neueAufgabe.prio_name) : 
-              4   // DEFAULT-Priorität (ID 4 = "Default") - kann später geändert werden
+              1   // DEFAULT-Priorität (ID 1 = "Default") - kann später geändert werden
   };
   return this.http.post<Task>(this.apiUrl, datenFuerBackend);
 }
 
 // Kleine private Hilfsmethode für Übersetzung Prio
 private mapPriorityToId(prioName: 'Niedrig' | 'Mittel' | 'Hoch' | 'Default'): number {
-  if (prioName === 'Hoch') return 1;
-  if (prioName === 'Mittel') return 2;
-  if (prioName === 'Niedrig') return 3;
-  if (prioName === 'Default') return 4;
-  return 4; // Fallback zu Default
+  if (prioName === 'Default') return 1;
+  if (prioName === 'Hoch') return 2;
+  if (prioName === 'Mittel') return 3;
+  if (prioName === 'Niedrig') return 4;
+  return 1; // Fallback zu Default
 }
 
 // DYNAMISCHE Hilfsmethode für Übersetzung User (nutzt geladene Daten)
@@ -98,12 +99,15 @@ private mapUserToId(userName: string): number {
 }
 
 // Kleine private Hilfsmethode für Übersetzung Status
-private mapStatusToId(statusName: 'Offen' | 'In Bearbeitung' | 'Erledigt' | 'Default'): number {
-  if (statusName === 'Offen') return 1;
-  if (statusName === 'In Bearbeitung') return 2;
-  if (statusName === 'Erledigt') return 3;
-  if (statusName === 'Default') return 4;
-  return 4; // Fallback zu Default
+private mapStatusToId(statusName: 'Offen' | 'In Bearbeitung' | 'Erledigt' | 'Problem' | 'Beobachten' | 'Abstimmung nötig' | 'Default'): number {
+  if (statusName === 'Default') return 1;
+  if (statusName === 'Offen') return 2;
+  if (statusName === 'In Bearbeitung') return 3;
+  if (statusName === 'Problem') return 4;
+  if (statusName === 'Beobachten') return 5;
+  if (statusName === 'Abstimmung nötig') return 6;
+  if (statusName === 'Erledigt') return 7;
+  return 1; // Fallback zu Default
 }
 
 }

@@ -37,10 +37,9 @@ CREATE TABLE Aufgaben (
     beschreibung TEXT NOT NULL,                   -- Aufgabenbeschreibung (Pflichtfeld)
     frist DATE,                                   -- Deadline (optional) - NULL für offene Aufgaben
     vorlaufzeit_tage INTEGER DEFAULT 0,          -- Tage vor Frist für Erinnerung (DB-Default: 0)
-    kontrolliert BOOLEAN DEFAULT FALSE,          -- Wurde die Aufgabe kontrolliert? (DB-Default: false)
-    users_id INTEGER NOT NULL,                   -- Zugewiesene Person (Pflichtfeld, Default-User ID 8)
-    prio_id INTEGER NOT NULL,                    -- Priorität (Pflichtfeld, Default-Priorität ID 4)
-    status_id INTEGER NOT NULL,                  -- Bearbeitungsstand (Pflichtfeld, Default-Status ID 4)
+    users_id INTEGER NOT NULL,                   -- Zugewiesene Person (Pflichtfeld, Default-User ID 1)
+    prio_id INTEGER NOT NULL,                    -- Priorität (Pflichtfeld, Default-Priorität ID 1)
+    status_id INTEGER NOT NULL,                  -- Bearbeitungsstand (Pflichtfeld, Default-Status ID 1)
     
     -- Foreign Key Constraints (Fremdschlüssel-Beziehungen)
     CONSTRAINT fk_aufgaben_users FOREIGN KEY (users_id) REFERENCES Users(users_id),      -- Verweist auf Users Tabelle
@@ -65,17 +64,20 @@ CREATE TABLE aufgaben_tags (
 
 -- Prioritäten einfügen
 INSERT INTO Prioritaet (prio_name) VALUES
+('Default'),
 ('Hoch'),
 ('Mittel'),
-('Niedrig'),
-('Default');
+('Niedrig');
 
 -- Status einfügen
 INSERT INTO Status (status_name) VALUES
+('Default'),
 ('Offen'),
 ('In Bearbeitung'),
-('Erledigt'),
-('Default');
+('Problem'),
+('Beobachten'),
+('Abstimmung nötig'),
+('Erledigt');
 
 -- Tags einfügen (Kategorien für bessere Organisation)
 INSERT INTO Tags (tag_name) VALUES
@@ -95,14 +97,14 @@ INSERT INTO Tags (tag_name) VALUES
 
 -- Nutzer einfügen (Initialen für Datenschutz)
 INSERT INTO Users (users_name) VALUES
+('Default'),
 ('MS'),
 ('RM'),
 ('KM'),
 ('MRK'),
 ('MR'),
 ('MK'),
-('RK'),
-('Default');
+('RK');
 
 -- ========================================
 -- BEISPIELDATEN
@@ -110,28 +112,28 @@ INSERT INTO Users (users_name) VALUES
 
 -- Beispielaufgaben für verschiedene Lebensbereiche
 INSERT INTO Aufgaben 
-(beschreibung, frist, vorlaufzeit_tage, kontrolliert, prio_id, users_id, status_id) VALUES
-('Kuendigungsfrist Hausratversicherung online', '2025-10-01', 0, false, 2, 1, 1),
-('Kuendigungsfrist Haftpflichtversicherung online', '2025-10-15', 0, false, 2, 1, 1),
-('Danke-Email an Domaine schicken', '2025-09-30', 0, false, 3, 1, 2),
-('Bewertung AirBnB Cottbus schreiben', '2025-09-30', 0, false, 3, 1, 2),
-('WhatsApp von Lisa beantworten', NULL, 0, false, 3, 5, 1),
-('Weihnachten planen', '2025-12-15', 20, false, 2, 4, 1),
-('Anmeldung bei VGBK per Post abschicken', '2025-10-30', 4, false, 1, 1, 1),
-('Anruf Papa wegen Besuch', NULL, 0, false, 2, 2, 1),
-('Gluehbirne für Backofen kaufen', NULL, 0, false, 3, 5, 1),
-('Schulhefte besorgen', '2025-09-08', 4, false, 1, 5, 2),
-('Spülmittel im Supermarkt kaufen', NULL, 0, false, 1, 5, 1),
-('Einladungen zur Feier von K basteln', '2025-09-08', 0, false, 1, 4, 1),
-('Widerspruch bei Krankenkasse einlegen online', '2025-09-15', 0, false, 1, 1, 2),
-('Anruf bei Hausverwaltung wegen Therme', '2025-09-08', 0, false, 1, 5, 2),
-('Praktikumsbescheinigung einholen', '2025-10-15', 0, false, 2, 1, 1),
-('Rueckmeldung Stundenerhoehung geben an Sabine', NULL, 0, false, 2, 1, 1),
-('Ruecklicht Auto reparieren lassen', NULL, 0, false, 2, 2, 1),
-('Logopaedie anmelden', NULL, 0, false, 2, 6, 1),
-('Tag der offenen Tuer Termine notieren', '2025-09-15', 0, false, 2, 5, 1),
-('Rueckmeldung KuBiz beobachten', '2025-09-25', 0, false, 2, 5, 1),
-('Zugtickets buchen fuer Mainz', '2025-09-11', 0, false, 2, 5, 1);
+(beschreibung, frist, vorlaufzeit_tage, prio_id, users_id, status_id) VALUES
+('Kuendigungsfrist Hausratversicherung online', '2025-10-01', 0, 2, 2, 2),
+('Kuendigungsfrist Haftpflichtversicherung online', '2025-10-15', 0, 2, 2, 2),
+('Danke-Email an Domaine schicken', '2025-09-30', 0, 3, 2, 3),
+('Bewertung AirBnB Cottbus schreiben', '2025-09-30', 0, 3, 2, 3),
+('WhatsApp von Lisa beantworten', NULL, 0, 3, 6, 2),
+('Weihnachten planen', '2025-12-15', 20, 2, 5, 2),
+('Anmeldung bei VGBK per Post abschicken', '2025-10-30', 4, 2, 2, 2),
+('Anruf Papa wegen Besuch', NULL, 0, 2, 3, 2),
+('Gluehbirne für Backofen kaufen', NULL, 0, 3, 6, 2),
+('Schulhefte besorgen', '2025-09-08', 4, 2, 6, 3),
+('Spülmittel im Supermarkt kaufen', NULL, 0, 2, 6, 2),
+('Einladungen zur Feier von K basteln', '2025-09-08', 0, 2, 5, 2),
+('Widerspruch bei Krankenkasse einlegen online', '2025-09-15', 0, 2, 2, 3),
+('Anruf bei Hausverwaltung wegen Therme', '2025-09-08', 0, 2, 6, 3),
+('Praktikumsbescheinigung einholen', '2025-10-15', 0, 2, 2, 2),
+('Rueckmeldung Stundenerhoehung geben an Sabine', NULL, 0, 2, 2, 2),
+('Ruecklicht Auto reparieren lassen', NULL, 0, 2, 3, 2),
+('Logopaedie anmelden', NULL, 0, 2, 7, 2),
+('Tag der offenen Tuer Termine notieren', '2025-09-15', 0, 2, 6, 2),
+('Rueckmeldung KuBiz beobachten', '2025-09-25', 0, 2, 6, 2),
+('Zugtickets buchen fuer Mainz', '2025-09-11', 0, 2, 6, 2);
 
 -- Tags zu Aufgaben zuordnen (Beispiele)
 INSERT INTO aufgaben_tags (aufgaben_id, tag_id) VALUES
@@ -182,7 +184,6 @@ SELECT
     a.beschreibung,
     a.frist,
     a.vorlaufzeit_tage,
-    a.kontrolliert,
     u.users_name,
     p.prio_name,
     s.status_name,
@@ -194,7 +195,7 @@ LEFT JOIN Status s ON a.status_id = s.status_id
 LEFT JOIN aufgaben_tags at ON a.aufgaben_id = at.aufgaben_id
 LEFT JOIN Tags t ON at.tag_id = t.tag_id
 GROUP BY 
-    a.aufgaben_id, a.beschreibung, a.frist, a.vorlaufzeit_tage, a.kontrolliert,
+    a.aufgaben_id, a.beschreibung, a.frist, a.vorlaufzeit_tage,
     u.users_name, p.prio_name, s.status_name
 ORDER BY a.frist ASC NULLS LAST;
 
@@ -217,7 +218,7 @@ FROM Aufgaben a
 JOIN Users u ON a.users_id = u.users_id
 JOIN Prioritaet p ON a.prio_id = p.prio_id
 WHERE a.frist BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days'
-AND a.status_id != 3  -- Nicht erledigt
+AND a.status_id != 7  -- Nicht erledigt
 ORDER BY a.frist;
 */
 
@@ -227,7 +228,8 @@ ORDER BY a.frist;
 
 /*
 -- Alle Daten löschen (in richtiger Reihenfolge)
-DELETE FROM aufgaben_tags;
+DELETE FROM Aufgaben_Fristen;
+DELETE FROM Aufgaben_Tags;
 DELETE FROM Aufgaben;
 DELETE FROM Tags;
 DELETE FROM Prioritaet;
@@ -235,9 +237,9 @@ DELETE FROM Status;
 DELETE FROM Users;
 
 -- Auto-Increment Sequenzen zurücksetzen
-SELECT setval('public.prioritaet_prio_id_seq', 1, false);
-SELECT setval('public.users_users_id_seq', 1, false);
-SELECT setval('public.status_status_id_seq', 1, false);
-SELECT setval('public.tags_tag_id_seq', 1, false);
-SELECT setval('public.aufgaben_aufgaben_id_seq', 1, false);
+ALTER SEQUENCE users_users_id_seq RESTART WITH 1;
+ALTER SEQUENCE prioritaet_prio_id_seq RESTART WITH 1;
+ALTER SEQUENCE status_status_id_seq RESTART WITH 1;
+ALTER SEQUENCE tags_tag_id_seq RESTART WITH 1;
+ALTER SEQUENCE aufgaben_aufgaben_id_seq RESTART WITH 1;
 */

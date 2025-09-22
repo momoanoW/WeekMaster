@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
                     ELSE CONCAT(COUNT(at.aufgaben_id), ' Aufgaben')
                 END as verwendung_info
             FROM Tags t
-            LEFT JOIN aufgaben_tags at ON t.tag_id = at.tag_id
+            LEFT JOIN Aufgaben_Tags at ON t.tag_id = at.tag_id
             GROUP BY t.tag_id, t.tag_name
             ORDER BY t.tag_name
         `);
@@ -62,7 +62,7 @@ router.get('/search', async (req, res) => {
                     ELSE CONCAT(COUNT(at.aufgaben_id), ' Aufgaben')
                 END as verwendung_info
             FROM Tags t
-            LEFT JOIN aufgaben_tags at ON t.tag_id = at.tag_id
+            LEFT JOIN Aufgaben_Tags at ON t.tag_id = at.tag_id
             WHERE LOWER(t.tag_name) LIKE LOWER($1)
             GROUP BY t.tag_id, t.tag_name
             ORDER BY t.tag_name
@@ -95,7 +95,7 @@ router.get('/autocomplete', async (req, res) => {
                 t.tag_name,
                 COUNT(at.aufgaben_id) as aufgaben_anzahl
             FROM Tags t
-            LEFT JOIN aufgaben_tags at ON t.tag_id = at.tag_id
+            LEFT JOIN Aufgaben_Tags at ON t.tag_id = at.tag_id
             WHERE LOWER(t.tag_name) LIKE LOWER($1)
             GROUP BY t.tag_id, t.tag_name
             ORDER BY COUNT(at.aufgaben_id) DESC, t.tag_name
@@ -204,9 +204,9 @@ router.delete('/:id', async (req, res) => {
         }
         
         // Prüfung ob Tag in Aufgaben verwendet wird (Referential Integrity)
-        // - Zählt Verknüpfungen mit diesem Tag in aufgaben_tags
+        // - Zählt Verknüpfungen mit diesem Tag in Aufgaben_Tags
         const usageCheck = await pool.query(`
-            SELECT COUNT(*) as count FROM aufgaben_tags 
+            SELECT COUNT(*) as count FROM Aufgaben_Tags 
             WHERE tag_id = $1
         `, [id]);
         

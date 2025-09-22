@@ -25,13 +25,14 @@ router.get('/stats', async (req, res) => {
                 COUNT(CASE WHEN s.status_name = 'Erledigt' THEN 1 END) as aufgaben_erledigt,
                 COUNT(CASE WHEN s.status_name = 'In Bearbeitung' THEN 1 END) as aufgaben_in_bearbeitung,
                 COUNT(CASE WHEN s.status_name = 'Offen' THEN 1 END) as aufgaben_offen,
-                COUNT(CASE WHEN a.frist < CURRENT_DATE AND s.status_name != 'Erledigt' THEN 1 END) as aufgaben_ueberfaellig,
-                COUNT(CASE WHEN a.frist BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days' AND s.status_name != 'Erledigt' THEN 1 END) as aufgaben_diese_woche,
+                COUNT(CASE WHEN af.frist_datum < CURRENT_DATE AND s.status_name != 'Erledigt' THEN 1 END) as aufgaben_ueberfaellig,
+                COUNT(CASE WHEN af.frist_datum BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days' AND s.status_name != 'Erledigt' THEN 1 END) as aufgaben_diese_woche,
                 ROUND(
                     COUNT(CASE WHEN s.status_name = 'Erledigt' THEN 1 END)::DECIMAL / 
                     NULLIF(COUNT(*), 0) * 100, 2
                 ) as erledigungsquote_prozent
             FROM Aufgaben a
+            LEFT JOIN Aufgaben_Fristen af ON a.aufgaben_id = af.aufgaben_id
             LEFT JOIN Status s ON a.status_id = s.status_id
         `);
         
@@ -53,18 +54,20 @@ router.get('/stats', async (req, res) => {
 router.get('/recent', async (req, res) => {
     try {                                                               // try-catch für Fehlerbehandlung
         // SQL-Query: Kürzlich geänderte/erstellte Aufgaben für Activity Timeline
-        // - LEFT JOINs für vollständige Daten auch ohne Verknüpfungen
+        // - LEFT JOINs für vollständige Daten auch ohne Verknüpfungen (inkl. Fristen)
         // - ORDER BY aufgaben_id DESC: Neueste zuerst (höhere ID = später erstellt)
         // - LIMIT 10 für Performance und übersichtliche Darstellung
         const result = await pool.query(`
             SELECT 
                 a.aufgaben_id,
                 a.beschreibung,
-                a.frist,
+                a.hat_frist,
+                af.frist_datum,
                 u.users_name,
                 s.status_name,
                 p.prio_name
             FROM Aufgaben a
+            LEFT JOIN Aufgaben_Fristen af ON a.aufgaben_id = af.aufgaben_id
             LEFT JOIN Users u ON a.users_id = u.users_id
             LEFT JOIN Status s ON a.status_id = s.status_id
             LEFT JOIN Prioritaet p ON a.prio_id = p.prio_id

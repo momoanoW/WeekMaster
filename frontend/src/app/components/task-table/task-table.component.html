@@ -10,6 +10,7 @@
         <th scope="col" class="px-6 py-3">Status</th>   
         <th scope="col" class="px-6 py-3">Priorität</th>
         <th scope="col" class="px-6 py-3">Frist</th>
+        <th scope="col" class="px-6 py-3">Hat Frist</th>
       </tr>
     </thead>
 
@@ -27,7 +28,11 @@
         <!-- Weitere horizontale Zellen in der Zeile -->
         <td class="px-6 py-4">{{ task.status_name }}</td>
         <td class="px-6 py-4">{{ task.prio_name}}</td>
-        <td class="px-6 py-4">{{ task.frist | date : "dd.MM.yyyy" }}</td>
+        <td class="px-6 py-4">{{ task.frist_datum | date : "dd.MM.yyyy" }}</td>
+        <td class="px-6 py-4">
+          <span *ngIf="task.hat_frist" class="text-green-600 font-semibold">✓ Ja</span>
+          <span *ngIf="!task.hat_frist" class="text-gray-400">✗ Nein</span>
+        </td>
       </tr>
       }
     </tbody>
