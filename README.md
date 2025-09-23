@@ -148,7 +148,7 @@ Das System enthält ein Initialskript (`initdb.js`) mit umfangreichen Beispielda
 - **13 Tag-Kategorien** für Lebens- und Arbeitsbereiche (Wohnung, Familie, Studium, etc.)
 - **21 Beispiel-Aufgaben** mit realistischen Fristen und Vorlaufzeiten (0-30 Tage)
 
-Vollständige Daten und SQL-Inserts finden sich in `docs/DATABASE-SCHEMA.sql`. Zur automatischen Initialisierung nutze `node backend/initdb.js`.
+Vollständige Daten und SQL-Inserts finden sich in `docs/DATABASE-SCHEMA.sql`. Zur automatischen Initialisierung nutze die HTTP-Route `http://localhost:3000/initdb` oder das direkte Script `node backend/initdb.js`.
 
 ## Vorlaufzeit-System
 
@@ -314,10 +314,15 @@ npm run install:all
 ## Datenbank-Setup
 
 ```bash
-# Option 1: Automatische Initialisierung (empfohlen)
+# Option 1: Automatische Initialisierung über HTTP-Route (empfohlen)
+# Backend starten und dann:
+curl http://localhost:3000/initdb
+# oder im Browser: http://localhost:3000/initdb
+
+# Option 2: Direktes Script (alternative)
 node backend/initdb.js
 
-# Option 2: Manuell mit SQL-Datei
+# Option 3: Manuell mit SQL-Datei
 psql -h <db-host> -U <username> -d <database> -f docs/DATABASE-SCHEMA.sql
 ```
 

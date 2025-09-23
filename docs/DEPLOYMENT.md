@@ -24,6 +24,26 @@ PGPASSWORD=[SUPABASE_PASSWORD]
 PORT=3000
 ```
 
+## Datenbank Initialisierung
+
+### Lokal (Development):
+```bash
+# Option 1: HTTP-Route (Backend muss laufen)
+curl http://localhost:3000/initdb
+# oder im Browser: http://localhost:3000/initdb
+
+# Option 2: Direktes Script
+cd backend
+node initdb.js
+```
+
+### Vercel (Production):
+```bash
+# Nach dem Deployment:
+curl https://dein-backend.vercel.app/initdb
+# oder im Browser: https://dein-backend.vercel.app/initdb
+```
+
 ## Deployment Commands
 
 1. Backend deployen:
@@ -35,10 +55,12 @@ vercel --prod
 ```
 
 2. Environment Variables in Vercel Dashboard setzen
-3. URL notieren für Frontend-Konfiguration
+3. Datenbank initialisieren: `https://dein-backend.vercel.app/initdb`
+4. URL notieren für Frontend-Konfiguration
 
 ## Notizen
 
 - HTW-Datenbank funktioniert nur mit VPN
 - Für Production: Supabase oder Vercel Postgres verwenden
 - Frontend muss API-URL von localhost auf Vercel-URL ändern
+- Nach jedem Deployment: Datenbank über `/initdb` Route neu initialisieren
