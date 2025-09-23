@@ -23,6 +23,7 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
   taskForm: FormGroup; // in "taskForm" wird das gesamte Formular-Modell aus den nächsten Schritten gespeichert
   tags: any[] = []; // Liste aller verfügbaren Tags für Mehrfachauswahl
   confirmationMessage: string | null = null; // Bestätigungsmeldung nach Speichern
+  showConfirmDialog: boolean = false; // Steuert Anzeige des Custom Confirm Dialogs
 
   constructor(private fb: FormBuilder, private taskService: TaskService) { //Dependency Injection: private "fb" wird Werkzeug zum Erstellen von Formularen (nach Bauplan von FormBuilder)
 
@@ -94,7 +95,7 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
       this.taskService.createTask(formValue).subscribe({
         next: (response) => {
           console.log('Aufgabe erfolgreich erstellt:', response); // Bestätigung für erfolgreiche Speicherung
-          this.confirmationMessage = 'Aufgabe wurde erfolgreich hinzugefügt.';
+          this.confirmationMessage = 'Aufgabe wurde erfolgreich hinzugefügt. 📌';
           // Nach kurzer Anzeige automatisch schließen
           setTimeout(() => {
           this.taskSaved.emit(); // SENDE EVENT AN DASHBOARD
@@ -109,15 +110,29 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
   }
 
   confirmCloseDialog(): void {
+    console.log('confirmCloseDialog aufgerufen');
+    console.log('taskForm.dirty:', this.taskForm.dirty);
+    console.log('showConfirmDialog vor Änderung:', this.showConfirmDialog);
+    
     if (this.taskForm.dirty) {
-      const ok = window.confirm(
-        'Es sind ungespeicherte Änderungen vorhanden. Dialog wirklich schließen?'
-      );
-      if (!ok) {
-        return; // Abbruch
-      }
+      this.showConfirmDialog = true; // Zeige Custom Dialog
+      console.log('showConfirmDialog nach Änderung:', this.showConfirmDialog);
+    } else {
+      console.log('Formular ist nicht dirty - schließe direkt');
+      this.sendCloseSignal();
     }
-    this.sendCloseSignal();
+  }
+
+  // Custom Dialog Methoden
+  cancelClose(): void {
+    console.log('cancelClose aufgerufen');
+    this.showConfirmDialog = false; // Dialog schließen ohne Aktion
+  }
+
+  confirmClose(): void {
+    console.log('confirmClose aufgerufen');
+    this.showConfirmDialog = false; // Dialog schließen
+    this.sendCloseSignal(); // Hauptdialog schließen
   }
 
   sendCloseSignal(): void { // Methode, um das Ereignis auszulösen

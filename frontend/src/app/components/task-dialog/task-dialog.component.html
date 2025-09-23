@@ -6,113 +6,129 @@
 
     <div class="flex justify-between items-center mb-4"> 
     <!-- ERSTE ZEILE Flexbox-Layout, maximaler Abstand zwischen Elementen, vertikal zentriert -->
-      <h2 class="text-xl font-bold text-text-dark">Neue Aufgabe notieren</h2> <!-- Text-Farbe aus deiner Config -->
-      <button (click)="sendCloseSignal()" class="text-text-default hover:text-text-dark text-xl transition duration-300">&times;</button> 
+      <h2 class="text-2xl font-bold text-text-dark">Neue Aufgabe eintragen</h2> <!-- Text-Farbe aus deiner Config -->
+      <button (click)="confirmCloseDialog()" class="text-text-default hover:text-text-dark text-xl transition duration-300">&times;</button> 
       <!-- Text-Farben aus deiner Config mit Hover-Effekt -->
     </div>
 
     <form [formGroup]="taskForm" (ngSubmit)="onSubmit()"> <!-- FORMULAR -->
-      <div class="mb-4"> <!-- ERSTE ZEILE -->
-        <label for="beschreibung" class="block text-base font-bold text-text-dark mb-1">Beschreibung</label> 
-        <input type="text" id="beschreibung" formControlName="beschreibung" placeholder="Aufgabenname eingeben"
-               class="form-input focus:ring-primary focus:border-primary"> 
-        <!-- Deine form-input Klasse mit Primary-Farben -->
-      </div>
-
-      <div class="mb-4"> <!-- ZWEITE ZEILE -->
-        <label for="user" class="block text-base font-bold text-text-dark mb-1">User</label>
-        <select id="user" formControlName="users_name" class="form-select focus:ring-primary focus:border-primary">
-          <option *ngFor="let user of users" [value]="user.users_name">{{ user.users_name }}</option>
-        </select>
-      </div>
-
-      <div class="mb-4"> <!-- DRITTE ZEILE - Frist-Checkbox -->
-        <label class="checkbox-label">
-          <input type="checkbox" formControlName="hat_frist">
-          <span class="font-bold text-text-dark">Hat Frist</span>
-        </label>
-      </div>
-
-      <div class="mb-4 grid-responsive-2" *ngIf="taskForm.get('hat_frist')?.value"> <!-- Universelle responsive Klasse -->
-        <div>
-          <label for="frist_datum" class="block text-base font-bold text-text-dark mb-1">Frist-Datum</label> 
-          <input type="date" id="frist_datum" formControlName="frist_datum" class="form-input focus:ring-primary focus:border-primary">
+      
+      <!-- GRUNDDATEN - Pastell-Grün -->
+      <div class="bg-primary-subtle p-4 rounded-l mb-4">
+        
+        <div class="mb-4"> <!-- ERSTE ZEILE -->
+          <label for="beschreibung" class="block text-base font-bold text-text-dark mb-1">Beschreibung 📝</label> 
+          <input type="text" id="beschreibung" formControlName="beschreibung" placeholder="Aufgabenname eingeben"
+                 class="form-input focus:ring-primary focus:border-primary"> 
+          <!-- Deine form-input Klasse mit Primary-Farben -->
         </div>
-        <div>
-          <label for="vorlaufzeit" class="block text-base font-bold text-text-dark mb-1">Vorlaufzeit (Tage)</label>
-          <input type="number" id="vorlaufzeit" formControlName="vorlaufzeit_tage" placeholder="0" class="form-input focus:ring-primary focus:border-primary">
+
+        <div class="mb-0"> <!-- ZWEITE ZEILE -->
+          <label for="user" class="block text-base font-bold text-text-dark mb-1">Für wen ist die Aufgabe?</label>
+          <select id="user" formControlName="users_name" class="form-select focus:ring-primary focus:border-primary">
+            <option *ngFor="let user of users" [value]="user.users_name">{{ user.users_name }}</option>
+          </select>
         </div>
       </div>
 
-      <div class="mb-4"> <!-- PRIORITÄT & STATUS optimiert für weniger Höhe -->
-        <div class="grid-responsive-sections"> <!-- Universelle responsive Klasse -->
-          <!-- PRIORITÄT -->
-          <div>
-            <label class="block text-base font-bold text-text-dark mb-2">Priorität</label>
-            <div class="grid-responsive-options"> <!-- Universelle responsive Klasse -->
-              <label class="radio-label">
-                <input type="radio" formControlName="prio_name" value="Default">
-                <span>Default</span>
-              </label>
-              <label class="radio-label">
-                <input type="radio" formControlName="prio_name" value="Niedrig">
-                <span>Niedrig</span>
-              </label>
-              <label class="radio-label">
-                <input type="radio" formControlName="prio_name" value="Mittel">
-                <span>Mittel</span>
-              </label>
-              <label class="radio-label">
-                <input type="radio" formControlName="prio_name" value="Hoch">
-                <span>Hoch</span>
-              </label>
-            </div>
-          </div>
-
-          <!-- STATUS -->
-          <div>
-            <label class="block text-base font-bold text-text-dark mb-2">Status</label>
-            <div class="grid-responsive-options"> <!-- Universelle responsive Klasse -->
-              <label class="radio-label">
-                <input type="radio" formControlName="status_name" value="Default">
-                <span>Default</span>
-              </label>
-              <label class="radio-label">
-                <input type="radio" formControlName="status_name" value="Offen">
-                <span>Offen</span>
-              </label>
-              <label class="radio-label">
-                <input type="radio" formControlName="status_name" value="In Bearbeitung">
-                <span>In Bearbeitung</span>
-              </label>
-              <label class="radio-label">
-                <input type="radio" formControlName="status_name" value="Erledigt">
-                <span>Erledigt</span>
-              </label>
-              <label class="radio-label">
-                <input type="radio" formControlName="status_name" value="Problem">
-                <span>Problem</span>
-              </label>
-              <label class="radio-label">
-                <input type="radio" formControlName="status_name" value="Beobachten">
-                <span>Beobachten</span>
-              </label>
-              <label class="radio-label">
-                <input type="radio" formControlName="status_name" value="Abstimmung nötig">
-                <span>Abstimmung nötig</span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="mb-4"> <!-- TAGS kompakter in 4 Spalten -->
-        <label class="block text-base font-bold text-text-dark mb-2">Tags <span class="text-sm font-normal text-gray-500">(Mehrfachauswahl möglich)</span></label>
-        <div class="grid-responsive-4" formArrayName="selectedTags"> <!-- Universelle responsive Klasse -->
-          <label *ngFor="let tag of tags; let i = index" class="checkbox-label">
-            <input type="checkbox" [value]="tag.tag_id" (change)="onTagChange($event)">
-            <span>{{ tag.tag_name }}</span>
+      <!-- ZEITMANAGEMENT - Pastell-Gelb -->
+      <div class="bg-accent-light p-4 rounded-l mb-4">
+        
+        <div class="mb-4"> <!-- DRITTE ZEILE - Frist-Checkbox -->
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="hat_frist">
+            <span class="font-bold text-text-dark">die Aufgabe hat eine Frist ⏰</span>
           </label>
+        </div>
+
+        <div class="mb-0 grid-responsive-2" *ngIf="taskForm.get('hat_frist')?.value"> <!-- Universelle responsive Klasse -->
+          <div>
+            <label for="frist_datum" class="block text-base font-bold text-text-dark mb-1">Frist</label> 
+            <input type="date" id="frist_datum" formControlName="frist_datum" class="form-input focus:ring-primary focus:border-primary">
+          </div>
+          <div>
+            <label for="vorlaufzeit" class="block text-base font-bold text-text-dark mb-1">Wie viele Tage vorher willst du damit anfangen?<span class="text-sm font-normal text-gray-500">(optional)</span></label>
+            <input type="number" id="vorlaufzeit" formControlName="vorlaufzeit_tage" placeholder="0" class="form-input focus:ring-primary focus:border-primary">
+          </div>
+        </div>
+      </div>
+
+      <!-- KATEGORISIERUNG - Hautfarbe -->
+      <div class="bg-skin p-4 rounded-l mb-4">
+        <div class="mb-0"> <!-- PRIORITÄT & STATUS optimiert für weniger Höhe -->
+          <div class="grid-responsive-sections"> <!-- Universelle responsive Klasse -->
+            <!-- PRIORITÄT -->
+            <div>
+              <label class="block text-base font-bold text-text-dark mb-2">Welche Prio? 🔥</label>
+              <div class="grid-responsive-options"> <!-- Universelle responsive Klasse -->
+                <label class="radio-label">
+                  <input type="radio" formControlName="prio_name" value="Default">
+                  <span>Default</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" formControlName="prio_name" value="Niedrig">
+                  <span>Niedrig</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" formControlName="prio_name" value="Mittel">
+                  <span>Mittel</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" formControlName="prio_name" value="Hoch">
+                  <span>Hoch</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- STATUS -->
+            <div>
+              <label class="block text-base font-bold text-text-dark mb-2">Wie ist der Bearbeitungsstand? 🎯 </label>
+              <div class="grid-responsive-options"> <!-- Universelle responsive Klasse -->
+                <label class="radio-label">
+                  <input type="radio" formControlName="status_name" value="Default">
+                  <span>Default</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" formControlName="status_name" value="Offen">
+                  <span>Offen</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" formControlName="status_name" value="In Bearbeitung">
+                  <span>In Bearbeitung</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" formControlName="status_name" value="Erledigt">
+                  <span>Erledigt</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" formControlName="status_name" value="Problem">
+                  <span>Problem</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" formControlName="status_name" value="Beobachten">
+                  <span>Beobachten</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" formControlName="status_name" value="Abstimmung nötig">
+                  <span>Abstimmung nötig</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAGS - Pastell-Rosa -->
+      <div class="bg-warning-light p-4 rounded-l mb-4">
+        
+        <div class="mb-0"> <!-- TAGS kompakter in 4 Spalten -->
+          <label class="block text-base font-bold text-text-dark mb-2">Tags 🏷️ <span class="text-sm font-normal text-gray-500">(Mehrfachauswahl möglich)</span></label>
+          <div class="grid-responsive-4" formArrayName="selectedTags"> <!-- Universelle responsive Klasse -->
+            <label *ngFor="let tag of tags; let i = index" class="checkbox-label">
+              <input type="checkbox" [value]="tag.tag_id" (change)="onTagChange($event)">
+              <span>{{ tag.tag_name }}</span>
+            </label>
+          </div>
         </div>
       </div>
 
@@ -128,5 +144,17 @@
       </div>
     </form>
 
+  </div>
+
+  <!-- CUSTOM CONFIRM DIALOG -->
+  <div *ngIf="showConfirmDialog" class="fixed inset-0 bg-black bg-opacity-50 flex-center z-50">
+    <div class="bg-background p-6 rounded-l shadow-xl max-w-md w-full mx-4 border border-border">
+      <h3 class="text-lg font-bold text-text-dark mb-4">Ungespeicherte Änderungen</h3>
+      <p class="text-text-default mb-6">War die Aufgabe doch nicht so wichtig? 😉</p>
+      <div class="flex justify-end gap-3">
+        <button (click)="cancelClose()" class="btn-secondary">Abbrechen</button>
+        <button (click)="confirmClose()" class="btn-danger">Schließen</button>
+      </div>
+    </div>
   </div>
 </div>
