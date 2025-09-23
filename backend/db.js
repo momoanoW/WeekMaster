@@ -14,7 +14,7 @@ const { Pool } = require('pg');
 
 // PostgreSQL-Pool mit Verbindungsdaten
 const pool = new Pool({
-    // Vercel/Cloud: Verwende DATABASE_URL (Connection String)
+    // Cloud: Verwende DATABASE_URL (Connection String)
     // Lokal: Verwende einzelne Umgebungsvariablen
     connectionString: process.env.DATABASE_URL || undefined, //undefined ist ein Ausschalter
     user: process.env.DATABASE_URL ? undefined : process.env.PGUSER,

@@ -27,8 +27,7 @@ WeekMaster/
 │   │   └── favicon.ico
 │   ├── angular.json               # Angular CLI Konfiguration
 │   ├── package.json               # Frontend-Abhängigkeiten
-│   ├── tsconfig.json              # TypeScript-Konfiguration
-│   └── vercel.json                # Vercel-Deployment-Konfiguration
+│   └── tsconfig.json              # TypeScript-Konfiguration
 │
 ├── backend/                       # Node.js Backend mit Express
 │   ├── routes/                    # API-Route-Handler
@@ -42,8 +41,7 @@ WeekMaster/
 │   ├── db.js                      # PostgreSQL Datenbankverbindung
 │   ├── initdb.js                  # Datenbank-Initialisierungsskript
 │   ├── server.js                  # Express-Server-Setup & Middleware
-│   ├── package.json               # Backend-Abhängigkeiten
-│   └── vercel.json                # Vercel-Deployment-Konfiguration
+│   └── package.json               # Backend-Abhängigkeiten
 │
 ├── docs/                          # Dokumentation und Schemas
 │   ├── DATABASE-SCHEMA.sql        # Vollständige Datenbankstruktur + Daten

@@ -1,5 +1,5 @@
-// API Configuration für Staging
+// API Configuration für Staging/Preview Deployments
 export const environment = {
   production: false,
-  apiUrl: 'https://week-master-api-staging.vercel.app/api' // Staging Backend
+  apiUrl: 'https://weekmaster-api.vercel.app/api' // Backend URL - wird nach Backend-Deploy aktualisiert
 };

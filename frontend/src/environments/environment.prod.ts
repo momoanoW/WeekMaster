@@ -1,5 +1,5 @@
 // API Configuration für Production
 export const environment = {
   production: true,
-  apiUrl: 'https://week-master-api.vercel.app/api' // Backend URL
+  apiUrl: 'http://localhost:3000/api' // Backend URL - update for new deployment
 };
