@@ -65,50 +65,51 @@ WeekMaster/
 ```mermaid
 erDiagram
     Users {
-        int users_id PK
-        varchar users_name
+        int users_id PK "SERIAL"
+        varchar users_name "NOT NULL"
     }
     
     Prioritaet {
-        int prio_id PK
-        varchar prio_name
+        int prio_id PK "SERIAL"
+        varchar prio_name "NOT NULL"
     }
     
     Status {
-        int status_id PK
-        varchar status_name
+        int status_id PK "SERIAL"
+        varchar status_name "NOT NULL"
     }
     
     Tags {
-        int tag_id PK
-        varchar tag_name UK
+        int tag_id PK "SERIAL"
+        varchar tag_name "NOT NULL"
     }
     
     Aufgaben {
-        int aufgaben_id PK
-        text beschreibung
-        boolean hat_frist
-        int vorlaufzeit_tage
-        int users_id FK
-        int prio_id FK
-        int status_id FK
+        int aufgaben_id PK "SERIAL"
+        text beschreibung "NOT NULL"
+        boolean hat_frist "NOT NULL DEFAULT false"
+        int vorlaufzeit_tage "NOT NULL DEFAULT 0"
+        int users_id FK "NOT NULL"
+        int prio_id FK "NOT NULL"
+        int status_id FK "NOT NULL"
     }
     
-    aufgaben_fristen {
-        int aufgaben_id PK FK
-        date frist_datum
+    Aufgaben_Fristen {
+        int aufgaben_id PK_FK "CASCADE DELETE"
+        date frist_datum "NOT NULL"
     }
     
-    aufgaben_tags {
-        int aufgaben_id FK
-        int tag_id FK
+    Aufgaben_Tags {
+        int aufgaben_id FK "CASCADE DELETE"
+        int tag_id FK "CASCADE DELETE"
     }
 
     Users ||--o{ Aufgaben : "erstellt"
     Prioritaet ||--o{ Aufgaben : "hat"
     Status ||--o{ Aufgaben : "befindet_sich_in"
-    Aufgaben ||--o{ aufgaben_tags : "hat"
-    Tags ||--o{ aufgaben_tags : "wird_verwendet_in"
+    Aufgaben ||--o| Aufgaben_Fristen : "kann_haben"
+    Aufgaben ||--o{ Aufgaben_Tags : "hat"
+    Tags ||--o{ Aufgaben_Tags : "wird_verwendet_in"
 ```
 
 ## Datenbankdesign
