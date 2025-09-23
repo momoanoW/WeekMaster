@@ -1,0 +1,35 @@
+<!-- BETA INFORMATION DIALOG -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex-center z-50">
+  <div class="dialog-container max-w-md mx-4">
+    
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold text-text-default">🍋 Ouch!</h2>
+      <button
+        (click)="closeDialog()"
+        class="text-gray-400 hover:text-gray-600 text-2xl leading-none">
+        ×
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="mb-6">
+      <p class="text-text-default mb-3">
+        Diese Funktion ist in der aktuellen Beta-Version noch nicht verfügbar.
+      </p>
+      <p class="text-gray-600 text-sm">
+        Aber bald!
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex justify-end">
+      <button 
+        (click)="closeDialog()"
+        class="btn-primary">
+        Ich kann warten.
+      </button>
+    </div>
+
+  </div>
+</div>

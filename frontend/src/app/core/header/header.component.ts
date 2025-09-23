@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { DialogService } from '../../services/dialog.service';
 
 @Component({
   selector: 'app-header',
@@ -7,6 +9,27 @@ import { Component } from '@angular/core';
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
-export class HeaderComponent { 
-  // Inhalt kommt später
+export class HeaderComponent {
+  constructor(
+    private dialogService: DialogService,
+    private router: Router
+  ) {}
+
+  // Dialog-Methoden
+  openDialog(): void {
+    this.dialogService.triggerOpenDialog();
+  }
+
+  showBetaAlert(): void {
+    this.dialogService.triggerBetaDialog();
+  }
+
+  // Navigation-Methoden
+  navigateToAbout(): void {
+    this.router.navigate(['/about']);
+  }
+
+  navigateToDashboard(): void {
+    this.router.navigate(['/dashboard']);
+  }
 }

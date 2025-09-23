@@ -1,22 +1,26 @@
-<div class="p-4 sm:p-6 lg:p-8"> <!-- Padding für verschiedene Bildschirmgrößen -->
-  <div class="flex justify-between items-center mb-6"> <!-- Flexbox für Überschrift und Button (justify-between: Platz zwischen den Elementen + items-center: vertikale Zentrierung) -->
-    <h1 class="text-3xl font-bold text-gray-800">WeekMaster</h1> <!-- Hauptüberschrift -->
-
-    <!-- Stil für den Button, der den Dialog öffnet. (click) = Trigger für openDialog() -->
-    <button
-     (click)="openDialog()"
-     class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300"> 
-      + Neue Aufgabe
-    </button>
+<div class="p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12"> <!-- Responsive Padding: Mobile → Tablet → Desktop → Large → XL -->
   
+  <!-- Main Content Area mit responsive Grid für zukünftige Erweiterungen -->
+  <div class="grid-responsive-sections">
+    
+    <!-- Haupt-Inhaltsbereich -->
+    <div class="lg:col-span-2"> <!-- Auf großen Bildschirmen volle Breite -->
+      <app-task-table #taskTable></app-task-table> <!-- Aufruf Eingebettete TaskTable-Komponente -->
+    </div>
+    
+    <!-- Platz für zukünftige Sidebar/Widgets (zunächst versteckt) -->
+    <!-- <div class="hidden lg:block">
+      Platz für Statistiken, Filter, etc.
+    </div> -->
+    
   </div>
-
-
-  <app-task-table #taskTable></app-task-table> <!-- Aufruf Eingebettete TaskTable-Komponente -->
 
 @if (isDialogOpen) { <!-- Öffne folgende KOmp nur wenn openDialog() geklickt wurde (Bedingte Anzeige)-->
   <app-task-dialog (close)="closeDialog()" (taskSaved)="onTaskSaved()"></app-task-dialog> <!-- Aufruf Eingebettete TaskDialog-Komponente -->
 }
 
+@if (isBetaDialogOpen) { <!-- Beta-Dialog -->
+  <app-beta-dialog (close)="closeBetaDialog()"></app-beta-dialog>
+}
 
 </div>
