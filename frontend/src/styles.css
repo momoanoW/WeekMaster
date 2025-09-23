@@ -91,4 +91,30 @@
   .grid-responsive-sections {
     @apply grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8;
   }
+
+  /*EFFEKT KOMPONENTEN - Universell verwendbar*/
+  /* Brand Gradient - für Header, Cards, Hero-Bereiche */
+  .gradient-brand {
+    @apply bg-gradient-to-r from-primary via-primary to-accent;
+  }
+
+  /* Glasmorphismus - für Buttons, Cards, Overlays */
+  .glass {
+    @apply bg-white/20 border border-white/20 backdrop-blur-sm hover:bg-white/30 transition-all duration-200;
+  }
+
+  /* Hover-Animation - für Logos, Icons, Cards */
+  .hover-lift {
+    @apply transition-transform duration-300 hover:scale-110;
+  }
+
+  /* Hover-Rotation - für Logos, Icons */
+  .hover-rotate {
+    @apply hover:rotate-6;
+  }
+
+  /* White Text mit Hover - für Navigation, Links auf dunklem Hintergrund */
+  .text-white-interactive {
+    @apply text-white/90 hover:text-white transition-colors duration-200 font-medium;
+  }
 }

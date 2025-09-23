@@ -27,9 +27,10 @@ module.exports = {
         'background': '#ffffff',     // Weißer Hintergrund
         'border': '#e5e7eb',         // Standard-Rahmenfarbe
       },
-      // Meine Schriftart
+      // Meine Schriftarten
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
+        'brand': ['PT Sans', 'sans-serif'], // Neue PT Sans für WeekMaster
       },
       // Meine Rundungsgrößen
       borderRadius: {
