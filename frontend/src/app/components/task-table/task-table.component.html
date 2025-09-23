@@ -1,49 +1,83 @@
-<div class="overflow-x-auto shadow-md sm:rounded-lg">   <!-- Container mit Scrollbalken für kleine Bildschirme -->
+<div class="overflow-x-auto shadow-md sm:rounded-lg">
   
-    <!-- Tabelle mit Tailwind CSS-->
-  <table class="w-full text-sm text-left text-gray-500">    <!-- Volle Breite, kleine Schrift, linksbündig, graue Schrift -->
-
+  <!-- Tabelle mit Tailwind CSS-->
+  <table class="w-full text-sm text-left text-gray-500">
+    
     <!-- Tabellenkopf -->
-    <thead class="text-xs text-gray-700 uppercase bg-gray-50"> <!-- Sehr kleine Schrift, graue Schrift, Großbuchstaben, hellgrauer Hintergrund -->
+    <thead class="text-xs text-text-dark uppercase bg-primary-subtle">
       <tr>
-        <th scope="col" class="px-6 py-3">Beschreibung</th> <!-- Spaltenkopf mit padding, Browser default ist eh schon fette Schrift-->
+        <th scope="col" class="px-6 py-3">Beschreibung</th>
         <th scope="col" class="px-6 py-3">Status</th>   
         <th scope="col" class="px-6 py-3">Priorität</th>
         <th scope="col" class="px-6 py-3">Frist</th>
-        <th scope="col" class="px-6 py-3">Hat Frist</th>
         <th scope="col" class="px-6 py-3">Tags</th>
+        <th scope="col" class="px-6 py-3">Status ändern</th>
         <th scope="col" class="px-6 py-3">Aktionen</th>
       </tr>
     </thead>
 
-        <tbody>
+    <tbody>
       @for (task of tasks; track task.aufgaben_id) {
-      <tr class="bg-white border-b hover:bg-orange-300">       <!-- Tabellenzeile mit Hover-Effekt -->
-
-        <!-- Erste Spalte als vertikale Header-Spalte -->
-        <th
-          scope="row"                                   
-          class="px-6 py-4 font-bold text-pink-900 whitespace-nowrap"
-        >                                                   
+      <tr class="bg-white border-b hover:bg-orange-300">
+        
+        <!-- Beschreibung -->
+        <th scope="row" class="px-6 py-4 font-bold text-pink-900 whitespace-nowrap">
           {{ task.beschreibung }}
         </th>
-        <!-- Weitere horizontale Zellen in der Zeile -->
-        <td class="px-6 py-4">{{ task.status_name }}</td>
-        <td class="px-6 py-4">{{ task.prio_name}}</td>
-        <td class="px-6 py-4">{{ task.frist_datum | date : "dd.MM.yyyy" }}</td>
+        
+        <!-- Status -->
         <td class="px-6 py-4">
-          <span *ngIf="task.hat_frist" class="text-green-600 font-semibold">✓ Ja</span>
-          <span *ngIf="!task.hat_frist" class="text-gray-400">✗ Nein</span>
+          <span class="px-2 py-1 rounded text-xs font-medium"
+                [class]="task.status_name === 'Erledigt' ? 'bg-green-100 text-green-800' : 
+                         task.status_name === 'In Bearbeitung' ? 'bg-blue-100 text-blue-800' :
+                         task.status_name === 'Problem' ? 'bg-red-100 text-red-800' :
+                         'bg-gray-100 text-gray-800'">
+            {{ task.status_name }}
+          </span>
         </td>
+        
+        <!-- Priorität -->
+        <td class="px-6 py-4">
+          <span class="px-2 py-1 rounded text-xs font-medium"
+                [class]="task.prio_name === 'Hoch' ? 'bg-red-100 text-red-800' : 
+                         task.prio_name === 'Mittel' ? 'bg-yellow-100 text-yellow-800' :
+                         'bg-green-100 text-green-800'">
+            {{ task.prio_name }}
+          </span>
+        </td>
+        
+        <!-- Frist -->
+        <td class="px-6 py-4">{{ task.frist_datum | date : "dd.MM.yyyy" }}</td>
+        
+        <!-- Tags -->
         <td class="px-6 py-4">{{ task.tags }}</td>
+        
+        <!-- Status Ändern -->
+        <td class="px-6 py-4">
+          <select 
+            [value]="task.status_name" 
+            (change)="onStatusChange($event, task.aufgaben_id)"
+            class="bg-background border border-border rounded px-2 py-1 text-xs">
+            <option value="Default">Default</option>
+            <option value="Offen">Offen</option>
+            <option value="In Bearbeitung">In Bearbeitung</option>
+            <option value="Erledigt">Erledigt</option>
+            <option value="Problem">Problem</option>
+            <option value="Beobachten">Beobachten</option>
+            <option value="Abstimmung nötig">Abstimmung nötig</option>
+          </select>
+        </td>
+        
+        <!-- Aktionen -->
         <td class="px-6 py-4">
           <button 
             (click)="deleteTask(task.aufgaben_id)" 
-            class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm"
+            class="text-red-500 hover:text-red-700 text-xs cursor-pointer"
             title="Aufgabe löschen">
-            🗑️ Löschen
+             Löschen
           </button>
         </td>
+        
       </tr>
       }
     </tbody>

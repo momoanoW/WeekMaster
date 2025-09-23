@@ -106,15 +106,26 @@ export class TaskService { //Service-Klasse (importierbar wegen "export")
     if (statusName === 'Abstimmung nötig') return 6;
     if (statusName === 'Erledigt') return 7;
     return 1; // Fallback zu Default
-}
+  }
 
-// AUFGABE LÖSCHEN
-deleteTask(id: number): Observable<void> {
-  // Baut die URL zusammen, z.B. /api/tasks/5
-  const url = `${this.tasksUrl}/${id}`;
-  // Sendet eine DELETE-Anfrage an diese spezifische URL
-  return this.http.delete<void>(url);
-}
+  // AUFGABE LÖSCHEN
+  deleteTask(id: number): Observable<void> {
+    // Baut die URL zusammen, z.B. /api/tasks/5
+    const url = `${this.tasksUrl}/${id}`;
+    console.log('DELETE URL:', url); // DEBUG
+    console.log('Base:', this.base, 'TasksUrl:', this.tasksUrl); // DEBUG
+    // Sendet eine DELETE-Anfrage an diese spezifische URL
+    return this.http.delete<void>(url);
+  }
 
+  // STATUS AKTUALISIEREN - Nur Status ändern (effizienter als komplettes Update)
+  updateTaskStatus(id: number, statusName: string): Observable<Task> {
+    const url = `${this.tasksUrl}/${id}/status`;
+    const payload = { status_id: this.mapStatusToId(statusName as any) };
+    console.log('PATCH URL:', url); // DEBUG
+    console.log('Payload:', payload); // DEBUG
+    console.log('Base:', this.base, 'TasksUrl:', this.tasksUrl); // DEBUG
+    return this.http.patch<Task>(url, payload);
+  }
 
 }
