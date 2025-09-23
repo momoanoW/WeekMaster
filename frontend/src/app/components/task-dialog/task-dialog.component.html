@@ -1,29 +1,27 @@
-<div class="fixed inset-0 bg-black bg-opacity-50 flex-center"> 
-<!-- HINTERGRUND feste Position, ganzer Bildschirm, schwarzer Hintergrund, 50% durchsichtig, flex-center für perfekte Zentrierung -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex-center" style="z-index: 1000;"> 
+<!-- DIALOG HINTERGRUND: Vollbild-Overlay mit Z-Index damit es schwebt -->
 
   <div class="dialog-container">  
-  <!-- DIALOG-FENSTER: Saubere responsive Klasse -->
+  <!-- HAUPTDIALOG: Responsive Container mit optimierter Größe und Scrolling -->
 
     <div class="flex justify-between items-center mb-4"> 
-    <!-- ERSTE ZEILE Flexbox-Layout, maximaler Abstand zwischen Elementen, vertikal zentriert -->
-      <h2 class="text-2xl font-bold text-text-dark">Neue Aufgabe eintragen</h2> <!-- Text-Farbe aus deiner Config -->
+    <!-- DIALOG HEADER: Titel und Schließen-Button mit Flexbox-Layout -->
+      <h2 class="text-2xl font-bold text-text-dark">Neue Aufgabe eintragen</h2>
       <button (click)="confirmCloseDialog()" class="text-text-default hover:text-text-dark text-xl transition duration-300">&times;</button> 
-      <!-- Text-Farben aus deiner Config mit Hover-Effekt -->
     </div>
 
-    <form [formGroup]="taskForm" (ngSubmit)="onSubmit()"> <!-- FORMULAR -->
+    <form [formGroup]="taskForm" (ngSubmit)="onSubmit()">
       
-      <!-- GRUNDDATEN - Pastell-Grün -->
+      <!-- SEKTION 1: GRUNDDATEN - Primäre Aufgabendaten in Grün-Ton -->
       <div class="bg-primary-subtle p-4 rounded-l mb-4">
         
-        <div class="mb-4"> <!-- ERSTE ZEILE -->
+        <div class="mb-4">
           <label for="beschreibung" class="block text-base font-bold text-text-dark mb-1">Beschreibung 📝</label> 
           <input type="text" id="beschreibung" formControlName="beschreibung" placeholder="Aufgabenname eingeben"
-                 class="form-input focus:ring-primary focus:border-primary"> 
-          <!-- Deine form-input Klasse mit Primary-Farben -->
+                 class="form-input focus:ring-primary focus:border-primary">
         </div>
 
-        <div class="mb-0"> <!-- ZWEITE ZEILE -->
+        <div class="mb-0">
           <label for="user" class="block text-base font-bold text-text-dark mb-1">Für wen ist die Aufgabe?</label>
           <select id="user" formControlName="users_name" class="form-select focus:ring-primary focus:border-primary">
             <option *ngFor="let user of users" [value]="user.users_name">{{ user.users_name }}</option>
@@ -31,17 +29,17 @@
         </div>
       </div>
 
-      <!-- ZEITMANAGEMENT - Pastell-Gelb -->
+      <!-- SEKTION 2: ZEITMANAGEMENT - Fristen und Vorlaufzeiten in Gelb-Ton -->
       <div class="bg-accent-light p-4 rounded-l mb-4">
         
-        <div class="mb-4"> <!-- DRITTE ZEILE - Frist-Checkbox -->
+        <div class="mb-4">
           <label class="checkbox-label">
             <input type="checkbox" formControlName="hat_frist">
             <span class="font-bold text-text-dark">die Aufgabe hat eine Frist ⏰</span>
           </label>
         </div>
 
-        <div class="mb-0 grid-responsive-2" *ngIf="taskForm.get('hat_frist')?.value"> <!-- Universelle responsive Klasse -->
+        <div class="mb-0 grid-responsive-2" *ngIf="taskForm.get('hat_frist')?.value">
           <div>
             <label for="frist_datum" class="block text-base font-bold text-text-dark mb-1">Frist</label> 
             <input type="date" id="frist_datum" formControlName="frist_datum" class="form-input focus:ring-primary focus:border-primary">
@@ -53,14 +51,14 @@
         </div>
       </div>
 
-      <!-- KATEGORISIERUNG - Hautfarbe -->
+      <!-- SEKTION 3: KATEGORISIERUNG - Priorität und Status in Hautfarb-Ton -->
       <div class="bg-skin p-4 rounded-l mb-4">
-        <div class="mb-0"> <!-- PRIORITÄT & STATUS optimiert für weniger Höhe -->
-          <div class="grid-responsive-sections"> <!-- Universelle responsive Klasse -->
-            <!-- PRIORITÄT -->
+        <div class="mb-0">
+          <div class="grid-responsive-sections">
+            <!-- PRIORITÄTS-AUSWAHL -->
             <div>
               <label class="block text-base font-bold text-text-dark mb-2">Welche Prio? 🔥</label>
-              <div class="grid-responsive-options"> <!-- Universelle responsive Klasse -->
+              <div class="grid-responsive-options">
                 <label class="radio-label">
                   <input type="radio" formControlName="prio_name" value="Default">
                   <span>Default</span>
@@ -80,10 +78,10 @@
               </div>
             </div>
 
-            <!-- STATUS -->
+            <!-- STATUS-AUSWAHL -->
             <div>
               <label class="block text-base font-bold text-text-dark mb-2">Wie ist der Bearbeitungsstand? 🎯 </label>
-              <div class="grid-responsive-options"> <!-- Universelle responsive Klasse -->
+              <div class="grid-responsive-options">
                 <label class="radio-label">
                   <input type="radio" formControlName="status_name" value="Default">
                   <span>Default</span>
@@ -118,12 +116,12 @@
         </div>
       </div>
 
-      <!-- TAGS - Pastell-Rosa -->
+      <!-- SEKTION 4: TAG-VERWALTUNG - Mehrfachauswahl in Rosa-Ton -->
       <div class="bg-warning-light p-4 rounded-l mb-4">
         
-        <div class="mb-0"> <!-- TAGS kompakter in 4 Spalten -->
+        <div class="mb-0">
           <label class="block text-base font-bold text-text-dark mb-2">Tags 🏷️ <span class="text-sm font-normal text-gray-500">(Mehrfachauswahl möglich)</span></label>
-          <div class="grid-responsive-4" formArrayName="selectedTags"> <!-- Universelle responsive Klasse -->
+          <div class="grid-responsive-4" formArrayName="selectedTags">
             <label *ngFor="let tag of tags; let i = index" class="checkbox-label">
               <input type="checkbox" [value]="tag.tag_id" (change)="onTagChange($event)">
               <span>{{ tag.tag_name }}</span>
@@ -132,13 +130,15 @@
         </div>
       </div>
 
-      <div class="mb-4"> <!-- Bestätigungsmeldung -->
+      <!-- SUCCESS MESSAGE - Bestätigung nach erfolgreichem Speichern -->
+      <div class="mb-4">
         <div *ngIf="confirmationMessage" class="bg-primary-subtle text-black p-2 rounded-m text-center">
           {{ confirmationMessage }}
         </div>
       </div>
       
-      <div class="flex justify-end gap-4 mt-4"> <!-- BUTTONS - weniger Abstand oben -->
+      <!-- DIALOG ACTIONS - Haupt-Buttons für Speichern und Abbrechen -->
+      <div class="flex justify-end gap-4 mt-4">
         <button type="button" (click)="confirmCloseDialog()" class="btn-secondary">Abbrechen</button>
         <button type="submit" [disabled]="taskForm.invalid" class="btn-primary">Speichern</button>
       </div>
@@ -146,8 +146,8 @@
 
   </div>
 
-  <!-- CUSTOM CONFIRM DIALOG -->
-  <div *ngIf="showConfirmDialog" class="fixed inset-0 bg-black bg-opacity-50 flex-center z-50">
+  <!-- BESTÄTIGUNGSDIALOG - Custom Alert für ungespeicherte Änderungen -->
+  <div *ngIf="showConfirmDialog" class="fixed inset-0 bg-black bg-opacity-75 flex-center" style="z-index: 9999;">
     <div class="bg-background p-6 rounded-l shadow-xl max-w-md w-full mx-4 border border-border">
       <h3 class="text-lg font-bold text-text-dark mb-4">Ungespeicherte Änderungen</h3>
       <p class="text-text-default mb-6">War die Aufgabe doch nicht so wichtig? 😉</p>

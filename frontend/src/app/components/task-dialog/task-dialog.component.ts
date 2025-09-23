@@ -82,6 +82,10 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
       const index = selectedTags.controls.findIndex(x => x.value === event.target.value);
       selectedTags.removeAt(index);
     }
+    
+    // WICHTIG: Form explizit als "dirty" markieren
+    this.taskForm.markAsDirty();
+    console.log('Tag geändert - Form ist jetzt dirty:', this.taskForm.dirty);
   }
 
   // Folgendes passiert wenn User auf "Speichern" (type="submit") klickt
