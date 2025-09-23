@@ -2,165 +2,93 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Gemeinsame Formular-Komponenten mit @apply */
+/*Klassen mit @apply */
+
+/*FORMULARE*/
 @layer components {
   .form-input { 
-    /* TEXTEINGABE-KLASSE: Block-Element volle Breite Innenabstand-3x2 Platzhalter-grau Rahmen-grau rund-mittel Schatten-klein Fokus-ohne-Outline Fokus-Ring-blau Fokus-Rahmen-blau */
-    @apply block w-full px-3 py-2 placeholder:text-gray-400 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500;
+    /* TEXTEINGABE-KLASSE: Responsive Text & Padding, Touch-optimiert */
+    @apply block w-full px-3 py-2 sm:py-2.5 text-sm sm:text-base placeholder:text-gray-400 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500;
   }
 
   .form-select {
-    /* DROPDOWN-KLASSE: Block-Element volle Breite Innenabstand-3x2 Rahmen-grau Hintergrund-weiß rund-mittel Schatten-klein Fokus-ohne-Outline Fokus-Ring-blau Fokus-Rahmen-blau */
-    @apply block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500;
+    /* DROPDOWN-KLASSE: Responsive Text & Padding, Touch-optimiert */
+    @apply block w-full px-3 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500;
   }
-}
 
-/* WeekMaster Design System */
-:root {
-  /* Basis-Farben */
-  --haupt-schwarz: #1a1a1a;     /* Überschriften, wichtige Texte */
-  --sanft-grau: #f8f8f8;        /* Hintergründe, subtile Bereiche */
-  --akzent-farbe: #f37126;      /* Buttons, Links, Highlights */
-  --text-primaer: #2d2d2d;      /* Haupttext, Paragraphen */
-  
-  /* Typographie - Schriftarten */
-  --schrift-primaer: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; /* System-Font mit Fallbacks */
-  
-  /* Typographie - Schriftgrößen */
-  --schrift-xl: 2rem;           /* Große Überschriften (H1) */
-  --schrift-lg: 1.5rem;         /* Mittlere Überschriften (H2, Logo) */
-  --schrift-md: 1rem;           /* Standard-Fließtext */
-  --schrift-sm: 0.875rem;       /* Kleintext, Subtitles, Labels */
-  --schrift-xs: 0.75rem;        /* Sehr kleintext, Hinweise */
-  
-  /* Abstände */
-  --abstand-xs: 0.25rem;        /* 4px - Sehr kleine Abstände */
-  --abstand-s: 0.5rem;          /* 8px - Kleine Abstände */
-  --abstand-m: 1rem;            /* 16px - Mittlere Abstände */
-  --abstand-l: 1.5rem;          /* 24px - Große Abstände */
-  --abstand-xl: 2rem;           /* 32px - Sehr große Abstände */
-  --abstand-mittel: 1rem;       /* Standard Abstand für Komponenten */
-  
-  /* Weitere Farben */
-  --text-sekundaer: #6b7280;    /* Sekundärer Text, weniger wichtig */
-  --hintergrund-sekundaer: #ffffff; /* Karten-Hintergrund, Overlay */
-  --rand-standard: #e5e7eb;     /* Standard Rahmen, Trennlinien */
-  
-  /* Border Radius */
-  --radius-s: 0.25rem;          /* 4px - Kleine Rundung */
-  --radius-m: 0.5rem;           /* 8px - Mittlere Rundung */
-  --radius-l: 0.75rem;          /* 12px - Große Rundung */
-}
 
-body {
-  font-family: var(--schrift-primaer); /* Standard-Schriftart für gesamte App */
-  color: var(--text-primaer);          /* Standard-Textfarbe */
-}
 
-h1, h2, h3 {
-  color: var(--haupt-schwarz);         /* Überschriften in dunklerem Schwarz */
-}
-
-/* Grid Layout für Hauptseite */
-.haupt-container {
-  display: grid;                       /* CSS Grid für flexible Layouts */
-  grid-template-columns: 1fr 250px;    /* Hauptinhalt flexibel, Navigation 250px */
-  gap: var(--abstand-m);               /* 16px Abstand zwischen Grid-Bereichen */
-  min-height: calc(100vh - 120px);     /* Mindesthöhe minus Header/Footer */
-  padding: 0 var(--abstand-m);         /* Nur seitliche Polsterung */
-  max-width: 1200px;                   /* Maximale Breite für große Bildschirme */
-  margin: 0 auto;                      /* Zentrierte Ausrichtung */
-}
-
-.inhalt-bereich {
-  /* Hauptinhalt-Bereich - weniger Padding für mehr Platz */
-  background-color: var(--hintergrund-sekundaer);
-  border-radius: var(--radius-m);
-  padding: var(--abstand-m);       /* Weniger Padding */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  overflow: visible;               /* Bessere Sichtbarkeit */
-}
-
-.navigation-bereich {
-  /* Rechte Navigation - kompakter */
-  display: flex;
-  flex-direction: column;
-  gap: var(--abstand-s);           /* Kleinerer Abstand */
-  margin-top: var(--abstand-m);    /* Abstand von oben */
-  
-  /* Navigation-Komponenten stylen */
-  app-nav, app-subnav {
-    background-color: var(--hintergrund-sekundaer);
-    border-radius: var(--radius-s);
-    padding: var(--abstand-s);     /* Weniger Padding */
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-    border: 1px solid var(--rand-standard);
+  /*BUTTONS */
+  /* Basis-Button */
+  .btn {
+    @apply py-2 px-4 font-bold rounded-md shadow-sm transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed;
   }
-}
 
-/* Responsive Design für mobile Geräte */
-@media (max-width: 768px) {
-  .haupt-container {
-    grid-template-columns: 1fr;       /* Einspaltiges Layout auf Mobilgeräten */
-    grid-template-rows: auto auto;     /* Navigation unter dem Inhalt */
+  /* Primärer Button */
+  .btn-primary {
+    @apply btn bg-primary text-white hover:bg-primary-light;
+  }
+
+  /* Sekundärer Button ("Abbrechen") */
+  .btn-secondary {
+    @apply btn bg-background text-text-default border border-border hover:bg-gray-100;
   }
   
-  .navigation-bereich {
-    order: -1;                         /* Navigation oben auf Mobilgeräten */
-    flex-direction: row;               /* Horizontale Anordnung statt vertikal */
-    justify-content: space-between;    /* Gleichmäßige Verteilung */
+  /* destruktive Aktionen (Löschen) */
+  .btn-danger {
+    @apply btn bg-warning text-white hover:opacity-80;
   }
-}
 
-/* Navigation Komponenten Styling */
-.main-nav ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
+  /*RADIO & CHECKBOX LABELS*/
+  /* Radio-Button mit Label */
+  .radio-label {
+    @apply flex items-center;
+  }
+  .radio-label input { @apply mr-2 text-primary focus:ring-primary; }
+  .radio-label span { @apply text-base text-text-default; }
 
-/* Navigation Links */
-.main-nav li {
-  margin-bottom: var(--abstand-xs);  /* Abstand zwischen Nav-Items */
-}
+  /* Checkbox mit Label */
+  .checkbox-label {
+    @apply flex items-center;
+  }
+  .checkbox-label input { @apply mr-2 rounded-sm text-primary focus:ring-primary; }
+  .checkbox-label span { @apply text-base text-text-default; }
 
-.main-nav a {
-  display: block;                    /* Block für größere Klickfläche */
-  padding: var(--abstand-xs) var(--abstand-s);
-  color: var(--text-primaer);
-  text-decoration: none;
-  border-radius: var(--radius-s);
-  transition: all 0.2s ease;        /* Sanfte Hover-Animation */
-  font-size: var(--schrift-xs);
-  font-weight: 500;
-}
+ 
+  
+  
+  /*LAYOUT KOMPONENTEN*/
+  /* Dialog Container - vollständig responsiv */
+  .dialog-container {
+    @apply bg-background p-4 sm:p-6 rounded-l shadow-xl w-full border border-border;
+    @apply max-w-sm sm:max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl max-h-[95vh] overflow-auto;
+  }
 
-.main-nav a:hover {
-  background-color: var(--akzent-farbe);  /* Orange Hover-Effekt */
-  color: white;
-}
+/*FLEXBOX*/
+  /* Perfekt zentriert */
+  .flex-center {
+    @apply flex justify-center items-center;
+  }
 
-/* Sub-Navigation Buttons */
-.sub-nav .actions {
-  display: flex;
-  gap: var(--abstand-xs);
-  flex-wrap: wrap;                   /* Umbrechen bei wenig Platz */
-}
 
-/* Sekundäre Buttons */
-.btn-secondary {
-  padding: var(--abstand-xs) var(--abstand-s);
-  background-color: var(--sanft-grau);  /* Hellgrauer Grundzustand */
-  border: 1px solid var(--rand-standard);
-  border-radius: var(--radius-s);
-  color: var(--text-primaer);
-  cursor: pointer;
-  font-size: var(--schrift-xs);
-  transition: all 0.2s ease;
-}
+  /*UNIVERSELLE RESPONSIVE GRIDS - für die gesamte App*/
+  /* 2-Spalten Grid: Formulare, Cards, etc. (1 → 2 Spalten ab md:) */
+  .grid-responsive-2 {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+  }
 
-.btn-secondary:hover {
-  background-color: var(--akzent-farbe);  /* Orange bei Hover */
-  color: white;
-  border-color: var(--akzent-farbe);
+  /* 4-Spalten Grid: Tag-Listen, Icon-Grids, Product-Cards (1 → 2 → 3 → 4 Spalten) */
+  .grid-responsive-4 {
+    @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3;
+  }
+
+  /* Options Grid: Radio/Checkbox-Gruppen (1 → 2 Spalten ab sm:) */
+  .grid-responsive-options {
+    @apply grid grid-cols-1 sm:grid-cols-2 gap-2;
+  }
+
+  /* Sections Grid: Haupt-Layoutbereiche, Sidebar + Content (1 → 2 Spalten ab lg:) */
+  .grid-responsive-sections {
+    @apply grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8;
+  }
 }
