@@ -34,6 +34,24 @@ export class TaskTableComponent implements OnInit { //Klasse verspricht Angular:
       this.tasks = datenVomServer;
     });
   }
+
+  // DELETE-FUNKTIONALITÄT
+  public deleteTask(taskId: number): void {
+    // Bestätigungsdialog
+    if (confirm('Möchtest du diese Aufgabe wirklich löschen?')) {
+      this.taskService.deleteTask(taskId).subscribe({
+        next: () => {
+          console.log('Task erfolgreich gelöscht');
+          // Nach erfolgreichem Löschen die Tabelle aktualisieren
+          this.loadTasks();
+        },
+        error: (error) => {
+          console.error('Fehler beim Löschen:', error);
+          alert('Fehler beim Löschen der Aufgabe');
+        }
+      });
+    }
+  }
 }
 
 //    = HTML kann jetzt auf Array "tasks" zugreifen = effizient weil Datenbeschaffung über Service nur ein einziges Mal am Anfang passiert, nicht bei jeder Aktualisierung

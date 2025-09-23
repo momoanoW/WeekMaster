@@ -12,6 +12,7 @@
         <th scope="col" class="px-6 py-3">Frist</th>
         <th scope="col" class="px-6 py-3">Hat Frist</th>
         <th scope="col" class="px-6 py-3">Tags</th>
+        <th scope="col" class="px-6 py-3">Aktionen</th>
       </tr>
     </thead>
 
@@ -35,6 +36,14 @@
           <span *ngIf="!task.hat_frist" class="text-gray-400">✗ Nein</span>
         </td>
         <td class="px-6 py-4">{{ task.tags }}</td>
+        <td class="px-6 py-4">
+          <button 
+            (click)="deleteTask(task.aufgaben_id)" 
+            class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm"
+            title="Aufgabe löschen">
+            🗑️ Löschen
+          </button>
+        </td>
       </tr>
       }
     </tbody>
