@@ -60,7 +60,7 @@
   /*LAYOUT KOMPONENTEN*/
   /* Dialog Container - vollständig responsiv */
   .dialog-container {
-    @apply bg-background p-4 sm:p-6 rounded-l shadow-xl w-full border border-border;
+    @apply bg-background p-4 sm:p-6 rounded shadow-xl w-full border border-border;
     @apply max-w-sm sm:max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-5xl max-h-[95vh] overflow-auto;
   }
 
