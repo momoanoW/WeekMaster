@@ -6,6 +6,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Task } from '../models/task.model';
 import { Observable, of } from 'rxjs'; //für asynchrone Datenströme, z.B. HTTP-Antworten
+import { environment } from '../../environments/environment';
 
 @Injectable({ //kennzeichnet diese Klasse als Service, damit ganze App darauf zugreifen kann
   providedIn: 'root' //erstellt eine einzige Instanzdieses Services, die in der ganzen App verwendet wird (Singleton Pattern)
@@ -14,8 +15,9 @@ import { Observable, of } from 'rxjs'; //für asynchrone Datenströme, z.B. HTTP
 
 export class TaskService { //Service-Klasse (importierbar wegen "export")
 
-  private apiUrl = 'http://localhost:3000/api/tasks'; // Backend-Endpunkt für Tasks. Andere Klassen können nicht URL ändern (wegen private)
-  private usersUrl = 'http://localhost:3000/api/users'; // Backend-Endpunkt für Users
+  private base = environment.apiUrl;                    // Backend-Basis-URL aus Environment
+  private tasksUrl = `${this.base}/tasks`;             // Tasks-Endpunkt
+  private usersUrl = `${this.base}/users`;             // Users-Endpunkt
   
   // Cache für geladene User-Daten (um nicht bei jeder Aufgabe neu zu laden)
   private users: any[] = [];
@@ -48,15 +50,15 @@ export class TaskService { //Service-Klasse (importierbar wegen "export")
 
   // READ AUFGABEN zum Abrufen der Aufgaben von der API - gibt Observable zurück (asynchroner Datenstrom)
   getTasks(): Observable<Task[]> {
-    return this.http.get<Task[]>(this.apiUrl); // Holt Array von Tasks vom Backend und gibt als Observable zurück
+    return this.http.get<Task[]>(this.tasksUrl); // Holt Array von Tasks vom Backend und gibt als Observable zurück
     // Observable = "Ich verspreche, dass hier später Task-Daten ankommen werden" (weil HTTP-Anfragen Zeit brauchen)
     // (wegen "providedIn: 'root'" bleibt es ein einziger Service im gesamten Projekt)
   }
 
   // READ Tags für Mehrfachauswahl in Dialog
   getTags(): Observable<any[]> {
-  return this.http.get<any[]>(this.apiUrl.replace('tasks', 'tags'));
-}
+    return this.http.get<any[]>(`${this.base}/tags`);
+  }
 
   // NEUE AUFGABE HINZUFÜGEN - send full form values matching backend
   createTask(neueAufgabe: any): Observable<Task> {
@@ -71,7 +73,7 @@ export class TaskService { //Service-Klasse (importierbar wegen "export")
       status_name: neueAufgabe.status_name,
       selectedTags: (neueAufgabe.selectedTags || []).map((id: any) => +id)
     };
-    return this.http.post<Task>(this.apiUrl, payload);
+    return this.http.post<Task>(this.tasksUrl, payload);
   }
 
   // Kleine private Hilfsmethode für Übersetzung Prio
@@ -105,5 +107,14 @@ export class TaskService { //Service-Klasse (importierbar wegen "export")
     if (statusName === 'Erledigt') return 7;
     return 1; // Fallback zu Default
 }
+
+// AUFGABE LÖSCHEN
+deleteTask(id: number): Observable<void> {
+  // Baut die URL zusammen, z.B. /api/tasks/5
+  const url = `${this.tasksUrl}/${id}`;
+  // Sendet eine DELETE-Anfrage an diese spezifische URL
+  return this.http.delete<void>(url);
+}
+
 
 }
