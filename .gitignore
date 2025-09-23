@@ -1,2 +1,7 @@
 node_modules/
 .env
+.DS_Store
+*.log
+
+# Vercel-Deployment-Konfigurationen werden in Unterordnern ignoriert
+# backend/.gitignore und frontend/.gitignore handhaben ihre eigenen .vercel Ordner
