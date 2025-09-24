@@ -25,10 +25,6 @@ export class HeaderComponent {
   }
 
   // Navigation-Methoden
-  navigateToAbout(): void {
-    this.router.navigate(['/about']);
-  }
-
   navigateToDashboard(): void {
     this.router.navigate(['/dashboard']);
   }
