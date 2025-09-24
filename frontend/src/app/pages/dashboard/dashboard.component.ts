@@ -6,7 +6,6 @@ import { DialogService, DialogEvent } from '../../services/dialog.service';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
-// Das ist die Dashboard-Komponente - sie zeigt die Hauptseite mit Statistiken an
 @Component({
   selector: 'app-dashboard',           // HTML-Tag: <app-dashboard>
   standalone: true,                   // Neue Angular-Art (keine Module nötig)
