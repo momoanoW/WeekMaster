@@ -2,6 +2,7 @@ import { Component , OnInit, Output, EventEmitter } from '@angular/core'; //ohne
 import { CommonModule } from '@angular/common'; // Stellt u.a. die DatePipe bereit
 import { Task } from '../../models/task.model'; //holt sich den Bauplan-Interface Task, damit die Tabelle weiß, wie die Daten aussehen müssen
 import { TaskService } from '../../services/task.service'; //holt sich den TaskService (=Zusammenspiel von Backend und Bauplan-model)
+import { DialogService } from '../../services/dialog.service'; // DialogService für Bestätigungs-Dialog
 
 @Component({ //Dekorator= Komponenten-Etikett
   selector: 'app-task-table', //Name der Component, die in allen HTMLs verwendet werden kann
@@ -19,9 +20,9 @@ export class TaskTableComponent implements OnInit { //Klasse verspricht Angular:
   // Event Emitter für Edit-Funktionalität
   @Output() editTaskEvent = new EventEmitter<Task>();
 
-  // Bauplan der Komponente. Sagt Angular: "Um arbeiten zu können, brauche ich den TaskService.
-  // Bitte gib ihn mir als privates Werkzeug, das nur ich hier drin verwenden kann."
-  constructor(private taskService: TaskService) {}
+  // Bauplan der Komponente. Sagt Angular: "Um arbeiten zu können, brauche ich den TaskService und DialogService.
+  // Bitte gib sie mir als private Werkzeuge, die nur ich hier drin verwenden kann."
+  constructor(private taskService: TaskService, private dialogService: DialogService) {}
 
   //passiert direkt nach Build
   ngOnInit(): void {
@@ -40,14 +41,22 @@ export class TaskTableComponent implements OnInit { //Klasse verspricht Angular:
 
   // DELETE-FUNKTIONALITÄT
   deleteTask(taskId: number): void {
-    // Bestätigungsdialog
-    if (confirm('Aufgabe löschen?')) {
-      this.taskService.deleteTask(taskId).subscribe(() => {
-        console.log('Task erfolgreich gelöscht');
-        // Nach erfolgreichem Löschen die Tabelle aktualisieren
-        this.loadTasks();
-      });
-    }
+    // Aufgabe finden für Namen
+    const task = this.tasks.find(t => t.aufgaben_id === taskId);
+    const taskName = task ? task.beschreibung : 'Unbekannte Aufgabe';
+    
+    // Bestätigungs-Dialog über Service triggern
+    this.dialogService.triggerConfirmDialog(taskId, taskName);
+  }
+
+  // Tatsächliches Löschen nach Bestätigung
+  confirmDeleteTask(taskId: number): void {
+    console.log('Deleting task with ID:', taskId);
+    this.taskService.deleteTask(taskId).subscribe(() => {
+      console.log('Task erfolgreich gelöscht');
+      // Nach erfolgreichem Löschen die Tabelle aktualisieren
+      this.loadTasks();
+    });
   }
 
   // STATUS AKTUALISIEREN - Event Handler für Select-Element

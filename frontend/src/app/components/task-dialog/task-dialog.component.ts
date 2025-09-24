@@ -4,12 +4,12 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core'; //versc
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray, FormControl } from '@angular/forms'; // Für reaktive Formulare
 import { TaskService } from '../../services/task.service'; // Service importieren, um neue Aufgaben zu speichern
-
+import { UniversalDialogComponent } from '../universal-dialog/universal-dialog.component'; // Universal Dialog für ungespeicherte Änderungen
 
 @Component({
   selector: 'app-task-dialog',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, UniversalDialogComponent],
   templateUrl: './task-dialog.component.html',
   styleUrl: './task-dialog.component.css'
 })

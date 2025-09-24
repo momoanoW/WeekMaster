@@ -1,0 +1,42 @@
+<!-- CONFIRM DELETE DIALOG -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex-center z-50">
+  <div class="dialog-container max-w-sm sm:max-w-md mx-4">
+    
+    <!-- Header mit Warnung -->
+    <div class="bg-red-500 -m-4 sm:-m-6 mb-4 sm:mb-3 p-4 sm:p-3 rounded-t">
+      <div class="flex justify-between items-center">
+        <h2 class="text-xl sm:text-2xl font-bold text-white flex-1 text-center">⚠️ Aufgabe löschen</h2>
+        <button
+          (click)="onCancel()"
+          class="text-white/80 hover:text-white text-2xl sm:text-3xl leading-none ml-4 hover-lift">
+          ×
+        </button>
+      </div>
+    </div>
+
+    <!-- Beschreibung -->
+    <div class="mb-4 sm:mb-6">
+      <h3 class="text-base sm:text-lg text-center text-text-default font-medium mb-3">
+        Möchtest du diese Aufgabe wirklich löschen?
+      </h3>
+      <p class="text-sm text-text-secondary text-center">
+        Diese Aktion kann nicht rückgängig gemacht werden.
+      </p>
+    </div>
+
+    <!-- Footer - Buttons -->
+    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:justify-end">
+      <button 
+        (click)="onCancel()"
+        class="btn-secondary w-full sm:w-auto order-2 sm:order-1">
+        Abbrechen
+      </button>
+      <button 
+        (click)="onConfirm()"
+        class="btn-danger w-full sm:w-auto order-1 sm:order-2">
+        Löschen
+      </button>
+    </div>
+
+  </div>
+</div>

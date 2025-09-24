@@ -20,7 +20,29 @@
 }
 
 @if (isBetaDialogOpen) { <!-- Beta-Dialog -->
-  <app-beta-dialog (close)="closeBetaDialog()"></app-beta-dialog>
+  <app-universal-dialog
+    type="info"
+    title="Ohje!"
+    message="Diese Funktion ist leider noch nicht verfügbar."
+    icon="🍋"
+    [showCancelButton]="false"
+    confirmText="Ich kann warten!"
+    (confirm)="closeBetaDialog()">
+  </app-universal-dialog>
+}
+
+@if (isConfirmDialogOpen) { <!-- Confirm-Dialog -->
+  <app-universal-dialog
+    type="danger"
+    title="Aufgabe löschen"
+    message="Möchtest du diese Aufgabe wirklich löschen?"
+    icon="⚠️"
+    confirmText="Löschen"
+    cancelText="Abbrechen"
+    confirmButtonType="danger"
+    (confirm)="onConfirmDelete()"
+    (cancel)="closeConfirmDialog()">
+  </app-universal-dialog>
 }
 
 </div>
