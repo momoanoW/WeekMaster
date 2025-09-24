@@ -1,0 +1,67 @@
+<div class="bg-background border border-border rounded-lg p-4 h-full flex flex-col" *ngIf="task">
+  <!-- Card Header -->
+  <div class="mb-4">
+    <div class="flex justify-between items-start gap-3 mb-3">
+      <h3 class="text-lg font-semibold text-text-dark leading-snug flex-1 min-w-0">
+        {{ task.beschreibung }}
+      </h3>
+      <!-- Priority Badge - fixed position top right -->
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0"
+            [class]="getPriorityClasses(task.prio_name)">
+        {{ task.prio_name }}
+      </span>
+    </div>
+
+    <!-- Due Date -->
+    <div class="mb-3" *ngIf="task.frist_datum">
+      <div class="flex items-center gap-2 text-sm">
+        <span class="text-sm">📅</span>
+        <span class="text-text-default">
+          {{ formatDate(task.frist_datum) }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card Body -->
+  <div class="flex-1">
+    <!-- Status Section -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-text-default mb-2">Status</label>
+      <select 
+        [value]="task.status_name" 
+        (change)="onStatusChange($event)"
+        class="w-full px-3 py-2 rounded border border-border bg-background text-text-dark text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
+        <option value="Default">Default</option>
+        <option value="Offen">Offen</option>
+        <option value="Problem">Problem</option>
+        <option value="Beobachten">Beobachten</option>
+        <option value="Abstimmung nötig">Abstimmung nötig</option>
+        <option value="Erledigt">Erledigt</option>
+      </select>
+    </div>
+
+    <!-- Tags Section -->
+    <div class="mb-4" *ngIf="task.tags">
+      <label class="block text-sm font-medium text-text-default mb-2">Tags</label>
+      <div class="flex flex-wrap gap-2">
+        <span class="inline-flex items-center px-3 py-1 bg-background border border-border text-text-dark rounded-full text-xs font-medium">
+          {{ task.tags }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card Footer -->
+  <div class="mt-4 pt-4 border-t border-border">
+    <div class="flex justify-end">
+      <!-- Action Button -->
+      <button 
+        (click)="onDelete()" 
+        class="px-4 py-2 rounded text-sm font-medium transition-colors bg-warning text-text-dark hover:bg-warning/80"
+        title="Löschen">
+        Löschen
+      </button>
+    </div>
+  </div>
+</div>

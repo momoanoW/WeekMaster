@@ -195,9 +195,9 @@ module.exports = initdb;
 
 // ANLEITUNG FÜR STUDIS:
 // 1. Starte den Server: npm run dev
-// 2. Gehe im Browser zu: http://localhost:3000/init
+// 2. Gehe im Browser zu: http://localhost:3000/initdb
 // 3. Fertig! Die DB ist jetzt initialisiert.
 // 4. Du kannst jetzt zu http://localhost:3000/users gehen, um die Users zu sehen.
 // 5. Du kannst auch Änderungen vornehmen an den Datensätzen.
-// 6. Wenn du die DB neu initialisieren willst, einfach wieder zu /init gehen.
+// 6. Wenn du die DB neu initialisieren willst, einfach wieder zu /initdb gehen.
 //    ACHTUNG: Alle alten Daten gehen dabei verloren!

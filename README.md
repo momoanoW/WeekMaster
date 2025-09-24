@@ -1,64 +1,123 @@
-# WeekMaster
+# Willkommen beim WeekMaster 
 
-Eine moderne Web-Applikation für intelligente Aufgabenverwaltung mit Angular Frontend und Node.js Backend.
+**Beta Version** - Eine Web-Applikation für intelligente Aufgabenverwaltung mit Angular Frontend und Node.js Backend.
+
+
+> ⚠️ **Hinweis**: Das hier ist eine Beta-Version im Rahmen des HTW Berlin Webtech-Kurses. Einige Features befinden sich noch in der Entwicklung.
+
+
+
+## 📸 Screenshots
+
+### Dashboard-Übersicht
+*Zentrale Statistiken und Aufgabenverteilung*
+
+![Dashboard & Grid View Screenshot](docs/screenshots/dashboard_grid-view.png)
+
+### Tabellen-Ansicht
+*Kompakte Listendarstellung aller Aufgaben*
+
+![Table View Screenshot](docs/screenshots/table-view.png)
+
+### Task-Dialog
+*Neue Aufgabe erstellen mit allen verfügbaren Optionen*
+
+![Task Dialog Screenshot](docs/screenshots/task-dialog.png)
+
+### Dropdown Task-Dialog
+*Filter- und Auswahlmöglichkeiten*
+
+![Mobile Screenshot](docs/screenshots/mobile-view.png)
+
+### Mobile-Ansicht
+*Responsive Design für Smartphones*
+
+![Mobile Screenshot](docs/screenshots/mobile-view-1.png)
+
+### Mobile-Ansicht
+*Responsive Design für Smartphones*
+
+![Mobile Screenshot](docs/screenshots/mobile-view-2.png)
+
+
+
+
+
 
 ## Projektstruktur
 
 ```
 WeekMaster/
-├── frontend/                      # Angular Frontend (Standalone Components)
+├── frontend/                          # Angular Frontend (Standalone Components)
 │   ├── src/
 │   │   ├── app/
-│   │   │   ├── app.config.ts      # Angular Anwendungs-Konfiguration
-│   │   │   ├── app.css            # Globale App-Styles
-│   │   │   ├── app.html           # Haupt-App-Template
-│   │   │   ├── app.routes.ts      # Router-Konfiguration
-│   │   │   ├── app.ts             # Haupt-App-Komponente
-│   │   │   ├── footer/            # Footer-Komponente
-│   │   │   ├── header/            # Header-Komponente  
-│   │   │   ├── home/              # Home/Dashboard-Komponente
-│   │   │   ├── nav/               # Navigations-Komponente
-│   │   │   └── table/             # Aufgaben-Tabellen-Komponente
-│   │   ├── environments/          # Umgebungs-Konfiguration
-│   │   ├── index.html             # Haupt-HTML-Einstiegspunkt
-│   │   ├── main.ts                # Anwendungs-Bootstrap
-│   │   └── styles.css             # Globale CSS-Styles
-│   ├── public/
-│   │   └── favicon.ico
-│   ├── angular.json               # Angular CLI Konfiguration
-│   ├── package.json               # Frontend-Abhängigkeiten
-│   └── tsconfig.json              # TypeScript-Konfiguration
+│   │   │   ├── components/            # **Wiederverwendbare Komponenten**
+│   │   │   │   ├── task-card/         # Einzelne Aufgaben-Karte (Grid-Modus)
+│   │   │   │   ├── task-dialog/       # Dialogfenster zum Erstellen neuer Aufgaben
+│   │   │   │   ├── task-display/      # Vereinheitlichte Task-Anzeige (Grid/Table)
+│   │   │   │   └── universal-dialog/  # Wiederverwendbares Dialogfenster
+│   │   │   ├── core/                  # **Kern-Layout-Komponenten**
+│   │   │   │   ├── header/            # Navigation und App-Header
+│   │   │   │   └── footer/            # App-Footer
+│   │   │   ├── pages/                 # **Seiten-Komponenten**
+│   │   │   │   ├── dashboard/         # Dashboard mit Statistiken
+│   │   │   │   └── tables/            # Tabellenansicht der Aufgaben
+│   │   │   ├── services/              # **Angular Services**
+│   │   │   │   ├── dialog.service.ts  # Einheitliches Dialog-Management
+│   │   │   │   └── task.service.ts    # API-Kommunikation & HTTP-Calls
+│   │   │   ├── models/                # **TypeScript Interfaces**
+│   │   │   │   └── task.model.ts      # Aufgaben-Datenmodell
+│   │   │   ├── app.config.ts          # **Angular Anwendungs-Konfiguration**
+│   │   │   ├── app.component.*        # **Haupt-App-Komponente (HTML/TS)**
+│   │   │   └── app.routes.ts          # **Router-Konfiguration**
+│   │   ├── environments/              # **Umgebungs-Konfiguration**
+│   │   │   ├── environment.ts         # Development (localhost)
+│   │   │   ├── environment.staging.ts # Staging (Vercel)
+│   │   │   └── environment.prod.ts    # Production
+│   │   ├── index.html                 # **Haupt-HTML-Einstiegspunkt**
+│   │   ├── main.ts                    # **Anwendungs-Bootstrap**
+│   │   └── styles.css                 # **Globale Tailwind CSS + Custom Classes**
+│   ├── public/                        # **Statische Assets**
+│   │   └── LogoWeekMaster.ico         # App-Logo
+│   ├── angular.json                   # **Angular CLI Konfiguration**
+│   ├── tailwind.config.js             # **Tailwind CSS Konfiguration**
+│   ├── package.json                   # **Frontend-Abhängigkeiten**
+│   └── tsconfig.json                  # **TypeScript-Konfiguration**
 │
-├── backend/                       # Node.js Backend mit Express
-│   ├── routes/                    # API-Route-Handler
-│   │   ├── dashboard.js           # Dashboard-Auswertungen & Statistiken
-│   │   ├── index.js               # Haupt-Router-Registrierung
-│   │   ├── priorities.js          # Prioritäten-Stammdaten-API
-│   │   ├── status.js              # Status-Stammdaten-API
-│   │   ├── tags.js                # Tag-CRUD + Suche + Autocomplete
-│   │   ├── tasks.js               # Aufgaben-CRUD + Spezielle Abfragen
-│   │   └── users.js               # Benutzer-Stammdaten-API
-│   ├── db.js                      # PostgreSQL Datenbankverbindung
-│   ├── initdb.js                  # Datenbank-Initialisierungsskript
-│   ├── server.js                  # Express-Server-Setup & Middleware
-│   └── package.json               # Backend-Abhängigkeiten
+├── backend/                           # Node.js Backend mit Express
+│   ├── routes/                        # **API-Route-Handler**
+│   │   ├── dashboard.js               # Dashboard-Auswertungen & Statistiken
+│   │   ├── index.js                   # **Haupt-Router-Registrierung**
+│   │   ├── priorities.js              # Prioritäten-Stammdaten-API
+│   │   ├── status.js                  # Status-Stammdaten-API
+│   │   ├── tags.js                    # Tag-CRUD + Suche + Autocomplete
+│   │   ├── tasks.js                   # Aufgaben-CRUD + Spezielle Abfragen
+│   │   └── users.js                   # Benutzer-Stammdaten-API
+│   ├── db.js                          # **PostgreSQL Datenbankverbindung**
+│   ├── initdb.js                      # **Datenbank-Initialisierungsskript**
+│   ├── server.js                      # **Express-Server-Setup & Middleware**
+│   ├── vercel.json                    # **Vercel Deployment-Konfiguration**
+│   └── package.json                   # **Backend-Abhängigkeiten**
 │
-├── docs/                          # Dokumentation und Schemas
-│   ├── DATABASE-SCHEMA.sql        # Vollständige Datenbankstruktur + Daten
-│   └── DEPLOYMENT.md              # Deployment-Anweisungen
+├── docs/                              # **Dokumentation**
+│   ├── DATABASE-SCHEMA.sql            # Vollständige Datenbankstruktur + Daten
+│   └── TAILWIND-SPICKZETTEL.md        # Tailwind CSS Referenz
 │
-├── package.json                   # Root-Package (concurrently-Skripte)
-├── .gitignore                     # Git-Ignore-Regeln
-└── README.md                      # Projekt-Dokumentation
+├── scripts/                           # **Build & Deployment Scripts**
+├── package.json                       # **Root-Package (concurrently-Skripte)**
+└── README.md                          # **Projekt-Dokumentation**
 ```
 
 ## Technologie-Stack
 
 - **Frontend**: Angular 18+ mit TypeScript (Standalone Components)
 - **Backend**: Node.js mit Express
-- **Datenbank**: PostgreSQL (HTW Server)
+- **Datenbank**: PostgreSQL (HTW Server) 
 - **API**: RESTful API mit CORS-Unterstützung
-- **Styling**: Tailwind CSS mit Responsive Design
+- **Styling**: Tailwind CSS mit Custom Component Classes
+- **Deployment**: Vercel (Frontend & Backend)
+- **State Management**: RxJS dank DialogService
+- **HTTP-Optimierung**: forkJoin für parallele API-Calls
 
 ## ER-Diagramm
 
@@ -81,7 +140,7 @@ erDiagram
     
     Tags {
         int tag_id PK
-        varchar tag_name UK
+        varchar tag_name
     }
     
     Aufgaben {
@@ -94,21 +153,22 @@ erDiagram
         int status_id FK
     }
     
-    aufgaben_fristen {
-        int aufgaben_id PK FK
+    Aufgaben_Fristen {
+        int aufgaben_id PK
         date frist_datum
     }
     
-    aufgaben_tags {
+    Aufgaben_Tags {
         int aufgaben_id FK
         int tag_id FK
     }
 
-    Users ||--o{ Aufgaben : "erstellt"
-    Prioritaet ||--o{ Aufgaben : "hat"
-    Status ||--o{ Aufgaben : "befindet_sich_in"
-    Aufgaben ||--o{ aufgaben_tags : "hat"
-    Tags ||--o{ aufgaben_tags : "wird_verwendet_in"
+    Users ||--o{ Aufgaben : erstellt
+    Prioritaet ||--o{ Aufgaben : hat
+    Status ||--o{ Aufgaben : befindet_sich_in
+    Aufgaben ||--o| Aufgaben_Fristen : kann_haben
+    Aufgaben ||--o{ Aufgaben_Tags : hat
+    Tags ||--o{ Aufgaben_Tags : wird_verwendet_in
 ```
 
 ## Datenbankdesign
@@ -116,25 +176,17 @@ erDiagram
 Das ER-Diagramm oben zeigt die vollständige Datenbankstruktur. Noch mehr Details findest du in `docs/DATABASE-SCHEMA.sql`.
 
 **Kernkonzepte:**
-- **Intelligentes Deadline-Management**: Vorlaufzeit-System ermöglicht frühzeitige Benachrichtigungen vor der eigentlichen Frist mit optimierter Datenstruktur (separate Fristen-Tabelle)
-- **Flexibles Tag-System**: N:N Tag-Beziehungen für Aufgabenokategorien
-- **Normalisierte Datenstruktur**: Separate Referenztabellen für Users, Prioritäten und Status für Datenkonsistenz
-- **Dashboard-Auswertungen**: Statistische Ansichten und Prioritäten-Verteilungen
 
-**Technische Datenbank-Features:**
-- PostgreSQL mit CASCADE DELETE für referentielle Integrität
-- Explizite `hat_frist` Boolean-Felder statt NULL-Werte für bessere Datenqualität
-- Separate `Aufgaben_Fristen` Tabelle für normalisierte Frist-Verwaltung
-- NOT NULL mit expliziten Default-Einträgen für Referenztabellen (User: ID 1, Status: ID 1, Priorität: ID 1)
-- DB-Defaults für einfache Werte: vorlaufzeit_tage DEFAULT 0, hat_frist DEFAULT false
-- UNIQUE Constraints zur Vermeidung von Doppeleinträgen
-- Verknüpfungstabelle für N:N Beziehungen (aufgaben_tags)
+- **Dashboard-Statistiken**: Überblick über Aufgabenstatus und Prioritäten
+- **Responsive Design**: Mobile-First Ansatz mit Tailwind CSS
+- **Tag-System**: Kategorisierung von Aufgaben  (im Ausbau)
+- **Deadline-Management**: Vorlaufzeit-System für frühzeitige Benachrichtigungen (in Entwicklung)
 
-**Optimierte Default-Strategie (ohne redundante Fallbacks):**
-- **DB-Defaults**: Übernehmen automatisch für INTEGER/BOOLEAN (vorlaufzeit_tage, hat_frist)
-- **Frontend-Fallbacks**: Nur für komplexe Logik (Foreign Key Mapping zu Default-IDs)
-- **Backend-Fallbacks**: Nur für explizite Null-Konvertierung und Frist-Management mit Transaction-Logic
-- **Keine doppelten Fallbacks**: Jeder Default wird nur an einer Stelle definiert
+**Datenbankstruktur:**
+- Normalisierte PostgreSQL-Datenbank
+- Separate Tabellen für Users, Prioritäten, Status und Tags
+- N:N-Beziehungen für flexible Tag-Zuordnung
+- Referenzielle Integrität durch Foreign Key Constraints
 
 ## Datenbestand
 
@@ -146,9 +198,28 @@ Das System enthält ein Initialskript (`initdb.js`) mit umfangreichen Beispielda
 - **13 Tag-Kategorien** für Lebens- und Arbeitsbereiche (Wohnung, Familie, Studium, etc.)
 - **21 Beispiel-Aufgaben** mit realistischen Fristen und Vorlaufzeiten (0-30 Tage)
 
-Vollständige Daten und SQL-Inserts finden sich in `docs/DATABASE-SCHEMA.sql`. Zur automatischen Initialisierung nutze die HTTP-Route `http://localhost:3000/initdb` oder das direkte Script `node backend/initdb.js`.
+Vollständige Daten und SQL-Inserts finden sich in `docs/DATABASE-SCHEMA.sql`. Zur automatischen Initialisierung nutze die HTTP-Route `http://localhost:3000/initdb` bzw. im Deploy https://week-master-api.vercel.app/initdb oder das direkte Script `node backend/initdb.js`.
 
-## Vorlaufzeit-System
+
+**Aktuelle Features:**
+- ✅ Task-Management (CRUD-Operationen)
+- ✅ Dashboard mit Statistiken  
+- ✅ Grid- und Tabellenansicht
+- ✅ Status- und Prioritätsverwaltung
+- ✅ Responsive Design (Mobile/Desktop)
+
+**Geplant:**
+- 🚧 Erweiterte Filter-Möglichkeiten
+- 🚧 Noch schöneres Design
+- 🚧 Barrierefreiheit nach WCAG-Standard
+- 🚧 Benachrichtigungssystem 
+- 🚧 Sonderzeichen-Service
+- 🚧 User-Management
+- 🚧 Deploy als Mobile-App
+- 🚧 Deploy als Mobile-App
+
+
+## Vorlaufzeit-System (in Planung!)
 
 Das System implementiert ein intelligentes Deadline-Management:
 
@@ -161,72 +232,25 @@ Beispiele:
 - Anmeldung VGBK 30.10 + 4 Tage Vorlauf = Erinnerung ab 26.10
 ```
 
-**Dashboard-Funktionen:**
-- Überfällige Aufgaben zeigen
-- "Diese Woche fällig" zeigen
-- Erledigungsquote in Prozent (für Motivation :-D)
-- Prioritäten-Verteilung (Hohe, mittlere, niedrige Prio) als Diagramm
-
-## API Architektur
+## API-Übersicht
 
 **Base URL**: `http://localhost:3000/api`
 
-### Aufgaben (Tasks) - Vollständiges CRUD
-- `GET /tasks` - Alle Aufgaben mit vollständigen Details
-- `GET /tasks/urgent` - Dringende Aufgaben (nächste 7 Tage)
-- `GET /tasks/user/:userId` - Aufgaben nach Benutzer mit Gesamt-Statistiken (erledigte vs. alle Aufgaben)
-- `GET /tasks/tag/:tagId` - Aufgaben nach Tags gefiltert
-- `POST /tasks` - Neue Aufgabe erstellen
-- `PUT /tasks/:id` - Komplette Aufgabe aktualisieren
-- `PATCH /tasks/:id/status` - Nur Status ändern (effizienter weil nur einzelne Änderung)
-- `DELETE /tasks/:id` - Aufgabe löschen
+### Hauptendpunkte
+- **Tasks**: CRUD-Operationen für Aufgabenverwaltung (`/tasks`)
+- **Users**: Benutzerverwaltung (`/users`)  
+- **Tags**: Kategorie-Management (`/tags`)
+- **Dashboard**: Statistiken und Auswertungen (`/dashboard`)
+- **Stammdaten**: Prioritäten und Status (`/priorities`, `/status`)
 
-### Tags - Vollständiges CRUD 
-Hinweis: (Tag=Kategorie, also /tæg/, nicht Tag=day 🙃)
-- `GET /tags` - Alle Tags mit Verwendungsstatistiken (welcher Tag wie oft)
-- `GET /tags/search?q=term` - Tag-Suche mit SQL-Muster-Abgleich 
-- `GET /tags/autocomplete?q=term` - Live-(Autocomplete)-Suche (max 10 Ergebnisse)
-- `POST /tags` - Neuen Tag erstellen (mit Duplikat-Prüfung)
-- `PUT /tags/:id` - Tag bearbeiten (mit Duplikat-Schutz)
-- `DELETE /tags/:id` - Tag löschen (mit Verknüpfungstabellen-Schutz)
+*Vollständige API-Dokumentation verfügbar im Backend-Code (`/routes`)*
 
-### Dashboard - Auswertungen & Statistiken
-- `GET /dashboard/stats` - Verschiedene Statistiken
-- `GET /dashboard/recent` - Kürzlich erstellte Aufgaben
-- `GET /dashboard/priorities` - Prioritäten-Verteilung für Diagramme
+## Sicherheit & Datenqualität
 
-### Referenzdaten (Stammdaten)
-- `GET /users` - Alle Benutzer (für Dropdown-Listen)
-- `GET /priorities` - Alle Prioritätsstufen (für Dropdown-Listen) 
-- `GET /status` - Alle Status-Optionen (für Dropdown-Listen)
-
-## Sicherheitsfeatures
-
-**SQL-Injection Prävention:**
-```javascript
-// Sichere Parameterisierte Abfragen überall
-const result = await client.query(
-    'SELECT * FROM Aufgaben WHERE users_id = $1', 
-    [userId]
-);
-```
-
-**Input-Validierung:**
-```javascript
-// Trim und Validierung für saubere Daten
-if (!beschreibung || !beschreibung.trim()) {
-    return res.status(400).json({ error: 'Beschreibung ist erforderlich' });
-}
-```
-
-**Referenzielle Integrität:**
-```javascript
-// Verknüpfungstabellen-Schutz beim Löschen
-const usageCount = await client.query(
-    'SELECT COUNT(*) FROM aufgaben_tags WHERE tag_id = $1', 
-    [tagId]
-);
-```
+- ✅ **SQL-Injection Schutz** durch parametrisierte Abfragen
+- ✅ **Input-Validierung** für alle API-Endpunkte  
+- ✅ **CORS-Konfiguration** für sichere Frontend-Backend-Kommunikation
+- ✅ **Referenzielle Integrität** durch PostgreSQL Constraints
 
 ## Entwicklungsumgebung einrichten
 
@@ -305,17 +329,34 @@ npm run install:all
 - `npm run install:backend` - Installiert nur Backend Dependencies
 - `npm run install:frontend` - Installiert nur Frontend Dependencies
 
-**URLs:**
+**URLs (Lokal):**
 - **Frontend**: `http://localhost:4200`  
 - **Backend**: `http://localhost:3000`
+
+## Live-Deployment
+
+**Production URLs:**
+- **Frontend**: `https://week-master.vercel.app` 
+- **Backend API**: `https://week-master-api.vercel.app`
+
+**Datenbank-Initialisierung (Live):**
+```bash
+# Datenbank mit Beispieldaten befüllen
+curl https://week-master-api.vercel.app/initdb
+# oder im Browser öffnen: https://week-master-api.vercel.app/initdb
+```
 
 ## Datenbank-Setup
 
 ```bash
 # Option 1: Automatische Initialisierung über HTTP-Route (empfohlen)
-# Backend starten und dann:
+# Lokal (Backend starten und dann):
 curl http://localhost:3000/initdb
 # oder im Browser: http://localhost:3000/initdb
+
+# Production (Live-Deployment):
+curl https://week-master-api.vercel.app/initdb
+# oder im Browser: https://week-master-api.vercel.app/initdb
 
 # Option 2: Direktes Script (alternative)
 node backend/initdb.js
@@ -324,10 +365,40 @@ node backend/initdb.js
 psql -h <db-host> -U <username> -d <database> -f docs/DATABASE-SCHEMA.sql
 ```
 
-## Projektentwicklung
+## Über das Projekt
 
 **HTW Berlin - Webtech Sommersemester 2025**  
-GitHub: [@momoanoW](https://github.com/momoanoW)
+Entwickelt von: [@momoanoW](https://github.com/momoanoW)
+
+*WeekMaster ist ein Lernprojekt im Rahmen des Webentwicklung-Kurses und demonstriert moderne Full-Stack-Entwicklung mit Angular und Node.js.*
+
+
+## Nutzung von AI im Projekt
+**Perplexity (meist GPT-5)** = "Bibliothekar*in"
+- Recherche zu Best Practice Webentwicklung & FullStack-Architektur
+- Recherche zu Best Practice Datenbank aufsetzen
+- Begriffserläuterungen (es sind zu viele um sie hier aufzulisten... die Basics: API, CORS, Proxy, Router, und viel mehr)
+- Recherche zu CSS Frameworks -> so habe ich Tailwind gefunden
+
+
+**GitHub Copilot (meist Claude Sonnet 4)** = "Nachilfelehrer*in"
+- Motivation
+- Logs verstehen in den DevTools und im Terminal
+- Hilfe beim Durchschauen von Tailwind- bzw. CSS-Klassen
+- Vorbereitung für Vercel-Deploy
+- Einrichtung Proxy (-> das war sauschwer)
+- Automatisierte Komponenten-Importe
+- Erste Ideen für diese README
+- Und zuletzt: Aufräumarbeiten (CSS-Klassen komprimieren, Methoden vereinfachen, Fehlersuche)
+
+
+**Gemini 2.5 Pro** = "Mentor*in"
+- Motivation
+- Abwägung, welche meiner Ideen in den Zeitplan passen (zumindest habe ich dadurch einen ersten Überblick bekommen)
+- Hilfe bei Bugs
+- Hilfe bei SQL-Abfragen
+
+
 
 ## Beitragen
 

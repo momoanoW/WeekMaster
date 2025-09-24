@@ -1,8 +1,41 @@
 <app-header></app-header> <!-- eingangsbereich, wird immer angezeigt, egal welche Seite-->
 
-<main class="container mx-auto p-4 min-h-screen"> <!-- Zentriert, mit Padding und Mindesthöhe für Footer am Ende der Seite -->
+<main class="min-h-screen"> <!-- Volle Breite für Router-Outlet -->
   
 <router-outlet></router-outlet> <!-- Platzhalter für geroutete Komponenten -->
 </main>
 
 <app-footer></app-footer> <!-- ausgangsbereich, wird immer angezeigt, egal welche Seite-->
+
+<!-- Globale Dialoge -->
+@if (isDialogOpen) {
+  <app-task-dialog 
+    (close)="closeDialog()" 
+    (taskSaved)="onTaskSaved()">
+  </app-task-dialog>
+}
+
+@if (isBetaDialogOpen) {
+  <app-universal-dialog
+    type="info"
+    title="Coming Soon! 🚀"
+    message="Dieses Feature wird gerade entwickelt und ist bald verfügbar."
+    icon="⚡"
+    [showCancelButton]="false"
+    confirmText="Verstanden"
+    (confirm)="closeBetaDialog()">
+  </app-universal-dialog>
+}
+
+@if (isConfirmDialogOpen && confirmDialogData) {
+  <app-universal-dialog
+    type="warning"
+    title="Task löschen"
+    [message]="'Möchten Sie die Aufgabe \'' + confirmDialogData.taskName + '\' wirklich löschen?'"
+    [showCancelButton]="true"
+    confirmText="Löschen"
+    cancelText="Abbrechen"
+    (confirm)="confirmDeleteTask()"
+    (cancel)="closeConfirmDialog()">
+  </app-universal-dialog>
+}
