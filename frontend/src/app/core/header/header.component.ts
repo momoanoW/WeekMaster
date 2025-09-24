@@ -28,4 +28,8 @@ export class HeaderComponent {
   navigateToDashboard(): void {
     this.router.navigate(['/dashboard']);
   }
+
+  navigateToTables(): void {
+    this.router.navigate(['/tables']);
+  }
 }
