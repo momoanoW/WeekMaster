@@ -1,17 +1,15 @@
 <div class="bg-background border border-border rounded-lg p-4 h-full flex flex-col" *ngIf="task">
   <!-- Card Header -->
   <div class="mb-4">
-    <div class="flex justify-between items-start mb-3">
-      <h3 class="text-lg font-semibold text-text-dark leading-snug flex-1">
+    <div class="flex justify-between items-start gap-3 mb-3">
+      <h3 class="text-lg font-semibold text-text-dark leading-snug flex-1 min-w-0">
         {{ task.beschreibung }}
       </h3>
-      <div class="flex flex-col gap-2 flex-shrink-0 ml-3">
-        <!-- Priority Badge -->
-        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap"
-              [class]="getPriorityClasses(task.prio_name)">
-          {{ task.prio_name }}
-        </span>
-      </div>
+      <!-- Priority Badge - fixed position top right -->
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0"
+            [class]="getPriorityClasses(task.prio_name)">
+        {{ task.prio_name }}
+      </span>
     </div>
 
     <!-- Due Date -->
