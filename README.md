@@ -1,9 +1,48 @@
-# WeekMaster 
+# Willkommen beim WeekMaster 
 
-**Beta Version** - Eine moderne Web-Applikation für intelligente Aufgabenverwaltung mit Angular Frontend und Node.js Backend.
+**Beta Version** - Eine Web-Applikation für intelligente Aufgabenverwaltung mit Angular Frontend und Node.js Backend.
 
 
-> ⚠️ **Hinweis**: Dies ist eine Beta-Version im Rahmen des HTW Berlin Webtech-Kurses. Einige Features befinden sich noch in der Entwicklung.
+> ⚠️ **Hinweis**: Das hier ist eine Beta-Version im Rahmen des HTW Berlin Webtech-Kurses. Einige Features befinden sich noch in der Entwicklung.
+
+
+
+## 📸 Screenshots
+
+### Dashboard-Übersicht
+*Zentrale Statistiken und Aufgabenverteilung*
+
+![Dashboard & Grid View Screenshot](docs/screenshots/dashboard_grid-view.png)
+
+### Tabellen-Ansicht
+*Kompakte Listendarstellung aller Aufgaben*
+
+![Table View Screenshot](docs/screenshots/table-view.png)
+
+### Task-Dialog
+*Neue Aufgabe erstellen mit allen verfügbaren Optionen*
+
+![Task Dialog Screenshot](docs/screenshots/task-dialog.png)
+
+### Dropdown Task-Dialog
+*Filter- und Auswahlmöglichkeiten*
+
+![Mobile Screenshot](docs/screenshots/mobile-view.png)
+
+### Mobile-Ansicht
+*Responsive Design für Smartphones*
+
+![Mobile Screenshot](docs/screenshots/mobile-view-1.png)
+
+### Mobile-Ansicht
+*Responsive Design für Smartphones*
+
+![Mobile Screenshot](docs/screenshots/mobile-view-2.png)
+
+
+
+
+
 
 ## Projektstruktur
 
@@ -306,40 +345,6 @@ npm run install:all
 curl https://week-master-api.vercel.app/initdb
 # oder im Browser öffnen: https://week-master-api.vercel.app/initdb
 ```
-
-## 📸 Screenshots
-
-### Dashboard-Übersicht
-*Zentrale Statistiken und Aufgabenverteilung*
-
-![Dashboard & Grid View Screenshot](docs/screenshots/dashboard_grid-view.png)
-
-### Tabellen-Ansicht
-*Kompakte Listendarstellung aller Aufgaben*
-
-![Table View Screenshot](docs/screenshots/table-view.png)
-
-### Task-Dialog
-*Neue Aufgabe erstellen mit allen verfügbaren Optionen*
-
-![Task Dialog Screenshot](docs/screenshots/task-dialog.png)
-
-### Dropdown Task-Dialog
-*Filter- und Auswahlmöglichkeiten*
-
-![Mobile Screenshot](docs/screenshots/mobile-view.png)
-
-### Mobile-Ansicht
-*Responsive Design für Smartphones*
-
-![Mobile Screenshot](docs/screenshots/mobile-view-1.png)
-
-### Mobile-Ansicht
-*Responsive Design für Smartphones*
-
-![Mobile Screenshot](docs/screenshots/mobile-view-2.png)
-
-
 
 ## Datenbank-Setup
 
