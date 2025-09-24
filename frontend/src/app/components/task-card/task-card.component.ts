@@ -56,4 +56,16 @@ export class TaskCardComponent {
     const diffTime = dueDate.getTime() - today.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }
+
+  /**
+   * CSS-Klassen für Priorität-Badges (gleich wie in TaskDisplay)
+   */
+  getPriorityClasses(priority: string): string {
+    switch (priority) {
+      case 'Hoch': return 'bg-warning text-white';
+      case 'Mittel': return 'bg-accent text-text-dark';
+      case 'Niedrig': return 'bg-gray-100 text-gray-700';
+      default: return 'bg-gray-100 text-gray-700';
+    }
+  }
 }

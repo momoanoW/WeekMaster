@@ -108,6 +108,7 @@ export class TaskDisplayComponent implements OnInit {
   getStatusClasses(status: string): string {
     switch (status) {
       case 'Default': return 'bg-gray-100 text-gray-800';
+      case 'Offen': return 'bg-blue-100 text-blue-800';
       case 'Problem': return 'bg-warning text-white';
       case 'Beobachten': return 'bg-accent text-text-dark';
       case 'Abstimmung nötig': return 'bg-primary text-white';

@@ -17,7 +17,7 @@
   
   <!-- Grid Modus - Task Cards -->
   @else if (mode === 'grid') {
-    <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6 items-start">
+    <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 items-stretch">
       <app-task-card
         *ngFor="let task of tasks; trackBy: trackByTaskId"
         [task]="task"
@@ -81,6 +81,7 @@
                     (change)="onStatusChangeTable($event, task.aufgaben_id)"
                     class="px-2 py-1 rounded border border-border bg-background text-text-dark text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
                     <option value="Default">Default</option>
+                    <option value="Offen">Offen</option>
                     <option value="Problem">Problem</option>
                     <option value="Beobachten">Beobachten</option>
                     <option value="Abstimmung nötig">Abstimmung nötig</option>
