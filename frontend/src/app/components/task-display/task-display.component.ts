@@ -94,6 +94,41 @@ export class TaskDisplayComponent implements OnInit {
   }
 
   /**
+   * Status-Änderung für Table-Modus (anderes Event-Format)
+   */
+  onStatusChangeTable(event: Event, taskId: number): void {
+    const target = event.target as HTMLSelectElement;
+    const newStatus = target.value;
+    this.onStatusChange({ taskId, newStatus });
+  }
+
+  /**
+   * CSS-Klassen für Status-Badges (für Table-Modus)
+   */
+  getStatusClasses(status: string): string {
+    switch (status) {
+      case 'Default': return 'bg-gray-100 text-gray-800';
+      case 'Problem': return 'bg-warning text-white';
+      case 'Beobachten': return 'bg-accent text-text-dark';
+      case 'Abstimmung nötig': return 'bg-primary text-white';
+      case 'Erledigt': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  }
+
+  /**
+   * CSS-Klassen für Priorität-Badges (für Table-Modus)
+   */
+  getPriorityClasses(priority: string): string {
+    switch (priority) {
+      case 'Hoch': return 'bg-warning text-white';
+      case 'Mittel': return 'bg-accent text-text-dark';
+      case 'Niedrig': return 'bg-gray-100 text-gray-700';
+      default: return 'bg-gray-100 text-gray-700';
+    }
+  }
+
+  /**
    * TrackBy function für ngFor Performance
    */
   trackByTaskId(index: number, task: Task): number {
