@@ -8,6 +8,7 @@ import { TaskDialogComponent } from './components/task-dialog/task-dialog.compon
 import { UniversalDialogComponent } from './components/universal-dialog/universal-dialog.component';
 import { CommonModule } from '@angular/common';
 import { DialogService } from './services/dialog.service';
+import { TaskService } from './services/task.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -24,9 +25,14 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'frontend';
   isDialogOpen = false; // Steuert Task-Dialog Anzeige
   isBetaDialogOpen = false; // Steuert Beta-Info Dialog Anzeige
+  isConfirmDialogOpen = false; // Steuert Confirm-Dialog Anzeige
+  confirmDialogData: { taskId: number; taskName: string } | null = null; // Daten für Confirm-Dialog
   private subscription = new Subscription(); // Sammelt alle Event-Subscriptions
 
-  constructor(private dialogService: DialogService) {}
+  constructor(
+    private dialogService: DialogService,
+    private taskService: TaskService
+  ) {}
 
   ngOnInit(): void {
     // Hört auf Header-Button Events vom DialogService
@@ -39,6 +45,13 @@ export class AppComponent implements OnInit, OnDestroy {
     this.subscription.add(
       this.dialogService.betaDialog$.subscribe(() => {
         this.openBetaDialog(); // Beta-Info Dialog öffnen
+      })
+    );
+
+    // Hört auf Confirm-Dialog Events (für Task-Löschung)
+    this.subscription.add(
+      this.dialogService.confirmDialog$.subscribe((data) => {
+        this.openConfirmDialog(data); // Confirm-Dialog öffnen
       })
     );
   }
@@ -63,6 +76,36 @@ export class AppComponent implements OnInit, OnDestroy {
 
   closeBetaDialog(): void {
     this.isBetaDialogOpen = false;
+  }
+
+  // Confirm-Dialog Management (für Task-Löschung)
+  openConfirmDialog(data: { taskId: number; taskName: string }): void {
+    this.confirmDialogData = data;
+    this.isConfirmDialogOpen = true;
+  }
+
+  closeConfirmDialog(): void {
+    this.isConfirmDialogOpen = false;
+    this.confirmDialogData = null;
+  }
+
+  // Task tatsächlich löschen (nach Bestätigung)
+  confirmDeleteTask(): void {
+    if (!this.confirmDialogData) return;
+    
+    const taskId = this.confirmDialogData.taskId;
+    this.taskService.deleteTask(taskId).subscribe({
+      next: () => {
+        console.log('Task erfolgreich gelöscht');
+        this.closeConfirmDialog();
+        this.dialogService.triggerTaskSaved(); // Liste neu laden
+      },
+      error: (error) => {
+        console.error('Fehler beim Löschen:', error);
+        alert('Fehler beim Löschen: ' + (error.error?.error || error.message));
+        this.closeConfirmDialog();
+      }
+    });
   }
 
   // Nach Task-Speicherung: Dialog schließen + andere Komponenten informieren

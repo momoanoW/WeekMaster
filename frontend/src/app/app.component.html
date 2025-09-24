@@ -26,3 +26,16 @@
     (confirm)="closeBetaDialog()">
   </app-universal-dialog>
 }
+
+@if (isConfirmDialogOpen && confirmDialogData) {
+  <app-universal-dialog
+    type="warning"
+    title="Task löschen"
+    [message]="'Möchten Sie die Aufgabe \'' + confirmDialogData.taskName + '\' wirklich löschen?'"
+    [showCancelButton]="true"
+    confirmText="Löschen"
+    cancelText="Abbrechen"
+    (confirm)="confirmDeleteTask()"
+    (cancel)="closeConfirmDialog()">
+  </app-universal-dialog>
+}
