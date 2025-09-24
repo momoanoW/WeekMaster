@@ -1,0 +1,38 @@
+<!-- Task Display - Generische Komponente für Grid und Table -->
+<div class="task-display">
+  
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div class="flex justify-center items-center py-8">
+      <div class="text-text-default">Lade Tasks...</div>
+    </div>
+  }
+  
+  <!-- Keine Tasks -->
+  @else if (tasks.length === 0) {
+    <div class="flex justify-center items-center py-8">
+      <div class="text-text-default">Keine Tasks vorhanden</div>
+    </div>
+  }
+  
+  <!-- Grid Modus - Task Cards -->
+  @else if (mode === 'grid') {
+    <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 md:gap-6 items-start">
+      <app-task-card
+        *ngFor="let task of tasks; trackBy: trackByTaskId"
+        [task]="task"
+        (statusChange)="onStatusChange($event)"
+        (editTask)="onEditTask($event)"
+        (deleteTask)="onDeleteTask($event)">
+      </app-task-card>
+    </div>
+  }
+  
+  <!-- Table Modus - TODO: Wird in Schritt 2 implementiert -->
+  @else if (mode === 'table') {
+    <div class="bg-background border border-border rounded p-4">
+      <div class="text-text-default">Table-Modus wird in Schritt 2 implementiert...</div>
+    </div>
+  }
+  
+</div>
