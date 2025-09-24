@@ -3,8 +3,6 @@
 **Beta Version** - Eine Web-Applikation für intelligente Aufgabenverwaltung mit Angular Frontend und Node.js Backend.
 
 
-> ⚠️ **Hinweis**: Das hier ist eine Beta-Version im Rahmen des HTW Berlin Webtech-Kurses. Einige Features befinden sich noch in der Entwicklung.
-
 
 
 ## 📸 Screenshots
