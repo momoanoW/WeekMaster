@@ -1,5 +1,5 @@
 import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
-import { TaskGridComponent } from '../../components/task-grid/task-grid.component';
+import { TaskDisplayComponent } from '../../components/task-display/task-display.component';
 import { CommonModule } from '@angular/common';
 import { DialogService } from '../../services/dialog.service';
 import { Subscription } from 'rxjs';
@@ -7,11 +7,11 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [TaskGridComponent, CommonModule],
+  imports: [TaskDisplayComponent, CommonModule],
   templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  @ViewChild('taskGrid') taskGrid!: TaskGridComponent;
+  @ViewChild('taskDisplay') taskDisplay!: TaskDisplayComponent;
   private subscription = new Subscription();
 
   constructor(private dialogService: DialogService) {}
@@ -33,7 +33,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // Prüft ob Tasks vorhanden sind
   private sindTasksVorhanden(): boolean {
-    if (this.taskGrid == null || this.taskGrid.tasks == null) {
+    if (this.taskDisplay == null || this.taskDisplay.tasks == null) {
       return false;
     }
     return true;
@@ -54,7 +54,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       return false;
     }
     
-    for (const task of this.taskGrid.tasks) {
+    for (const task of this.taskDisplay.tasks) {
       if (task.prio_name === 'Hoch') {
         return true;
       }
@@ -68,7 +68,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       return false;
     }
     
-    for (const task of this.taskGrid.tasks) {
+    for (const task of this.taskDisplay.tasks) {
       if (task.status_name === 'Erledigt') {
         return true;
       }
@@ -83,7 +83,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     
     let anzahl = 0;
-    for (let task of this.taskGrid.tasks) {
+    for (let task of this.taskDisplay.tasks) {
       if (task.frist_datum != null) {
         const taskDatum = new Date(task.frist_datum);
         if (this.istInNaechsten7Tagen(taskDatum)) {
@@ -101,7 +101,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     
     let erledigtZaehler = 0;
-    for (const task of this.taskGrid.tasks) {
+    for (const task of this.taskDisplay.tasks) {
       if (task.status_name === 'Erledigt') {
         erledigtZaehler++;
       }
@@ -116,7 +116,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     
     let offeneTasksZaehler = 0;
-    for (let task of this.taskGrid.tasks) {
+    for (let task of this.taskDisplay.tasks) {
       // Alle Status außer 'Erledigt' zählen als pending
       if (task.status_name === 'Default' || 
           task.status_name === 'Problem' || 
@@ -135,7 +135,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     
     let anzahl = 0;
-    for (let task of this.taskGrid.tasks) {
+    for (let task of this.taskDisplay.tasks) {
       if (task.prio_name === 'Hoch') {
         anzahl++;
       }
@@ -145,6 +145,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // Task gespeichert - Liste neu laden (wird von globalem Dialog aufgerufen)
   onTaskSaved(): void {
-    this.taskGrid.loadTasks();
+    this.taskDisplay.loadTasks();
   }
 }
