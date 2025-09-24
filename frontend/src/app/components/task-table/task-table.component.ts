@@ -80,6 +80,28 @@ export class TaskTableComponent implements OnInit { //Klasse verspricht Angular:
   editTask(task: Task): void {
     this.editTaskEvent.emit(task);
   }
+
+  // Tailwind-Klassen für Status
+  getStatusClasses(status: string): string {
+    switch (status) {
+      case 'Erledigt': return 'bg-accent text-text-dark';
+      case 'Problem': return 'bg-warning text-text-dark';
+      case 'Default': 
+      case 'Beobachten': 
+      case 'Abstimmung nötig': 
+      default: return 'bg-primary text-text-dark';
+    }
+  }
+
+  // Tailwind-Klassen für Priorität
+  getPriorityClasses(priority: string): string {
+    switch (priority) {
+      case 'Hoch': return 'bg-warning text-text-dark';
+      case 'Mittel': return 'bg-accent text-text-dark';
+      case 'Niedrig': 
+      default: return 'bg-primary text-text-dark';
+    }
+  }
 }
 
 //    = HTML kann jetzt auf Array "tasks" zugreifen = effizient weil Datenbeschaffung über Service nur ein einziges Mal am Anfang passiert, nicht bei jeder Aktualisierung
