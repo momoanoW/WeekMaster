@@ -1,105 +1,150 @@
 import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { TaskTableComponent } from '../../components/task-table/task-table.component'; // TaskTable importieren
-import { TaskDialogComponent } from '../../components/task-dialog/task-dialog.component'; // Dialog für neue Aufgabe importieren
-import { UniversalDialogComponent } from '../../components/universal-dialog/universal-dialog.component'; // Universal Dialog importieren
-import { CommonModule } from '@angular/common'; // 2. CommonModule für @if importieren
+import { TaskGridComponent } from '../../components/task-grid/task-grid.component';
+import { CommonModule } from '@angular/common';
 import { DialogService } from '../../services/dialog.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [TaskTableComponent, TaskDialogComponent, UniversalDialogComponent, CommonModule],
-  templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  imports: [TaskGridComponent, CommonModule],
+  templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-
-  // === COMPONENT REFERENCES ===
-  @ViewChild('taskTable') taskTable!: TaskTableComponent;
-
-  // === DIALOG STATE ===
-  isDialogOpen = false;
-  isBetaDialogOpen = false;
-  isConfirmDialogOpen = false;
-  confirmDialogData: { taskId: number; taskName: string } | null = null;
-
-  // === SUBSCRIPTIONS ===
-  private dialogSubscription!: Subscription;
-  private betaDialogSubscription!: Subscription;
-  private confirmDialogSubscription!: Subscription;
+  @ViewChild('taskGrid') taskGrid!: TaskGridComponent;
+  private subscription = new Subscription();
 
   constructor(private dialogService: DialogService) {}
 
+  
   ngOnInit(): void {
-    // Subscribe auf den Task Dialog Service
-    this.dialogSubscription = this.dialogService.openDialog$.subscribe(() => {
-      this.openDialog();
-    });
-
-    // Subscribe auf den Beta Dialog Service
-    this.betaDialogSubscription = this.dialogService.betaDialog$.subscribe(() => {
-      this.openBetaDialog();
-    });
-
-    // Subscribe auf den Confirm Dialog Service
-    this.confirmDialogSubscription = this.dialogService.confirmDialog$.subscribe((data) => {
-      this.openConfirmDialog(data.taskId, data.taskName);
-    });
+    // Auf Task-Saved Events hören für Grid-Updates
+    this.subscription.add(
+      this.dialogService.taskSaved$.subscribe(() => {
+        console.log('✅ Task-Saved Event empfangen - Dashboard aktualisiert Task-Liste');
+        this.onTaskSaved();
+      })
+    );
   }
 
   ngOnDestroy(): void {
-    // Subscription cleanup
-    if (this.dialogSubscription) {
-      this.dialogSubscription.unsubscribe();
-    }
-    if (this.betaDialogSubscription) {
-      this.betaDialogSubscription.unsubscribe();
-    }
-    if (this.confirmDialogSubscription) {
-      this.confirmDialogSubscription.unsubscribe();
-    }
+    this.subscription.unsubscribe();
   }
 
-  // === TASK DIALOG METHODEN ===
-  openDialog(): void {
-    this.isDialogOpen = true;
+  // Prüft ob Tasks vorhanden sind
+  private sindTasksVorhanden(): boolean {
+    if (this.taskGrid == null || this.taskGrid.tasks == null) {
+      return false;
+    }
+    return true;
   }
 
-  closeDialog(): void {
-    this.isDialogOpen = false;
+  // Prüft ob ein Datum in den nächsten 7 Tagen liegt
+  private istInNaechsten7Tagen(datum: Date): boolean {
+    const heute = new Date();
+    const in7Tagen = new Date();
+    in7Tagen.setDate(heute.getDate() + 7);
+    
+    return datum >= heute && datum <= in7Tagen;
   }
 
+  // Prüft ob Tasks mit hoher Priorität existieren
+  hatHochPrioritaetsTasks(): boolean {
+    if (!this.sindTasksVorhanden()) {
+      return false;
+    }
+    
+    for (const task of this.taskGrid.tasks) {
+      if (task.prio_name === 'Hoch') {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Prüft ob erledigte Tasks existieren
+  hatErledigteTasks(): boolean {
+    if (!this.sindTasksVorhanden()) {
+      return false;
+    }
+    
+    for (const task of this.taskGrid.tasks) {
+      if (task.status_name === 'Erledigt') {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Zählt Tasks mit Frist in den nächsten 7 Tagen
+  getTotalTasks(): number {
+    if (!this.sindTasksVorhanden()) {
+      return 0;
+    }
+    
+    let anzahl = 0;
+    for (let task of this.taskGrid.tasks) {
+      if (task.frist_datum != null) {
+        const taskDatum = new Date(task.frist_datum);
+        if (this.istInNaechsten7Tagen(taskDatum)) {
+          anzahl++;
+        }
+      }
+    }
+    return anzahl;
+  }
+
+  // Zählt alle erledigten Tasks
+  getCompletedTasks(): number {
+    if (!this.sindTasksVorhanden()) {
+      return 0; 
+    }
+    
+    let erledigtZaehler = 0;
+    for (const task of this.taskGrid.tasks) {
+      if (task.status_name === 'Erledigt') {
+        erledigtZaehler++;
+      }
+    }
+    return erledigtZaehler; 
+  }
+
+  // Zählt offene und in Bearbeitung befindliche Tasks
+  getPendingTasks(): number {
+    if (!this.sindTasksVorhanden()) {
+      return 0;
+    }
+    
+    let offeneTasksZaehler = 0;
+    for (let task of this.taskGrid.tasks) {
+      // Alle Status außer 'Erledigt' zählen als pending
+      if (task.status_name === 'Default' || 
+          task.status_name === 'Problem' || 
+          task.status_name === 'Beobachten' || 
+          task.status_name === 'Abstimmung nötig') {
+        offeneTasksZaehler++;
+      }
+    }
+    return offeneTasksZaehler;
+  }
+
+  // Zählt Tasks mit hoher Priorität
+  getHighPriorityTasks(): number {
+    if (!this.sindTasksVorhanden()) {
+      return 0;
+    }
+    
+    let anzahl = 0;
+    for (let task of this.taskGrid.tasks) {
+      if (task.prio_name === 'Hoch') {
+        anzahl++;
+      }
+    }
+    return anzahl;
+  }
+
+  // Task gespeichert - Liste neu laden (wird von globalem Dialog aufgerufen)
   onTaskSaved(): void {
-    this.taskTable.loadTasks(); // Ruft die öffentliche Methode der Kind-Komponente auf
-    this.closeDialog();
-  }
-
-  // === BETA DIALOG METHODEN ===
-  openBetaDialog(): void {
-    this.isBetaDialogOpen = true;
-  }
-
-  closeBetaDialog(): void {
-    this.isBetaDialogOpen = false;
-  }
-
-  // === CONFIRM DIALOG METHODEN ===
-  openConfirmDialog(taskId: number, taskName: string): void {
-    this.confirmDialogData = { taskId, taskName };
-    this.isConfirmDialogOpen = true;
-  }
-
-  closeConfirmDialog(): void {
-    this.isConfirmDialogOpen = false;
-    this.confirmDialogData = null;
-  }
-
-  onConfirmDelete(): void {
-    if (this.confirmDialogData) {
-      // Hier rufen wir die tatsächliche Lösch-Funktion auf
-      this.taskTable.confirmDeleteTask(this.confirmDialogData.taskId);
-      this.closeConfirmDialog();
-    }
+    this.taskGrid.loadTasks();
   }
 }

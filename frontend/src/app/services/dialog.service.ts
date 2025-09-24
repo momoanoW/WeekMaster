@@ -8,11 +8,13 @@ export class DialogService {
   private openDialogSubject = new Subject<void>();
   private betaDialogSubject = new Subject<void>();
   private confirmDialogSubject = new Subject<{ taskId: number; taskName: string }>();
+  private taskSavedSubject = new Subject<void>();
   
   // Observable für andere Komponenten
   openDialog$ = this.openDialogSubject.asObservable();
   betaDialog$ = this.betaDialogSubject.asObservable();
   confirmDialog$ = this.confirmDialogSubject.asObservable();
+  taskSaved$ = this.taskSavedSubject.asObservable();
 
   // Methode um Task-Dialog zu öffnen
   triggerOpenDialog(): void {
@@ -27,5 +29,10 @@ export class DialogService {
   // Methode um Confirm-Dialog zu öffnen
   triggerConfirmDialog(taskId: number, taskName: string): void {
     this.confirmDialogSubject.next({ taskId, taskName });
+  }
+
+  // Methode um Task-Saved Event zu triggern
+  triggerTaskSaved(): void {
+    this.taskSavedSubject.next();
   }
 }

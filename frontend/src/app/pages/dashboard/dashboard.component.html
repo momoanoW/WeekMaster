@@ -1,48 +1,48 @@
-<div class="p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12"> <!-- Responsive Padding: Mobile → Tablet → Desktop → Large → XL -->
-  
-  <!-- Main Content Area mit responsive Grid für zukünftige Erweiterungen -->
-  <div class="grid-responsive-sections">
+<div class="min-h-screen w-full bg-skin">
+  <div class="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
     
-    <!-- Haupt-Inhaltsbereich -->
-    <div class="lg:col-span-2"> <!-- Auf großen Bildschirmen volle Breite -->
-      <app-task-table #taskTable></app-task-table> <!-- Aufruf Eingebettete TaskTable-Komponente -->
+    <!-- Dashboard Header Section -->
+    <div class="mb-8 lg:mb-12 max-w-7xl mx-auto">
+      <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-text-dark mb-3">Dashboard</h2>
+      <p class="text-lg sm:text-xl text-text-default mb-8">Meine Übersicht</p>
     </div>
-    
-    <!-- Platz für zukünftige Sidebar/Widgets (zunächst versteckt) -->
-    <!-- <div class="hidden lg:block">
-      Platz für Statistiken, Filter, etc.
-    </div> -->
-    
+
+    <!-- Stats Cards Section -->
+    <div class="mb-8 lg:mb-12 max-w-7xl mx-auto">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-background border border-border rounded p-3 text-center">
+          <h3 class="text-2xl font-bold text-text-dark">{{getTotalTasks()}}</h3>
+          <p class="text-sm text-text-default">Nächste 7 Tage</p>
+        </div>
+
+        <div class="bg-background border border-border rounded p-3 text-center">
+          <h3 class="text-2xl font-bold text-text-dark">{{getCompletedTasks()}}</h3>
+          <p class="text-sm text-text-default">Erledigt</p>
+        </div>
+
+        <div class="bg-background border border-border rounded p-3 text-center">
+          <h3 class="text-2xl font-bold text-text-dark">{{getPendingTasks()}}</h3>
+          <p class="text-sm text-text-default">Ausstehend</p>
+        </div>
+
+        <div class="bg-background border border-border rounded p-3 text-center">
+          <h3 class="text-2xl font-bold text-text-dark">{{getHighPriorityTasks()}}</h3>
+          <p class="text-sm text-text-default">Hohe Priorität</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Task Table Section -->
+    <div class="relative max-w-7xl mx-auto">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 lg:mb-8 gap-4">
+        <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-text-dark mb-3">Meine Aufgaben</h2>
+
+      </div>
+      
+      <div class="w-full">
+        <app-task-grid #taskGrid></app-task-grid>
+      </div>
+    </div>
   </div>
-
-@if (isDialogOpen) { <!-- Öffne folgende KOmp nur wenn openDialog() geklickt wurde (Bedingte Anzeige)-->
-  <app-task-dialog (close)="closeDialog()" (taskSaved)="onTaskSaved()"></app-task-dialog> <!-- Aufruf Eingebettete TaskDialog-Komponente -->
-}
-
-@if (isBetaDialogOpen) { <!-- Beta-Dialog -->
-  <app-universal-dialog
-    type="info"
-    title="Ohje!"
-    message="Diese Funktion ist leider noch nicht verfügbar."
-    icon="🍋"
-    [showCancelButton]="false"
-    confirmText="Ich kann warten!"
-    (confirm)="closeBetaDialog()">
-  </app-universal-dialog>
-}
-
-@if (isConfirmDialogOpen) { <!-- Confirm-Dialog -->
-  <app-universal-dialog
-    type="danger"
-    title="Aufgabe löschen"
-    message="Möchtest du diese Aufgabe wirklich löschen?"
-    icon="⚠️"
-    confirmText="Löschen"
-    cancelText="Abbrechen"
-    confirmButtonType="danger"
-    (confirm)="onConfirmDelete()"
-    (cancel)="closeConfirmDialog()">
-  </app-universal-dialog>
-}
 
 </div>
