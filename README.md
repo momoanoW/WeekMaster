@@ -2,6 +2,7 @@
 
 **Beta Version** - Eine moderne Web-Applikation für intelligente Aufgabenverwaltung mit Angular Frontend und Node.js Backend.
 
+
 > ⚠️ **Hinweis**: Dies ist eine Beta-Version im Rahmen des HTW Berlin Webtech-Kurses. Einige Features befinden sich noch in der Entwicklung.
 
 ## Projektstruktur
@@ -84,51 +85,51 @@ WeekMaster/
 ```mermaid
 erDiagram
     Users {
-        int users_id PK "SERIAL"
-        varchar users_name "NOT NULL"
+        int users_id PK
+        varchar users_name
     }
     
     Prioritaet {
-        int prio_id PK "SERIAL"
-        varchar prio_name "NOT NULL"
+        int prio_id PK
+        varchar prio_name
     }
     
     Status {
-        int status_id PK "SERIAL"
-        varchar status_name "NOT NULL"
+        int status_id PK
+        varchar status_name
     }
     
     Tags {
-        int tag_id PK "SERIAL"
-        varchar tag_name "NOT NULL"
+        int tag_id PK
+        varchar tag_name
     }
     
     Aufgaben {
-        int aufgaben_id PK "SERIAL"
-        text beschreibung "NOT NULL"
-        boolean hat_frist "NOT NULL DEFAULT false"
-        int vorlaufzeit_tage "NOT NULL DEFAULT 0"
-        int users_id FK "NOT NULL"
-        int prio_id FK "NOT NULL"
-        int status_id FK "NOT NULL"
+        int aufgaben_id PK
+        text beschreibung
+        boolean hat_frist
+        int vorlaufzeit_tage
+        int users_id FK
+        int prio_id FK
+        int status_id FK
     }
     
     Aufgaben_Fristen {
-        int aufgaben_id PK_FK "CASCADE DELETE"
-        date frist_datum "NOT NULL"
+        int aufgaben_id PK
+        date frist_datum
     }
     
     Aufgaben_Tags {
-        int aufgaben_id FK "CASCADE DELETE"
-        int tag_id FK "CASCADE DELETE"
+        int aufgaben_id FK
+        int tag_id FK
     }
 
-    Users ||--o{ Aufgaben : "erstellt"
-    Prioritaet ||--o{ Aufgaben : "hat"
-    Status ||--o{ Aufgaben : "befindet_sich_in"
-    Aufgaben ||--o| Aufgaben_Fristen : "kann_haben"
-    Aufgaben ||--o{ Aufgaben_Tags : "hat"
-    Tags ||--o{ Aufgaben_Tags : "wird_verwendet_in"
+    Users ||--o{ Aufgaben : erstellt
+    Prioritaet ||--o{ Aufgaben : hat
+    Status ||--o{ Aufgaben : befindet_sich_in
+    Aufgaben ||--o| Aufgaben_Fristen : kann_haben
+    Aufgaben ||--o{ Aufgaben_Tags : hat
+    Tags ||--o{ Aufgaben_Tags : wird_verwendet_in
 ```
 
 ## Datenbankdesign
@@ -386,9 +387,10 @@ Entwickelt von: [@momoanoW](https://github.com/momoanoW)
 - Und zuletzt: Aufräumarbeiten (CSS-Klassen komprimieren, Methoden vereinfachen, Fehlersuche)
 
 
-**Gemini 2.5 Pro** = "Tutor*in"
+**Gemini 2.5 Pro** = "Mentor*in"
 - Motivation
 - Abwägung, welche meiner Ideen in den Zeitplan passen (zumindest habe ich dadurch einen ersten Überblick bekommen)
+- Hilfe bei Bugs
 - Hilfe bei SQL-Abfragen
 
 
