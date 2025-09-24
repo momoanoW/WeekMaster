@@ -7,7 +7,7 @@ import { FooterComponent } from './core/footer/footer.component'; // ausgangsber
 import { TaskDialogComponent } from './components/task-dialog/task-dialog.component';
 import { UniversalDialogComponent } from './components/universal-dialog/universal-dialog.component';
 import { CommonModule } from '@angular/common';
-import { DialogService } from './services/dialog.service';
+import { DialogService, DialogEvent, ConfirmDialogData } from './services/dialog.service';
 import { TaskService } from './services/task.service';
 import { Subscription } from 'rxjs';
 
@@ -34,23 +34,23 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Hört auf Header-Button Events vom DialogService
+    // OPTIMIERT: Ein einziger Event-Stream statt 3 separate Subscriptions
     this.subscription.add(
-      this.dialogService.openDialog$.subscribe(() => {
-        this.openDialog(); // Task-Dialog öffnen
-      })
-    );
-
-    this.subscription.add(
-      this.dialogService.betaDialog$.subscribe(() => {
-        this.openBetaDialog(); // Beta-Info Dialog öffnen
-      })
-    );
-
-    // Hört auf Confirm-Dialog Events (für Task-Löschung)
-    this.subscription.add(
-      this.dialogService.confirmDialog$.subscribe((data) => {
-        this.openConfirmDialog(data); // Confirm-Dialog öffnen
+      this.dialogService.dialogEvents$.subscribe((event: DialogEvent) => {
+        switch (event.type) {
+          case 'openTask':
+            this.openDialog();
+            break;
+          case 'beta':
+            this.openBetaDialog();
+            break;
+          case 'confirm':
+            this.openConfirmDialog(event.data as ConfirmDialogData);
+            break;
+          case 'taskSaved':
+            // TaskSaved events werden von Dashboard-Component direkt behandelt
+            break;
+        }
       })
     );
   }
@@ -78,7 +78,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   // Confirm-Dialog Management (für Task-Löschung)
-  openConfirmDialog(data: { taskId: number; taskName: string }): void {
+  openConfirmDialog(data: ConfirmDialogData): void {
     this.confirmDialogData = data;
     this.isConfirmDialogOpen = true;
   }

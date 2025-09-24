@@ -1,38 +1,49 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 
+// Typisierte Dialog-Event-Struktur für bessere Type-Safety
+export type DialogEventType = 'openTask' | 'beta' | 'confirm' | 'taskSaved';
+
+export interface DialogEvent<T = any> {
+  type: DialogEventType;
+  data?: T;
+}
+
+// Spezifische Event-Daten-Typen
+export interface ConfirmDialogData {
+  taskId: number;
+  taskName: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class DialogService {
-  private openDialogSubject = new Subject<void>();
-  private betaDialogSubject = new Subject<void>();
-  private confirmDialogSubject = new Subject<{ taskId: number; taskName: string }>();
-  private taskSavedSubject = new Subject<void>();
+  // OPTIMIERT: Ein einziger Subject für alle Dialog-Events
+  private dialogEvents = new Subject<DialogEvent>();
   
-  // Observable für andere Komponenten
-  openDialog$ = this.openDialogSubject.asObservable();
-  betaDialog$ = this.betaDialogSubject.asObservable();
-  confirmDialog$ = this.confirmDialogSubject.asObservable();
-  taskSaved$ = this.taskSavedSubject.asObservable();
+  // Ein einziges Observable für alle Dialog-Events 
+  dialogEvents$ = this.dialogEvents.asObservable();
 
-  // Methode um Task-Dialog zu öffnen
+  // OPTIMIERT: Eine einheitliche Trigger-Methode für alle Dialog-Typen
+  triggerDialog<T>(type: DialogEventType, data?: T): void {
+    this.dialogEvents.next({ type, data });
+  }
+
+  // Convenience-Methoden für bessere API (optional - können entfernt werden)
   triggerOpenDialog(): void {
-    this.openDialogSubject.next();
+    this.triggerDialog('openTask');
   }
 
-  // Methode um Beta-Dialog zu öffnen
   triggerBetaDialog(): void {
-    this.betaDialogSubject.next();
+    this.triggerDialog('beta');
   }
 
-  // Methode um Confirm-Dialog zu öffnen
   triggerConfirmDialog(taskId: number, taskName: string): void {
-    this.confirmDialogSubject.next({ taskId, taskName });
+    this.triggerDialog('confirm', { taskId, taskName } as ConfirmDialogData);
   }
 
-  // Methode um Task-Saved Event zu triggern
   triggerTaskSaved(): void {
-    this.taskSavedSubject.next();
+    this.triggerDialog('taskSaved');
   }
 }
