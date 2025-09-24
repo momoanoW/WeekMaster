@@ -9,8 +9,7 @@ import { TaskCardComponent } from '../task-card/task-card.component';
   selector: 'app-task-display',
   standalone: true,
   imports: [CommonModule, TaskCardComponent],
-  templateUrl: './task-display.component.html',
-  styleUrl: './task-display.component.css'
+  templateUrl: './task-display.component.html'
 })
 export class TaskDisplayComponent implements OnInit {
   @Input() mode: 'grid' | 'table' = 'grid';

@@ -7,8 +7,7 @@ export type DialogType = 'info' | 'warning' | 'confirm' | 'danger';
   selector: 'app-universal-dialog',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './universal-dialog.component.html',
-  styleUrl: './universal-dialog.component.css'
+  templateUrl: './universal-dialog.component.html'
 })
 export class UniversalDialogComponent {
   

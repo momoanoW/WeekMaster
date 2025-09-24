@@ -10,8 +10,7 @@ import { UniversalDialogComponent } from '../universal-dialog/universal-dialog.c
   selector: 'app-task-dialog',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, UniversalDialogComponent],
-  templateUrl: './task-dialog.component.html',
-  styleUrl: './task-dialog.component.css'
+  templateUrl: './task-dialog.component.html'
 })
 export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (Popup fesnter). Klasse verspricht Angular: Ich besitze eine ngOnInit-Methode
 

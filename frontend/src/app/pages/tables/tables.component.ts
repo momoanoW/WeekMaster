@@ -6,8 +6,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-tables',
   standalone: true,
   imports: [TaskDisplayComponent, CommonModule],
-  templateUrl: './tables.component.html',
-  styleUrl: './tables.component.css'
+  templateUrl: './tables.component.html'
 })
 export class TablesComponent {
   

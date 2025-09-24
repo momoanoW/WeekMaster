@@ -17,8 +17,7 @@ import { Subscription } from 'rxjs';
 
   //Alle Bauteile hier bekannt machen
   imports: [RouterOutlet, HeaderComponent, FooterComponent, TaskDialogComponent, UniversalDialogComponent, CommonModule],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  templateUrl: './app.component.html'
 })
 
 export class AppComponent implements OnInit, OnDestroy {

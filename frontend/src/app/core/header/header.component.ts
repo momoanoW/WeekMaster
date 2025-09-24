@@ -6,8 +6,7 @@ import { DialogService } from '../../services/dialog.service';
   selector: 'app-header',
   standalone: true,
   imports: [],
-  templateUrl: './header.component.html',
-  styleUrl: './header.component.css'
+  templateUrl: './header.component.html'
 })
 export class HeaderComponent {
   constructor(
