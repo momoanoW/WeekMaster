@@ -5,7 +5,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Task } from '../models/task.model';
-import { Observable, of } from 'rxjs'; //für asynchrone Datenströme, z.B. HTTP-Antworten
+import { Observable, of, forkJoin } from 'rxjs'; //für asynchrone Datenströme, z.B. HTTP-Antworten
 import { environment } from '../../environments/environment';
 
 @Injectable({ //kennzeichnet diese Klasse als Service, damit ganze App darauf zugreifen kann
@@ -58,6 +58,26 @@ export class TaskService { //Service-Klasse (importierbar wegen "export")
   // READ Tags für Mehrfachauswahl in Dialog
   getTags(): Observable<any[]> {
     return this.http.get<any[]>(`${this.base}/tags`);
+  }
+
+  // READ Priorities für Dropdown
+  getPriorities(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/priorities`);
+  }
+
+  // READ Status für Dropdown  
+  getStatus(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/status`);
+  }
+
+  // OPTIMIERT: Alle Dialog-Daten in einem einzigen Call (forkJoin)
+  getDialogData(): Observable<{users: any[], priorities: any[], status: any[], tags: any[]}> {
+    return forkJoin({  // forkJoin = wartet bis ALLE 4 HTTP-Calls fertig sind, dann gibt es alle Ergebnisse gleichzeitig zurück
+      users: this.getUsers(),        // statt 4 separate subscribe() → nur 1 subscribe() im TaskDialog
+      priorities: this.getPriorities(),
+      status: this.getStatus(), 
+      tags: this.getTags()
+    });
   }
 
   // NEUE AUFGABE HINZUFÜGEN - send full form values matching backend

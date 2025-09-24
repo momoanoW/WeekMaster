@@ -17,10 +17,12 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
   @Output() close = new EventEmitter<void>(); // =Ereignis mit Namen "close"-> sagt Elternkomponente Bescheid, dass der Dialog geschlossen werden soll
   @Output() taskSaved = new EventEmitter<void>(); // Ereignis, um Elternkomponente zu informieren, dass eine neue Aufgabe erstellt wurde
 
-  // NEUE EIGENSCHAFT: Liste aller verfügbaren User für das Dropdown
+  // Dialog-Daten für Dropdowns und Checkboxen
   users: any[] = [];
+  priorities: any[] = [];
+  statusOptions: any[] = [];
+  tags: any[] = [];
   taskForm: FormGroup; // in "taskForm" wird das gesamte Formular-Modell aus den nächsten Schritten gespeichert
-  tags: any[] = []; // Liste aller verfügbaren Tags für Mehrfachauswahl
   confirmationMessage: string | null = null; // Bestätigungsmeldung nach Speichern
   showConfirmDialog: boolean = false; // Steuert Anzeige des Custom Confirm Dialogs
 
@@ -41,33 +43,28 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
 
    //passiert direkt nach Build
   ngOnInit(): void { 
-    // User-Liste beim Initialisieren laden
-    this.loadUsers();
-    // Tag-Liste beim Initialisieren laden
-    this.loadTags();
+    // OPTIMIERT: Alle Dialog-Daten in einem einzigen Call laden (forkJoin)
+    this.loadDialogData();
   }
 
-  //  User-Liste für Dropdown laden
-  private loadUsers(): void {
-    this.taskService.getUsers().subscribe({ // subscribe() abonniert den Datenstrom
-      next: (users) => { // sobald Daten eintreffen (users), fülle meine öffentliche 'users' Array-Variable damit."
-        this.users = users; 
-        console.log('Users für Dropdown geladen:', this.users); 
+  // OPTIMIERT: Alle Dialog-Daten gleichzeitig laden statt 4 separate HTTP-Calls
+  private loadDialogData(): void {
+    this.taskService.getDialogData().subscribe({
+      next: (data) => {
+        this.users = data.users;
+        this.priorities = data.priorities;
+        this.statusOptions = data.status;
+        this.tags = data.tags;
+        console.log('✅ Alle Dialog-Daten geladen:', data);
       },
       error: (error) => {
-        console.error('Fehler beim Laden der Users für Dropdown:', error);
+        console.error('❌ Fehler beim Laden der Dialog-Daten:', error);
+        // Fallback: Leere Arrays setzen, damit UI nicht bricht
+        this.users = [];
+        this.priorities = [];
+        this.statusOptions = [];
+        this.tags = [];
       }
-    });
-  }
-
-  //  Tags für Mehrfachauswahl laden
-  private loadTags(): void {
-    this.taskService.getTags().subscribe({
-      next: (tags) => {
-        this.tags = tags;
-        console.log('Tags für Checkboxen geladen:', this.tags);
-      },
-      error: (error) => console.error('Fehler beim Laden der Tags:', error)
     });
   }
 
