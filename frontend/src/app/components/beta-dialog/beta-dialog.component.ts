@@ -8,8 +8,11 @@ import { Component, Output, EventEmitter } from '@angular/core';
   styleUrl: './beta-dialog.component.css'
 })
 export class BetaDialogComponent {
+  
+  // Event-Emitter für das Schließen des Dialogs
   @Output() close = new EventEmitter<void>();
 
+  // Dialog schließen
   closeDialog(): void {
     this.close.emit();
   }
