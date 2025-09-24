@@ -3,8 +3,6 @@
 **Beta Version** - Eine Web-Applikation für intelligente Aufgabenverwaltung mit Angular Frontend und Node.js Backend.
 
 
-
-
 ## 📸 Screenshots
 
 ### Dashboard-Übersicht
