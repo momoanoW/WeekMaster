@@ -93,7 +93,7 @@ export class TaskDialogComponent implements OnInit { // Komp für einen Dialog (
       console.log('Formular abgeschickt:', formValue); // Bestätigung für korrekte Usereingabe
       
       this.taskService.createTask(formValue).subscribe({
-        next: (response) => {
+        next: (response) => {//danach kommt Antwort vom Server zurück
           console.log('Aufgabe erfolgreich erstellt:', response); // Bestätigung für erfolgreiche Speicherung
           this.confirmationMessage = 'Aufgabe wurde erfolgreich hinzugefügt. 📌';
           // Nach kurzer Anzeige automatisch schließen
